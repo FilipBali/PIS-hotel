@@ -4,7 +4,11 @@ import javax.persistence.*;
 import java.time.LocalDate;
 
 @Entity
-@Table
+@Table(
+        uniqueConstraints = {
+                @UniqueConstraint(name = "user_email_unique", columnNames = "email")
+        }
+)
 public class UserDO {
 
     @Id
@@ -18,12 +22,54 @@ public class UserDO {
             generator = "user_sequence"
     )
     private Long id;
+
+    @Column(
+            name = "first_name",
+            nullable = false,
+            columnDefinition = "TEXT"
+    )
     private String firstName;
+
+    @Column(
+            name = "last_name",
+            nullable = false,
+            columnDefinition = "TEXT"
+    )
     private String lastName;
+
+
+    @Column(
+            name = "date_of_birth",
+            nullable = false
+    )
     private LocalDate dateOfBirth;
+
+    @Column(
+            name = "address",
+            nullable = false,
+            columnDefinition = "TEXT"
+    )
     private String address;
+
+    @Column(
+            name = "id_number",
+            nullable = false,
+            columnDefinition = "TEXT"
+    )
     private String idNumber;
+
+    @Column(
+            name = "phone_number",
+            nullable = false,
+            columnDefinition = "TEXT"
+    )
     private String phoneNumber;
+
+    @Column(
+            name = "email",
+            nullable = false,
+            columnDefinition = "TEXT"
+    )
     private String email;
 
     public UserDO(String firstName, String lastName, LocalDate dateOfBirth, String address, String idNumber, String phoneNumber, String email) {
