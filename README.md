@@ -3,7 +3,7 @@
 ## Set up & installation
 
 1. Download IntelliJ (recommended)
-2. Import project from gitlab
+2. Import project from github
 3. Download and add jdk17
 4. Download and create database postgresql:
 
