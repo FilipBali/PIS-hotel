@@ -5,7 +5,7 @@ import com.fit.vut.pis_hotel.domain.stay.enums.PaymentTypeEnum;
 import com.fit.vut.pis_hotel.domain.stay.enums.StayStateEnum;
 import com.fit.vut.pis_hotel.domain.user.UserDO;
 import com.fit.vut.pis_hotel.domain.user.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -14,16 +14,12 @@ import java.util.List;
 import java.util.Objects;
 
 @Service
+@RequiredArgsConstructor
 public class StayService {
 
-    StayRepository stayRepository;
-    UserRepository userRepository;
+    private final StayRepository stayRepository;
+    private final UserRepository userRepository;
 
-    @Autowired
-    public StayService(StayRepository stayRepository, UserRepository userRepository) {
-        this.stayRepository = stayRepository;
-        this.userRepository = userRepository;
-    }
 
     public List<StayDO> getStays() {
         return stayRepository.findAll();

@@ -1,21 +1,38 @@
 package com.fit.vut.pis_hotel.domain.user;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 @Service
-public class UserService {
+@RequiredArgsConstructor
+@Slf4j
+public class UserService implements UserDetailsService {
 
-    UserRepository userRepository;
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    @Autowired
-    public UserService(UserRepository userRepository) {
-        this.userRepository = userRepository;
+    @Override
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        UserDO user = userRepository.findUserByEmail(email)
+                .orElseThrow(() -> new IllegalStateException("User with email: " + email + "does not exist."));
+        log.info("User found in DB.");
+        Collection<SimpleGrantedAuthority> authorities = new ArrayList<>();
+        user.getRoles().forEach(roleDO -> authorities.add(new SimpleGrantedAuthority(roleDO.getName())));
+        return new org.springframework.security.core.userdetails.User(user.getEmail(), user.getPassword(), authorities);
+    }
+
+    public UserDO getUserByEmail(String email) {
+        return userRepository.findUserByEmail(email)
+                .orElseThrow(() -> new IllegalStateException("User with email: " + email + "does not exist."));
     }
 
     public List<UserDO> getUsers() {
@@ -31,14 +48,15 @@ public class UserService {
         if (isEmailTaken(user.getEmail())) {
             throw new IllegalStateException("email taken");
         }
+        log.info("Creating user: " + user.getFirstName() + " " + user.getLastName() + "with id: " + user.getId());
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         userRepository.save(user);
-
-
     }
 
     public void deleteStudent(Long id) {
         boolean exists = userRepository.existsById(id);
         if (exists) {
+            log.info("Deleting user with id: " + id);
             userRepository.deleteById(id);
         } else {
             throw new IllegalStateException("User does not exist.");
