@@ -53,7 +53,7 @@ public class UserService implements UserDetailsService {
         userRepository.save(user);
     }
 
-    public void deleteStudent(Long id) {
+    public void deleteUser(Long id) {
         boolean exists = userRepository.existsById(id);
         if (exists) {
             log.info("Deleting user with id: " + id);
