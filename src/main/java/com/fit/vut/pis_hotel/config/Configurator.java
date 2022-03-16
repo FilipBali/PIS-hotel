@@ -2,6 +2,8 @@ package com.fit.vut.pis_hotel.config;
 
 import com.fit.vut.pis_hotel.domain.role.RoleDO;
 import com.fit.vut.pis_hotel.domain.role.RoleService;
+import com.fit.vut.pis_hotel.domain.room.RoomDO;
+import com.fit.vut.pis_hotel.domain.room.RoomRepository;
 import com.fit.vut.pis_hotel.domain.stay.StayDO;
 import com.fit.vut.pis_hotel.domain.stay.StayDTO;
 import com.fit.vut.pis_hotel.domain.stay.StayRepository;
@@ -30,7 +32,7 @@ public class Configurator {
     }
 
     @Bean
-    CommandLineRunner commandLineRunner(UserService userService, StayRepository stayRepository, RoleService roleService, StayService stayService) {
+    CommandLineRunner commandLineRunner(UserService userService, StayRepository stayRepository, RoleService roleService, StayService stayService, RoomRepository roomRepository) {
         return args -> {
             UserDO karol = new UserDO(
                     "Karol",
@@ -92,6 +94,28 @@ public class Configurator {
 
             roleService.addRoleToUser(1L, "ROLE_USER");
             roleService.addRoleToUser(2L, "ROLE_ADMIN");
+
+            RoomDO room = new RoomDO(
+                    1,
+                    2
+            );
+
+            RoomDO room2 = new RoomDO(
+                    2,
+                    4
+            );
+
+            RoomDO room3 = new RoomDO(
+                    3,
+                    2
+            );
+
+            RoomDO room4 = new RoomDO(
+                    4,
+                    4
+            );
+
+            roomRepository.saveAll(List.of(room, room2, room3, room4));
 
         };
     }
