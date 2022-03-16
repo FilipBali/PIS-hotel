@@ -30,25 +30,43 @@
    - `http://localhost:8080/api/user/`
    Expected result:
 
-   ```json
+ ```json
    [
-    {
+      {
+        "id": 1,
         "firstName": "Karol",
         "lastName": "Fit",
         "dateOfBirth": "1998-06-22",
         "address": "Bozetechova 2, Brno, CZ",
         "idNumber": "E50241578",
         "phoneNumber": "00420412345656",
-        "email": "karol.fit@vut.cz"
-   }, 
-   {
+        "email": "karol.fit@vut.cz",
+        "password": "$2a$10$ltEyfTUavvzjTb4JVmW.p.2VIaXmbsM74ORorEDJnwRn6Minzi0ZG",
+        "roles": [
+          {
+            "id": 1,
+            "name": "ROLE_USER"
+          }
+        ]
+      },
+
+      {
+        "id": 2,
         "firstName": "admin",
         "lastName": "admin",
         "dateOfBirth": "2000-06-20",
         "address": "Bozetechova 2, Brno, CZ",
         "idNumber": "E50241541",
         "phoneNumber": "00420659345656",
-        "email": "admin.fit@vut.cz"
-    } 
+        "email": "admin.fit@vut.cz",
+        "password": "$2a$10$xFo4f4IneGvogEA6cpUoN.3NiwhldrObWESeGdXK9W3tKtiBINK9.",
+        "roles": [
+          {
+            "id": 2,
+            "name": "ROLE_ADMIN"
+          }
+        ]
+      }
    ]
    ```
+
