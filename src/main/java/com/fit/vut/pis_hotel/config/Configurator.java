@@ -4,6 +4,9 @@ import com.fit.vut.pis_hotel.domain.role.RoleDO;
 import com.fit.vut.pis_hotel.domain.role.RoleService;
 import com.fit.vut.pis_hotel.domain.room.RoomDO;
 import com.fit.vut.pis_hotel.domain.room.RoomRepository;
+import com.fit.vut.pis_hotel.domain.roomCategory.RoomCategoryDO;
+import com.fit.vut.pis_hotel.domain.roomCategory.RoomCategoryRepository;
+import com.fit.vut.pis_hotel.domain.roomCategory.enums.RoomTypeEnum;
 import com.fit.vut.pis_hotel.domain.stay.StayDO;
 import com.fit.vut.pis_hotel.domain.stay.StayDTO;
 import com.fit.vut.pis_hotel.domain.stay.StayRepository;
@@ -32,7 +35,8 @@ public class Configurator {
     }
 
     @Bean
-    CommandLineRunner commandLineRunner(UserService userService, StayRepository stayRepository, RoleService roleService, StayService stayService, RoomRepository roomRepository) {
+    CommandLineRunner commandLineRunner(UserService userService, StayRepository stayRepository, RoleService roleService,
+                                        StayService stayService, RoomRepository roomRepository, RoomCategoryRepository roomCategoryRepository) {
         return args -> {
             UserDO karol = new UserDO(
                     "Karol",
@@ -95,24 +99,53 @@ public class Configurator {
             roleService.addRoleToUser(1L, "ROLE_USER");
             roleService.addRoleToUser(2L, "ROLE_ADMIN");
 
+            RoomCategoryDO cat_s = new RoomCategoryDO(
+                    RoomTypeEnum.STANDARD,
+                    "posteľ, nočný stolík, skriňa, písací stôl, zrkadlo a vešiaková stena, kúpelňa, TV, telefón, WIFI",
+                    44.25
+
+            );
+
+            RoomCategoryDO cat_a = new RoomCategoryDO(
+                    RoomTypeEnum.APARTMENT,
+                    "posteľ, nočný stolík, skriňa, písací stôl, zrkadlo a vešiaková stena, väčšia kúpeľňa, TV," +
+                            "telefón, WIFI, kuchynský kút, riady a príbor, izba pre deti",
+                    78.45
+
+            );
+
+            RoomCategoryDO cat_l = new RoomCategoryDO(
+                    RoomTypeEnum.LUXURY,
+                    "posteľ, nočný stolík, skriňa, písací stôl, zrkadlo a vešiaková stena, väčšia kúpeľňa s výrivkou, TV," +
+                            "telefón, WIFI, kuchynský kút, riady a príbor, bar, stolný futbal, izba pre deti",
+                    102.50
+
+            );
+
+            roomCategoryRepository.saveAll(List.of(cat_s, cat_a, cat_l));
+
             RoomDO room = new RoomDO(
                     1,
-                    2
+                    2,
+                    cat_s
             );
 
             RoomDO room2 = new RoomDO(
                     2,
-                    4
+                    4,
+                    cat_s
             );
 
             RoomDO room3 = new RoomDO(
                     3,
-                    2
+                    2,
+                    cat_a
             );
 
             RoomDO room4 = new RoomDO(
                     4,
-                    4
+                    4,
+                    cat_l
             );
 
             roomRepository.saveAll(List.of(room, room2, room3, room4));

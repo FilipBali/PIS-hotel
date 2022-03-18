@@ -1,6 +1,8 @@
 package com.fit.vut.pis_hotel.domain.room;
 
 import com.fit.vut.pis_hotel.domain.room.enums.RoomStateEnum;
+import com.fit.vut.pis_hotel.domain.roomCategory.RoomCategoryDO;
+import com.fit.vut.pis_hotel.domain.roomCategory.RoomCategoryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -13,7 +15,7 @@ import java.util.Objects;
 public class RoomService {
 
     private final RoomRepository roomRepository;
-
+    private RoomCategoryRepository roomCategoryRepository;
 
     public List<RoomDO> getRooms() {
         return roomRepository.findAll();
@@ -36,10 +38,10 @@ public class RoomService {
     }
 
     @Transactional
-    public void updateRoom(Long id, Integer roomNumber, RoomStateEnum state, Integer bedsNum) {
+    public void updateRoom(Long id, Integer roomNumber, RoomStateEnum state, Integer bedsNum, RoomCategoryDO roomCategory) {
 
         RoomDO room = roomRepository.findById(id)
-                .orElseThrow(() -> new IllegalStateException("Stay with id: " + id + "does not exist."));
+                .orElseThrow(() -> new IllegalStateException("Room with id: " + id + "does not exist."));
 
         if (isIntegerValid(roomNumber, room.getRoomNumber())) {
             room.setRoomNumber(roomNumber);
@@ -51,6 +53,13 @@ public class RoomService {
 
         if (isIntegerValid(bedsNum, room.getBedsNum())) {
             room.setBedsNum(bedsNum);
+        }
+
+        if (roomCategory != null) {
+            boolean cat_exists = roomCategoryRepository.existsById(roomCategory.getId());
+            if (cat_exists) {
+                room.setRoomCategory(roomCategory);
+            }
         }
 
     }
