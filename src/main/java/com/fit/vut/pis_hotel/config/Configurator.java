@@ -175,6 +175,10 @@ public class Configurator {
 
             RoleDO roleUser = roleService.saveRole(new RoleDO("ROLE_USER"));
             RoleDO roleAdmin = roleService.saveRole(new RoleDO("ROLE_ADMIN"));
+            RoleDO roleReceptionist = roleService.saveRole(new RoleDO("ROLE_RECEPTIONIST"));
+            RoleDO roleCook = roleService.saveRole(new RoleDO("ROLE_COOK"));
+            RoleDO roleMasseur = roleService.saveRole(new RoleDO("ROLE_MASSEUR"));
+            RoleDO roleBowling = roleService.saveRole(new RoleDO("ROLE_BOWLING"));
 
             roleService.addRoleToUser(1L, "ROLE_USER");
             roleService.addRoleToUser(2L, "ROLE_ADMIN");
