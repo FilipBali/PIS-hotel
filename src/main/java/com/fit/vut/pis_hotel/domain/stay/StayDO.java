@@ -5,7 +5,7 @@ import com.fit.vut.pis_hotel.domain.host.HostDO;
 import com.fit.vut.pis_hotel.domain.room.RoomDO;
 import com.fit.vut.pis_hotel.domain.stay.enums.BoardTypeEnum;
 import com.fit.vut.pis_hotel.domain.stay.enums.PaymentTypeEnum;
-import com.fit.vut.pis_hotel.domain.stay.enums.StayStateEnum;
+import com.fit.vut.pis_hotel.domain.stay.enums.StateEnum;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -59,7 +59,7 @@ public class StayDO {
             name = "state",
             nullable = false
     )
-    private StayStateEnum state;
+    private StateEnum state;
 
     @Enumerated(EnumType.STRING)
     @Column(
@@ -88,7 +88,7 @@ public class StayDO {
     @JsonIgnore
     private List<RoomDO> rooms;
 
-    public StayDO(Integer accommodatedNumber, LocalDate dateFrom, LocalDate dateTo, StayStateEnum state, BoardTypeEnum boardType, HostDO stayCreator, PaymentTypeEnum paymentType, List<RoomDO> rooms) {
+    public StayDO(Integer accommodatedNumber, LocalDate dateFrom, LocalDate dateTo, StateEnum state, BoardTypeEnum boardType, HostDO stayCreator, PaymentTypeEnum paymentType, List<RoomDO> rooms) {
         this.accommodatedNumber = accommodatedNumber;
         this.dateFrom = dateFrom;
         this.dateTo = dateTo;

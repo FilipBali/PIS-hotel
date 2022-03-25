@@ -15,7 +15,10 @@ import com.fit.vut.pis_hotel.domain.stay.StayRepository;
 import com.fit.vut.pis_hotel.domain.stay.StayService;
 import com.fit.vut.pis_hotel.domain.stay.enums.BoardTypeEnum;
 import com.fit.vut.pis_hotel.domain.stay.enums.PaymentTypeEnum;
-import com.fit.vut.pis_hotel.domain.stay.enums.StayStateEnum;
+import com.fit.vut.pis_hotel.domain.stay.enums.StateEnum;
+import com.fit.vut.pis_hotel.domain.stay.service.ServiceDO;
+import com.fit.vut.pis_hotel.domain.stay.service.ServiceDTO;
+import com.fit.vut.pis_hotel.domain.stay.service.enums.ServiceTypeEnum;
 import com.fit.vut.pis_hotel.domain.user.UserDO;
 import com.fit.vut.pis_hotel.domain.user.UserService;
 import org.springframework.boot.CommandLineRunner;
@@ -25,6 +28,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.Month;
 import java.util.List;
 
@@ -142,7 +146,7 @@ public class Configurator {
                     4,
                     LocalDate.of(2022, Month.FEBRUARY, 26),
                     LocalDate.of(2022, Month.MARCH, 1),
-                    StayStateEnum.RESERVED,
+                    StateEnum.RESERVED,
                     BoardTypeEnum.FULLBOARD,
                     host1,
                     PaymentTypeEnum.CARD,
@@ -150,9 +154,9 @@ public class Configurator {
             );
             StayDO stay2 = new StayDO(
                     2,
-                    LocalDate.of(2022, Month.FEBRUARY, 22),
-                    LocalDate.of(2022, Month.FEBRUARY, 23),
-                    StayStateEnum.CANCELED,
+                    LocalDate.of(2022, Month.MARCH, 22),
+                    LocalDate.of(2022, Month.MARCH, 23),
+                    StateEnum.CANCELED,
                     BoardTypeEnum.HALFBOARD,
                     host2,
                     PaymentTypeEnum.CASH,
@@ -164,7 +168,7 @@ public class Configurator {
                     4,
                     LocalDate.of(2022, Month.FEBRUARY, 26),
                     LocalDate.of(2022, Month.MARCH, 1),
-                    StayStateEnum.RESERVED,
+                    StateEnum.RESERVED,
                     BoardTypeEnum.FULLBOARD,
                     host1.getId(),
                     PaymentTypeEnum.CARD,
@@ -183,6 +187,28 @@ public class Configurator {
             roleService.addRoleToUser(1L, "ROLE_USER");
             roleService.addRoleToUser(2L, "ROLE_ADMIN");
 
+            ServiceDO service1 = new ServiceDO(
+                    LocalDateTime.of(2022, Month.FEBRUARY, 27, 14, 30),
+                    LocalDateTime.of(2022, Month.FEBRUARY, 27, 15, 30),
+                    ServiceTypeEnum.BOWLING,
+                    PaymentTypeEnum.CARD,
+                    1,
+                    StateEnum.RESERVED,
+                    stay
+            );
+
+            ServiceDTO serviceDTO2 = new ServiceDTO(
+                    LocalDateTime.of(2022, Month.MARCH, 22, 14, 30),
+                    LocalDateTime.of(2022, Month.MARCH, 22, 15, 30),
+                    ServiceTypeEnum.MASSAGE,
+                    PaymentTypeEnum.CASH,
+                    null,
+                    StateEnum.RESERVED,
+                    2L
+            );
+
+            stayService.createService(service1);
+            stayService.createAndAssignService(serviceDTO2);
         };
     }
 }
