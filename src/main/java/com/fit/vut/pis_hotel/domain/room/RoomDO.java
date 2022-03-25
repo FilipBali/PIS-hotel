@@ -2,11 +2,15 @@ package com.fit.vut.pis_hotel.domain.room;
 
 import com.fit.vut.pis_hotel.domain.room.enums.RoomStateEnum;
 import com.fit.vut.pis_hotel.domain.roomCategory.RoomCategoryDO;
+import com.fit.vut.pis_hotel.domain.stay.StayDO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
+import java.util.List;
 
 @Entity
 @Data
@@ -49,6 +53,10 @@ public class RoomDO {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "FK_RoomCategory", referencedColumnName = "id")
     private RoomCategoryDO roomCategory;
+
+    @ManyToMany(mappedBy = "rooms")
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private List<StayDO> stays;
 
     public RoomDO(Integer roomNumber, Integer bedsNum, RoomCategoryDO roomCategory) {
         this.roomNumber = roomNumber;
