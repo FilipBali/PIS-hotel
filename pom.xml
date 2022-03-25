@@ -98,7 +98,7 @@
 							<outputDirectory>${basedir}/target/classes/static/</outputDirectory>
 							<resources>
 								<resource>
-									<directory>${basedir}/src/frontend/build</directory>
+									<directory>${basedir}/src/frontend/dist</directory>
 								</resource>
 							</resources>
 						</configuration>

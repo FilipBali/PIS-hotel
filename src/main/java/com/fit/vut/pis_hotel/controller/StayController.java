@@ -33,6 +33,16 @@ public class StayController {
         return stayService.getStay(id);
     }
 
+    @GetMapping(value = "/simple/{id}")
+    public StayDTO getSimpleStay(@PathVariable("id") Long id) {
+        return stayService.getSimpleStay(id);
+    }
+
+    @GetMapping(value = "/simple")
+    public List<StayDTO> getSimpleStays() {
+        return stayService.getSimpleStays();
+    }
+
     @PostMapping
     public void createStay(@RequestBody StayDO stay) {
         stayService.createStay(stay);

@@ -23,7 +23,7 @@ public class RoomService {
 
     public RoomDO getRoom(Long id) {
         return roomRepository.findById(id)
-                .orElseThrow(() -> new IllegalStateException("Room with id: " + id + "does not exist."));
+                .orElseThrow(() -> new IllegalStateException("Room with id: " + id + " does not exist."));
     }
 
     public void createRoom(RoomDO room) {roomRepository.save(room); }
@@ -41,7 +41,7 @@ public class RoomService {
     public void updateRoom(Long id, Integer roomNumber, RoomStateEnum state, Integer bedsNum, RoomCategoryDO roomCategory) {
 
         RoomDO room = roomRepository.findById(id)
-                .orElseThrow(() -> new IllegalStateException("Room with id: " + id + "does not exist."));
+                .orElseThrow(() -> new IllegalStateException("Room with id: " + id + " does not exist."));
 
         if (isIntegerValid(roomNumber, room.getRoomNumber())) {
             room.setRoomNumber(roomNumber);
