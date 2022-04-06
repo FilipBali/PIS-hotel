@@ -1,19 +1,15 @@
 <template>
   <v-card>
     <v-card-title primary-title>
-      Zoznam izieb
-      <v-spacer></v-spacer
-      ><v-text-field
-        v-model="search"
-        append-icon="mdi-magnify"
-        label="Hľadať"
-        single-line
-        hide-details
-      ></v-text-field>
-      <v-btn class="ml-8" color="secondary" @click="newRoom">
-        Pridať izbu
-      </v-btn>
-    </v-card-title>
+      Zoznam izieb <v-spacer></v-spacer
+    ><v-text-field
+      v-model="search"
+      append-icon="mdi-magnify"
+      label="Hľadať"
+      single-line
+      hide-details
+    ></v-text-field>
+      </v-card-title>
     <v-card-text>
       <v-data-table :headers="headers" :items="rooms" :search="search" flat>
         <template v-slot:item.state="{ item }">
@@ -26,12 +22,12 @@
           <v-icon small @click="deleteUser(item.id)"> mdi-delete </v-icon>
         </template>
       </v-data-table>
-      <admin-rooms-edit-dialog
+      <receptionist-rooms-edit-dialog
         :isNewRoom="newRoomDialog"
         :dialog="dialogController"
         :room="dialogRoom"
         @close-dialog="closeDialog"
-      ></admin-rooms-edit-dialog>
+      ></receptionist-rooms-edit-dialog>
     </v-card-text>
   </v-card>
 </template>
