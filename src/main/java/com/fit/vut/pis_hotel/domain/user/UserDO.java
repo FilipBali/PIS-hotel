@@ -62,13 +62,6 @@ public class UserDO {
     private String address;
 
     @Column(
-            name = "id_number",
-            nullable = false,
-            columnDefinition = "TEXT"
-    )
-    private String idNumber;
-
-    @Column(
             name = "phone_number",
             nullable = false,
             columnDefinition = "TEXT"
@@ -92,7 +85,6 @@ public class UserDO {
         this.lastName = lastName;
         this.dateOfBirth = dateOfBirth;
         this.address = address;
-        this.idNumber = idNumber;
         this.phoneNumber = phoneNumber;
         this.email = email;
         this.password = password;
