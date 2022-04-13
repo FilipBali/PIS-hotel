@@ -11,17 +11,24 @@
     ></v-text-field>
       </v-card-title>
     <v-card-text>
-      <v-data-table :headers="headers" :items="rooms" :search="search" flat>
-        <template v-slot:item.state="{ item }">
-          {{ roomState(item.state) }}</template
-        >
-        <template v-slot:item.actions="{ item }">
-          <v-icon small class="mr-2" @click="editUser(item)">
-            mdi-pencil
-          </v-icon>
-          <v-icon small @click="deleteUser(item.id)"> mdi-delete </v-icon>
-        </template>
-      </v-data-table>
+        <v-data-table :headers="headers" :items="rooms" :search="search" flat>
+
+            <template v-slot:item.state="{ item }">
+              {{ roomState(item.state) }}</template
+            >
+
+          <template v-slot:item.roomCategory.type="{ item }">
+            {{ roomType(item.roomCategory.type) }}</template
+          >
+
+            <template v-slot:item.actions="{ item }">
+              <v-icon small class="mr-2" @click="editUser(item)">
+                mdi-pencil
+              </v-icon>
+              <v-icon small @click="deleteUser(item.id)"> mdi-delete </v-icon>
+            </template>
+
+        </v-data-table>
       <receptionist-rooms-edit-dialog
         :isNewRoom="newRoomDialog"
         :dialog="dialogController"
@@ -58,7 +65,7 @@ export default {
         {
           text: "Typ izby",
           align: "start",
-          value: "roomType",
+          value: "roomCategory.type",
         },
         {
           text: "Akcie",
@@ -121,6 +128,18 @@ export default {
       this.dialogController = val;
     },
 
+    roomType(state) {
+      switch (state) {
+        case "STANDARD":
+          return "štandardná";
+        case "APARTMENT":
+          return "apartment";
+        case "LUXURY":
+          return "luxusná";
+        default:
+          return "";
+      }
+    },
     roomState(state) {
       switch (state) {
         case "AVAILABLE":
