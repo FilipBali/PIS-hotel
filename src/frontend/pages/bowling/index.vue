@@ -13,10 +13,10 @@
       >
       <v-spacer />
       <v-avatar color="secondary" size="40">JH</v-avatar>
-      <v-btn plain min-height="100%" @click="profile"> Janko Hrasko </v-btn>
+      <v-btn plain min-height="100%"> Janko Hrasko </v-btn>
       <v-tooltip bottom>
         <template v-slot:activator="{ on, attrs }">
-          <v-btn icon plain v-bind="attrs" v-on="on" @click="logout">
+          <v-btn icon plain v-bind="attrs" v-on="on">
             <v-icon>mdi-logout</v-icon>
           </v-btn>
         </template>
@@ -43,39 +43,12 @@ export default {
       title: "Hotel PIS",
       items: [
         {
-          title: "Pridať pobyt",
-          to: "/receptionist/new-stay",
-        },
-        {
-          title: "Pobyty",
-          to: "/receptionist/stays",
-        },
-        {
-          title: "Izby",
-          to: "/receptionist/rooms",
-        },
-        {
-          title: "Hostia",
-          to: "/receptionist/hosts",
-        },
-        {
-          title: "Služby pre hostí",
-          to: "/receptionist/services",
+          title: "Rezervácie bowlingu",
+          to: "/bowling/reservations",
         },
       ],
     };
   },
-  methods: {
-    async logout() {
-      // TODO: update after logout api implementation
-      // await this.$store.dispatch('user/logout', this.$auth.user.id)
-      await this.$auth.logout();
-      this.$auth.$storage.removeUniversal("user");
-      this.$router.push("/login");
-    },
-    profile() {
-      console.log("Ta ak bude, ta otvorime profila");
-    },
-  },
+  methods: {},
 };
 </script>

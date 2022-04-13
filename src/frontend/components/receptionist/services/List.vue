@@ -2,7 +2,7 @@
 <template>
   <v-card>
     <v-card-title primary-title>
-      Zoznam pobytov <v-spacer></v-spacer>
+      Zoznam služieb <v-spacer></v-spacer>
 
       <v-autocomplete
         dense
@@ -20,8 +20,8 @@
         single-line
         hide-details
       ></v-text-field>
-      <v-btn class="ml-8" color="secondary" @click="newReservation">
-        Pridať rezerváciu
+      <v-btn class="ml-8" color="secondary" @click="newService">
+        Pridať službu
       </v-btn>
     </v-card-title>
 
@@ -80,7 +80,7 @@ export default {
     };
   },
   methods: {
-    newReservation() {
+    newService() {
       // todo: doplnit room type
       this.$router.push('new-stay');
     },

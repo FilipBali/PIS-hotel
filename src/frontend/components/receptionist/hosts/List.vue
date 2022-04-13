@@ -20,16 +20,12 @@
         single-line
         hide-details
       ></v-text-field>
-
-      <v-btn class="ml-8" color="secondary" @click="newStay">
-        Pridať pobyt
-      </v-btn>
     </v-card-title>
 
     <v-card-text>
-      <v-data-table :headers="headers" :items="rooms" :search="search" flat>
-        <template v-slot:item.state="{ item }">
-          {{ roomState(item.state) }}</template>
+      <v-data-table :headers="headers" :items="hosts" :search="search" flat>
+        <template v-slot:item.dateOfBirth="{ item }">
+          {{ formatDate(item.dateOfBirth) }}</template>
 
       </v-data-table>
     </v-card-text>
@@ -38,6 +34,7 @@
 <script>
 import { mapState } from "vuex";
 import ReceptionistLayout from "../../../layouts/bowling";
+import moment from "moment";
 
 export default {
   components: {ReceptionistLayout},
@@ -50,14 +47,39 @@ export default {
       newRoomDialog: false,
       headers: [
         {
-          text: "Číslo pobytu",
+          text: "Meno",
           align: "start",
-          value: "staysNumber",
+          value: "firstName",
         },
         {
-          text: "Zákazník",
+          text: "Priezvisko",
           align: "start",
-          value: "guestName",
+          value: "lastName",
+        },
+        {
+          text: "Dátum narodenia",
+          align: "start",
+          value: "dateOfBirth",
+        },
+        {
+          text: "Adresa",
+          align: "start",
+          value: "address",
+        },
+        {
+          text: "Číslo",
+          align: "start",
+          value: "phoneNumber",
+        },
+        {
+          text: "Email",
+          align: "start",
+          value: "email",
+        },
+        {
+          text: "Pobyt",
+          align: "start",
+          value: "stayID",
         },
         { text: "Číslo Izby",
           align: "start",
@@ -68,28 +90,54 @@ export default {
           value: "staysState",
         },
         {
-          text: "Prístelka",
-          align: "start",
-          value: "additionalBed",
-        },
-        {
           text: "Služby",
           align: "start",
           value: "services",
         },
-        {
-          text: "Akcie",
-          align: "start",
-          value: "actions",
-        },
       ],
     };
   },
+  computed: {
+    ...mapState({
+      hosts: (state) => state.hosts.items,
+    }),
+  },
+  created() {
+    this.getData();
+  },
   methods: {
-    newStay() {
-      // todo: doplnit room type
-      this.$router.push('new-stay');
+
+    async getData() {
+      await Promise.all([await this.getAllHostsApi()]);
+      this.isLoading = false;
     },
+
+    async getAllHostsApi() {
+      try {
+        await console.log(this.$store.dispatch("hosts/getAll"));
+        await this.$store.dispatch("hosts/getAll");
+      } catch (error) {
+        console.error(error);
+      }
+    },
+
+    async deleteHostApi(id) {
+      try {
+        await this.$store.dispatch("hosts/delete", id);
+      } catch (error) {
+        console.error(error);
+      }
+    },
+
+    async deleteHost(id) {
+      await this.deleteHostApi(id);
+      this.getAllHostsApi();
+    },
+
+    formatDate(date) {
+      return moment(date).format("DD. MM. YYYY");
+    },
+
   }
 };
 </script>
