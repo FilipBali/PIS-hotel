@@ -19,6 +19,9 @@
         <template v-slot:item.state="{ item }">
           {{ roomState(item.state) }}</template
         >
+        <template v-slot:item.roomCategory.type="{ item }">
+          {{ roomType(item.roomCategory.type) }}</template
+        >
         <template v-slot:item.actions="{ item }">
           <v-icon small class="mr-2" @click="editUser(item)">
             mdi-pencil
@@ -40,6 +43,7 @@
 import { mapState } from "vuex";
 
 export default {
+
   data() {
     return {
       isLoading: true,
@@ -47,6 +51,7 @@ export default {
       dialogController: false,
       dialogRoom: {},
       newRoomDialog: false,
+
       headers: [
         {
           text: "Číslo izby",
@@ -62,7 +67,7 @@ export default {
         {
           text: "Typ izby",
           align: "start",
-          value: "roomType",
+          value: "roomCategory.type",
         },
         {
           text: "Akcie",
@@ -125,6 +130,18 @@ export default {
       this.dialogController = val;
     },
 
+    roomType(state) {
+      switch (state) {
+        case "STANDARD":
+          return "štandardná";
+        case "APARTMENT":
+          return "apartment";
+        case "LUXURY":
+          return "luxusná";
+        default:
+          return "";
+      }
+    },
     roomState(state) {
       switch (state) {
         case "AVAILABLE":
