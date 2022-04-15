@@ -40,7 +40,7 @@
           {{staysPaymentType(item.paymentType) }}</template>
 
         <template v-slot:item.actions="{ item }">
-          <v-icon small class="mr-2" @click="dialog=true">
+          <v-icon small class="mr-2" @click="tableRowChangeBtn(item)">
             mdi-pencil
           </v-icon>
           <v-icon small @click="deleteStay(item.id)"> mdi-delete </v-icon>
@@ -64,45 +64,100 @@
                     <v-col
                       cols="12"
                       sm="6"
-                      md="4"
+
                     >
-                      <v-text-field
-                        label="Začiatok pobytu"
-                      ></v-text-field>
+                      <v-menu
+                        v-model="datePickerStartStay"
+                        :close-on-content-click="false"
+                        :nudge-right="40"
+                        transition="scale-transition"
+                        offset-y
+                        min-width="auto"
+                      >
+                        <template v-slot:activator="{ on, attrs }">
+                          <v-text-field
+                            v-model="selectedStartDate"
+                            label="Začiatok pobytu"
+                            prepend-icon="mdi-calendar"
+                            readonly
+                            v-bind="attrs"
+                            v-on="on"
+                          ></v-text-field>
+                        </template>
+                        <v-date-picker
+                          v-model="selectedStartDate"
+                          @input="datePickerStartStay = false"
+                        ></v-date-picker>
+                      </v-menu>
+
                     </v-col>
+
                     <v-col
                       cols="12"
                       sm="6"
-                      md="4"
+
                     >
-                      <v-text-field
-                        label="Koniec pobytu"
-                      ></v-text-field>
+                        <v-menu
+                          v-model="datePickerEndStay"
+                          :close-on-content-click="false"
+                          :nudge-right="40"
+                          transition="scale-transition"
+                          offset-y
+                          min-width="auto"
+                        >
+                          <template v-slot:activator="{ on, attrs }">
+                            <v-text-field
+                              v-model="selectedEndDate"
+                              label="Koniec pobytu"
+                              prepend-icon="mdi-calendar"
+                              readonly
+                              v-bind="attrs"
+                              v-on="on"
+                            ></v-text-field>
+                          </template>
+                          <v-date-picker
+                            v-model="selectedEndDate"
+                            @input="datePickerEndStay = false"
+                          ></v-date-picker>
+                        </v-menu>
+
                     </v-col>
+
                     <v-col
                       cols="12"
                       sm="6"
                     >
                       <v-select
-                        :items="['luxusná', 'štandardná','apartmán']"
+                        v-model="selectedRoomCategory"
+                        :items="roomCategories"
+                        :item-text="item => roomType(item.type)"
+                        item-value=id
                         label="Typ izby"
                       ></v-select>
                     </v-col>
+
                     <v-col
                       cols="12"
                       sm="6"
                     >
                       <v-select
-                        :items="['rezervovaný', 'zrušený', 'aktívny','skončený']"
+                        v-model="selectedState"
+                        :items="roomStateEnum"
+                        :item-text="item => item.fe"
+                        item-value=be
                         label="Stav pobytu"
                       ></v-select>
                     </v-col>
+
                     <v-col
                       cols="12"
                       sm="6"
                     >
                       <v-select
-                        :items="['plná penzia', 'polpenzia']"
+                        v-model="selectedStaysBoardType"
+                        :items="staysBoardTypeEnum"
+                        :item-text="item => item.fe"
+                        item-value=be
                         label="Typ pobytu"
                       ></v-select>
                     </v-col>
@@ -111,7 +166,10 @@
                       sm="6"
                     >
                       <v-select
-                        :items="['kartou', 'hotovostne']"
+                        v-model="selectedStaysPayment"
+                        :items="staysPaymentEnum"
+                        :item-text="item => item.fe"
+                        item-value=be
                         label="Typ platby"
                       ></v-select>
                     </v-col>
@@ -152,6 +210,39 @@ export default {
   components: {ReceptionistLayout},
   data() {
     return{
+
+      // be = backend interpretation
+      // fe = frontend interpretation
+      // We need create structure because there is no enumerator table for it
+      // TODO create global file with all structures and export it to all *.vue?
+      roomStateEnum: [
+        { be: 'RESERVED', fe: 'rezervovaný' },
+        { be: 'CANCELED', fe: 'zrušený' },
+        { be: 'ACTIVE', fe: 'aktívny' },
+        { be: 'FINISHED', fe: 'skončený' }
+      ],
+      staysBoardTypeEnum: [
+        { be: 'HALFBOARD', fe: 'polpenzia' },
+        { be: 'FULLBOARD', fe: 'plná penzia' }
+      ],
+      staysPaymentEnum: [
+        { be: 'CARD', fe: 'kartou' },
+        { be: 'CASH', fe: 'hotovostne' }
+      ],
+
+      // form values initialization with fictive error values
+      selectedState: "UNAVAILABLE",
+      selectedRoomCategory: -1,
+      selectedStaysBoardType: "UNAVAILABLE",
+      selectedStaysPayment: "UNAVAILABLE",
+
+      selectedStartDate: (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10),
+      datePickerStartStay: false,
+
+      selectedEndDate: (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10),
+      datePickerEndStay: false,
+
+
       isLoading: true,
       dialog: false,
       search: "",
@@ -226,6 +317,7 @@ export default {
   computed: {
     ...mapState({
       stays: (state) => state.stays.items,
+      roomCategories: (state) => state.roomCategories.items,
     }),
   },
   created() {
@@ -235,10 +327,13 @@ export default {
       newStay() {
        this.$router.push('new-stay');
     },
+
     async getData() {
       await Promise.all([await this.getAllStaysApi()]);
+      await Promise.all([await this.getAllRoomCategoriesApi()]);
       this.isLoading = false;
     },
+
     async getAllStaysApi() {
       try {
         await console.log(this.$store.dispatch("stays/getAll"));
@@ -246,6 +341,15 @@ export default {
         console.error(error);
       }
     },
+
+    async getAllRoomCategoriesApi() {
+      try {
+        await this.$store.dispatch("roomCategories/getAll");
+      } catch (error) {
+        console.error(error);
+      }
+    },
+
     async deleteUserApi(id) {
       try {
         await this.$store.dispatch("stays/delete", id);
@@ -253,9 +357,41 @@ export default {
         console.error(error);
       }
     },
+
     formatDate(date) {
       return moment(date).format("DD. MM. YYYY");
     },
+
+    formatDateDataPicker(date) {
+      return moment(date).format("YYYY-");
+    },
+
+    roomType(state) {
+      switch (state) {
+        case "STANDARD":
+          return "štandardná";
+        case "APARTMENT":
+          return "apartment";
+        case "LUXURY":
+          return "luxusná";
+        default:
+          return "";
+      }
+    },
+
+    roomTypeToRoomID(state) {
+      switch (state) {
+        case "STANDARD":
+          return 1;
+        case "APARTMENT":
+          return 2;
+        case "LUXURY":
+          return 3;
+        default:
+          return "";
+      }
+    },
+
     staysState(state) {
       switch (state) {
         case "RESERVED":
@@ -270,6 +406,7 @@ export default {
           return "";
       }
     },
+
     staysBoardType(state) {
       switch (state) {
         case "HALFBOARD":
@@ -280,6 +417,7 @@ export default {
           return "";
       }
     },
+
     staysPaymentType(state) {
       switch (state) {
         case "CARD":
@@ -290,6 +428,7 @@ export default {
           return "";
       }
     },
+
     editStay(room) {
       this.dialogController = true;
       this.newRoomDialog = false;
@@ -308,12 +447,29 @@ export default {
         console.error(error);
       }
     },
+
     closeDialog(val) {
       this.dialogController = val;
     },
 
+    tableRowChangeBtn(item){
 
+      // selectedRoomCategory needs id (database primary key from room_category table) of room type
+      this.selectedRoomCategory = this.roomTypeToRoomID(item.type)
 
+      // roomState needs backend(be) interpretation
+      this.selectedState = item.state
+
+      // Also needs backend interpretation
+      this.selectedStaysBoardType = item.boardType
+      this.selectedStaysPayment = item.paymentType
+
+      // Needs ISO format => YYYY-MM-DD
+      this.selectedStartDate = moment(item.dateFrom).format('YYYY-MM-DD')
+      this.selectedEndDate = moment(item.dateTo).format('YYYY-MM-DD')
+
+      this.dialog = true;
+    },
 
 
   }
