@@ -66,7 +66,7 @@ public class UserService implements UserDetailsService {
 
     @Transactional
     public void updateUser(Long id, String firstName, String lastName, String email,
-                           String phoneNumber, String idNumber, String address) {
+                           String phoneNumber, String address) {
         UserDO user = userRepository.findById(id)
                 .orElseThrow(() -> new IllegalStateException("User with id: " + id + "does not exist."));
 
@@ -85,9 +85,7 @@ public class UserService implements UserDetailsService {
         if (isStringValid(phoneNumber, user.getPhoneNumber())) {
             user.setPhoneNumber(phoneNumber);
         }
-        if (isStringValid(idNumber, user.getIdNumber())) {
-            user.setIdNumber(idNumber);
-        }
+
         if (isStringValid(address, user.getAddress())) {
             user.setAddress(address);
         }
