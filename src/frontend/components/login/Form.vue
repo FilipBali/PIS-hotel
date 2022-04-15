@@ -78,7 +78,7 @@ export default {
             this.$auth.$storage.setUniversal("user", userData, true);
             this.$auth.setUser(userData);
             this.$toast.success("Úspešne prihlásený");
-            this.$router.push("receptionist");
+            this.$router.push("receptionist/stays");
           } else {
             this.$toast.error("Wrong login: admin or rec");
           }
