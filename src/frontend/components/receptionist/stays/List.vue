@@ -4,14 +4,6 @@
     <v-card-title primary-title>
       Zoznam pobytov <v-spacer></v-spacer>
 
-      <v-autocomplete
-        dense
-        auto-select-first
-        filled
-        rounded
-        single-line
-        solo
-      ></v-autocomplete>
       <v-spacer></v-spacer>
         <v-text-field
           v-model="search"
@@ -27,8 +19,8 @@
     </v-card-title>
 
     <v-card-text>
-      <v-data-table :headers="headers" :items="stays" :search="search" flat>
-        <template v-slot:item.dateFrom="{ item }">
+      <v-data-table :headers="headers" :items="stays" :search="search" :custom-filter="customSearch" flat>
+        <template v-slot:item.dateFrom="{ item }" >
           {{ formatDate(item.dateFrom) }}</template>
         <template v-slot:item.dateTo="{ item }">
           {{ formatDate(item.dateTo) }}</template>
@@ -326,6 +318,104 @@ export default {
   methods: {
       newStay() {
        this.$router.push('new-stay');
+    },
+
+    customSearch (value, search, item) {
+      if (Array.isArray(value)) {
+      // Only date
+
+      } else {
+         let acceptedRoomTypeStr =
+           [
+            'štandardná', 'apartment', 'luxusná',
+            'standardna', 'standardná', 'štandardna', 'luxusna'
+           ]
+
+         let acceptedStaysStateStr =
+           [
+             'rezervovaný', 'zrušený', 'aktívny', 'skončený',
+             'rezervovany', 'zruseny', 'zrusený','zrušeny', 'aktivny', 'skonceny', 'skoncený','skončeny',
+           ]
+         let acceptedStaysBoardTypeStr =
+           [
+             'polpenzia', 'plná penzia', 'plna penzia',
+           ]
+         let acceptedStaysPaymentTypeStr =
+           [
+             'kartou', 'hotovostne',
+           ]
+
+         let firstName = item.stayCreator.firstName;
+         let lastName = item.stayCreator.lastName;
+
+         if (firstName.toLowerCase().startsWith(search.toLowerCase())){
+            return true;
+         }
+
+         if (lastName.toLowerCase().startsWith(search.toLowerCase())){
+            return true;
+         }
+
+         for (let i = 0; i < acceptedRoomTypeStr.length; i++) {
+           if (acceptedRoomTypeStr[i].toLowerCase().startsWith(search.toLowerCase())){
+
+           let ret = this.roomType(item.roomType)
+
+           if (ret !== "" &&
+             ret.toLowerCase().startsWith(search.toLowerCase())){
+                return true;
+             }
+           }
+         }
+
+         for (let i = 0; i < acceptedStaysStateStr.length; i++) {
+           if (acceptedStaysStateStr[i].toLowerCase().startsWith(search.toLowerCase())){
+
+             let ret = this.staysState(item.state)
+
+             if (ret !== "" &&
+               ret.toLowerCase().startsWith(search.toLowerCase())){
+               console.log(ret)
+               console.log(search)
+               console.log(item)
+               return true;
+             }
+           }
+         }
+
+        for (let i = 0; i < acceptedStaysBoardTypeStr.length; i++) {
+          if (acceptedStaysBoardTypeStr[i].toLowerCase().startsWith(search.toLowerCase())){
+
+            let ret = this.staysBoardType(item.boardType)
+
+            if (ret !== "" &&
+                ret.toLowerCase().startsWith(search.toLowerCase())){
+              console.log(ret)
+              console.log(search)
+              console.log(item)
+              return true;
+            }
+          }
+        }
+
+        for (let i = 0; i < acceptedStaysPaymentTypeStr.length; i++) {
+          if (acceptedStaysPaymentTypeStr[i].toLowerCase().startsWith(search.toLowerCase())){
+
+            let ret = this.staysPaymentType(item.paymentType)
+
+            if (ret !== "" &&
+                ret.toLowerCase().startsWith(search.toLowerCase())){
+
+
+              console.log(ret)
+              console.log(search)
+              console.log(item)
+              return true;
+            }
+          }
+        }
+      }
+      return false;
     },
 
     async getData() {
