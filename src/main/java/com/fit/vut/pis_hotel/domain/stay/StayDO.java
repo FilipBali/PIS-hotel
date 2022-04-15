@@ -1,6 +1,5 @@
 package com.fit.vut.pis_hotel.domain.stay;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fit.vut.pis_hotel.domain.host.HostDO;
 import com.fit.vut.pis_hotel.domain.room.RoomDO;
 import com.fit.vut.pis_hotel.domain.stay.enums.BoardTypeEnum;
@@ -85,7 +84,6 @@ public class StayDO {
             name = "stay_room",
             joinColumns = @JoinColumn(name = "stay_id"),
             inverseJoinColumns = @JoinColumn(name = "room_id"))
-    @JsonIgnore
     private List<RoomDO> rooms;
 
     public StayDO(Integer accommodatedNumber, LocalDate dateFrom, LocalDate dateTo, StateEnum state, BoardTypeEnum boardType, HostDO stayCreator, PaymentTypeEnum paymentType, List<RoomDO> rooms) {
