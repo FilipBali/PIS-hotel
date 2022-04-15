@@ -4,8 +4,13 @@ export default function ({ route, $auth, app }) {
     $auth.setUser(user);
   }
 
+  console.log("middleware");
+  console.log(user);
+
   if (route.path === "/") {
+    console.log("in / path");
     if ($auth.loggedIn) {
+      console.log("loggedInnnn");
       if (user.roles.includes("ROLE_ADMIN")) {
         app.router.push("/admin/users");
       } else {

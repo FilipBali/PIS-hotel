@@ -34,11 +34,26 @@
             </v-col>
             <v-col cols="12" sm="6" md="4">
               <v-text-field
+                :date="user.idNumber"
+                label="Číslo občianského preukazu"
+              />
+            </v-col>
+            <v-col cols="12" sm="6" md="4">
+              <v-text-field
                 v-model="user.phoneNumber"
                 label="Telefónne číslo"
               ></v-text-field>
             </v-col>
-            <v-col>
+            <v-col cols="12" sm="6" md="4">
+              <v-text-field v-model="user.email" label="Email"></v-text-field>
+            </v-col>
+            <v-col cols="12" sm="6" md="4">
+              <v-text-field
+                v-model="user.password"
+                label="Heslo"
+              ></v-text-field>
+            </v-col>
+            <v-col cols="12" sm="6" md="4">
               <!-- <v-select
                   v-model="selectedRole"
                   :items="roleTypes"

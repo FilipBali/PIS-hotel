@@ -39,7 +39,11 @@ export default {
   // Axios module configuration (https://go.nuxtjs.dev/config-axios)
   axios: {
     baseURL: "http://localhost:8080/",
+    // proxy: true,
   },
+  // proxy: {
+  // "/api": "http://localhost:8080/",
+  // },
   publicRuntimeConfig: {
     axios: {
       browserBaseURL: process.env.BROWSER_BASE_URL,
@@ -108,7 +112,7 @@ export default {
           autoFetch: false,
         },
         endpoints: {
-          login: { url: "api/user/login", method: "post" },
+          login: { url: "login", method: "post" },
           refresh: { url: "api/user/token/refresh", method: "post" },
           user: false,
           logout: false,
@@ -130,6 +134,7 @@ export default {
   router: {
     middleware: ["security"],
     base: "/",
+    cors: true,
   },
 
   // Build Configuration: https://go.nuxtjs.dev/config-build
