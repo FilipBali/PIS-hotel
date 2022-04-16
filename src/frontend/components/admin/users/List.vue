@@ -49,7 +49,7 @@ export default {
       search: "",
       dialogController: false,
       dialogUser: {},
-      newUserDialog: false,
+      newUserDialog: true,
       headers: [
         {
           text: "Meno",
@@ -66,11 +66,6 @@ export default {
           text: "Adresa",
           align: "start",
           value: "address",
-        },
-        {
-          text: "Číslo občianského preukazu",
-          align: "start",
-          value: "idNumber",
         },
         {
           text: "Telefónne číslo",
@@ -105,7 +100,6 @@ export default {
   },
   methods: {
     async getData() {
-      // TODO: add getAllRoles()
       await Promise.all([this.getAllUsers(), this.getAllRoles()]);
       this.isLoading = false;
     },
@@ -120,6 +114,7 @@ export default {
     async deleteUser(id) {
       try {
         await this.$store.dispatch("users/delete", id);
+        this.getAllUsers();
       } catch (error) {
         console.error(error);
       }
@@ -141,8 +136,8 @@ export default {
         address: "",
         dateOfBirth: moment().format("yyyy-MM-DD"),
         email: "",
-        idNumber: "",
         phoneNumber: "",
+        roles: [],
       };
     },
     editUser(user) {

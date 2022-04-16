@@ -21,7 +21,7 @@
             </v-col>
             <v-col cols="12" sm="6" md="4">
               <date-picker
-                :date="user.dateOfBirth"
+                :date="dateOfBirth"
                 label="Dátum narodenia"
                 @updated-date="updateDate"
               />
@@ -34,12 +34,6 @@
             </v-col>
             <v-col cols="12" sm="6" md="4">
               <v-text-field
-                :date="user.idNumber"
-                label="Číslo občianského preukazu"
-              />
-            </v-col>
-            <v-col cols="12" sm="6" md="4">
-              <v-text-field
                 v-model="user.phoneNumber"
                 label="Telefónne číslo"
               ></v-text-field>
@@ -47,19 +41,30 @@
             <v-col cols="12" sm="6" md="4">
               <v-text-field v-model="user.email" label="Email"></v-text-field>
             </v-col>
-            <v-col cols="12" sm="6" md="4">
+            <v-col v-if="isNewUser" cols="12" sm="6" md="4">
               <v-text-field
                 v-model="user.password"
+                type="password"
                 label="Heslo"
               ></v-text-field>
             </v-col>
             <v-col cols="12" sm="6" md="4">
-              <!-- <v-select
-                  v-model="selectedRole"
-                  :items="roleTypes"
-                  label="Rola"
-                  :rules="[rules.required]"
-                ></v-select> -->
+              <v-select
+                v-if="isNewUser"
+                v-model="newSelectedRole"
+                :items="roles"
+                :item-text="(item) => this.userRole(item.name)"
+                label="Rola"
+                return-object
+              ></v-select>
+              <v-select
+                v-else
+                v-model="editSelectedRole"
+                :items="roles"
+                :item-text="(item) => this.userRole(item.name)"
+                label="Rola"
+                return-object
+              ></v-select>
             </v-col>
           </v-row>
         </v-container>
@@ -77,6 +82,7 @@
 <script>
 import { mapState } from "vuex";
 import DatePicker from "../../DatePicker.vue";
+import moment from "moment";
 
 export default {
   components: { DatePicker },
@@ -84,8 +90,10 @@ export default {
   data() {
     return {
       dialogController: this.dialog,
-      // selectedRole: '',
-      // roleTypes: roles.forEach(role => role[0].name),
+      dateOfBirth: moment(this.user.dateOfBirth).format("yyyy-MM-DD"),
+      newSelectedRole: "",
+      editSelectedRole:
+        this.user.roles && this.user.roles.length > 0 ? this.user.roles[0] : "",
     };
   },
   computed: {
@@ -97,6 +105,10 @@ export default {
     dialog() {
       this.dialogController = this.dialog;
     },
+    user() {
+      this.editSelectedRole =
+        this.user.roles && this.user.roles.length > 0 ? this.user.roles[0] : "";
+    },
   },
   methods: {
     async createUser() {
@@ -106,11 +118,20 @@ export default {
         console.error(error);
       }
     },
+    // TODO: update user fix after be fix
     async updateUser() {
+      let user = {
+        id: this.user.id,
+        firstName: this.user.firstName,
+        lastName: this.user.lastName,
+        address: this.user.address,
+        email: this.user.email,
+        phoneNumber: this.user.phoneNumber,
+      };
       try {
         await this.$store.dispatch("users/update", {
           id: this.user.id,
-          data: this.user,
+          data: user,
         });
       } catch (error) {
         console.error(error);
@@ -129,9 +150,18 @@ export default {
     },
 
     async save() {
+      this.user.dateOfBirth = this.dateOfBirth;
+
       if (this.isNewUser) {
+        this.user.roles.push(this.newSelectedRole);
         await this.createUser();
       } else {
+        if (this.user.roles.length > 0) {
+          this.user.roles[0] = this.editSelectedRole;
+        } else {
+          this.user.roles.push(this.editSelectedRole);
+        }
+        console.log(this.user);
         await this.updateUser();
       }
       await this.getAllUsers();
@@ -139,7 +169,27 @@ export default {
     },
     close() {
       this.dialogController = false;
+      this.selectedRole = "";
       this.$emit("close-dialog", this.dialogController);
+    },
+
+    userRole(roleId) {
+      switch (roleId) {
+        case "ROLE_ADMIN":
+          return "administrátor";
+        case "ROLE_RECEPTIONIST":
+          return "recepčný";
+        case "ROLE_COOK":
+          return "kuchár";
+        case "ROLE_MASSEUR":
+          return "masér";
+        case "ROLE_BOWLING":
+          return "bowling";
+        case "ROLE_USER":
+          return "užívateľ";
+        default:
+          return "";
+      }
     },
   },
 };
