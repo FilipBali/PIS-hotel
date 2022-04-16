@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -21,18 +22,30 @@ public class RoleService {
         return roleRepository.save(role);
     }
 
-    public void addRoleToUser(RoleDO role) {
-        addRoleToUser(role.getId(), role.getName());
-    }
-
     @Transactional
     public void addRoleToUser(Long id, String roleName) {
         UserDO user = userRepository.findById(id)
-                .orElseThrow(() -> new IllegalStateException("User with id: " + id + "does not exist."));
+                .orElseThrow(() -> new IllegalStateException("User with id: " + id + " does not exist."));
         log.info("Adding role {} to user with id {}", roleName, id);
         RoleDO role = roleRepository.findByName(roleName);
         user.getRoles().add(role);
     }
 
 
+    public RoleDO getRole(Long id) {
+        RoleDO role = roleRepository.findById(id)
+                .orElseThrow(() -> new IllegalStateException("Role with id: " + id + " does not exist."));
+        return role;
+    }
+
+    public List<RoleDO> getRoles() {
+        return roleRepository.findAll();
+    }
+
+    public void deleteRole(Long id) {
+        RoleDO role = roleRepository.findById(id)
+                .orElseThrow(() -> new IllegalStateException("Role with id: " + id + " does not exist."));
+        log.info("Deleting role with id: " + id + "and name: " + role.getName());
+        roleRepository.delete(role);
+    }
 }

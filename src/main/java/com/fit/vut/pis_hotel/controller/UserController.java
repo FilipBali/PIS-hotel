@@ -64,9 +64,8 @@ public class UserController {
             @RequestParam(required = false) String lastName,
             @RequestParam(required = false) String email,
             @RequestParam(required = false) String phoneNumber,
-            @RequestParam(required = false) String idNumber,
             @RequestParam(required = false) String address) {
-        userService.updateUser(id, firstName, lastName, email, phoneNumber, idNumber, address);
+        userService.updateUser(id, firstName, lastName, email, phoneNumber, address);
     }
 
     @GetMapping("/token/refresh")
