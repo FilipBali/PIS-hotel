@@ -39,11 +39,7 @@ export default {
   // Axios module configuration (https://go.nuxtjs.dev/config-axios)
   axios: {
     baseURL: "http://localhost:8080/",
-    // proxy: true,
   },
-  // proxy: {
-  // "/api": "http://localhost:8080/",
-  // },
   publicRuntimeConfig: {
     axios: {
       browserBaseURL: process.env.BROWSER_BASE_URL,
@@ -99,7 +95,7 @@ export default {
         scheme: "refresh",
         token: {
           property: "token",
-          maxAge: 60 * 10,
+          maxAge: 60 * 30,
           type: "Bearer",
         },
         refreshToken: {
