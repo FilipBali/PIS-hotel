@@ -47,42 +47,6 @@ export default {
           loginData.append("email", this.username);
           loginData.append("password", this.password);
 
-          // TODO: erase temporary login
-          // if (loginData.login === "admin") {
-          //   let userData = {
-          //     id: 1,
-          //     login: "admin",
-          //     email: "admin@gmail.com",
-          //     roles: [
-          //       {
-          //         id: 2,
-          //         name: "ROLE_ADMIN",
-          //       },
-          //     ],
-          //   };
-          //   this.$auth.$storage.setUniversal("user", userData, true);
-          //   this.$auth.setUser(userData);
-          //   this.$toast.success("Úspešne prihlásený");
-          //   this.$router.push("admin/users");
-          // } else if (loginData.login === "rec") {
-          //   let userData = {
-          //     id: 1,
-          //     login: "rec",
-          //     email: "rec@gmail.com",
-          //     roles: [
-          //       {
-          //         id: 1,
-          //         name: "ROLE_USER",
-          //       },
-          //     ],
-          //   };
-          //   this.$auth.$storage.setUniversal("user", userData, true);
-          //   this.$auth.setUser(userData);
-          //   this.$toast.success("Úspešne prihlásený");
-          //   this.$router.push("reception");
-          // } else {
-          //   this.$toast.error("Wrong login: admin or rec");
-          // }
           this.$auth
             .loginWith("local", { data: loginData })
             .then((response) => {
@@ -96,23 +60,6 @@ export default {
               );
 
               this.$toast.success("Úspešne prihlásený");
-
-              // var decoded = jwt_decode(response.data.access_token);
-              // let role = decoded.roles[0];
-
-              // if (role === "ROLE_ADMIN") {
-              //   this.$router.push("admin/users");
-              // } else if (role === "ROLE_RECEPTIONIST") {
-              //   this.$router.push("reception");
-              // } else if (role === "ROLE_COOK") {
-              //   this.$router.push("cook");
-              // } else if (role === "ROLE_MASSEUR") {
-              //   this.$router.push("masseur");
-              // } else if (role === "ROLE_BOWLING") {
-              //   this.$router.push("bowling");
-              // } else {
-              //   console.log("Stay here.");
-              // }
             })
             .catch((e) => {
               this.$toast.error("Nesprávne prihlasovacie údaje");
