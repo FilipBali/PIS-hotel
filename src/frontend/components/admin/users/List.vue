@@ -19,7 +19,7 @@
           {{ formatDate(item) }}</template
         >
         <template v-slot:item.roles="{ item }">
-          {{ userRole(item.roles[0].id) }}</template
+          {{ userRole(item.roles[0].name) }}</template
         >
         <template v-slot:item.actions="{ item }">
           <v-icon small class="mr-2" @click="editUser(item)">
@@ -49,7 +49,7 @@ export default {
       search: "",
       dialogController: false,
       dialogUser: {},
-      newUserDialog: false,
+      newUserDialog: true,
       headers: [
         {
           text: "Meno",
@@ -100,8 +100,7 @@ export default {
   },
   methods: {
     async getData() {
-      // TODO: add getAllRoles()
-      await Promise.all([await this.getAllUsers()]);
+      await Promise.all([this.getAllUsers(), this.getAllRoles()]);
       this.isLoading = false;
     },
 
@@ -115,6 +114,7 @@ export default {
     async deleteUser(id) {
       try {
         await this.$store.dispatch("users/delete", id);
+        this.getAllUsers();
       } catch (error) {
         console.error(error);
       }
@@ -136,8 +136,8 @@ export default {
         address: "",
         dateOfBirth: moment().format("yyyy-MM-DD"),
         email: "",
-        idNumber: "",
         phoneNumber: "",
+        roles: [],
       };
     },
     editUser(user) {
@@ -154,10 +154,18 @@ export default {
     },
     userRole(roleId) {
       switch (roleId) {
-        case 1:
-          return "recepčný";
-        case 2:
+        case "ROLE_ADMIN":
           return "administrátor";
+        case "ROLE_RECEPTIONIST":
+          return "recepčný";
+        case "ROLE_COOK":
+          return "kuchár";
+        case "ROLE_MASSEUR":
+          return "masér";
+        case "ROLE_BOWLING":
+          return "bowling";
+        case "ROLE_USER":
+          return "užívateľ";
         default:
           return "";
       }

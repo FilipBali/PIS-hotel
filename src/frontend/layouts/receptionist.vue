@@ -67,8 +67,6 @@ export default {
   },
   methods: {
     async logout() {
-      // TODO: update after logout api implementation
-      // await this.$store.dispatch('user/logout', this.$auth.user.id)
       await this.$auth.logout();
       this.$auth.$storage.removeUniversal("user");
       this.$router.push("/login");

@@ -43,14 +43,14 @@ export const actions = {
     });
   },
   // TODO: update api string
-  logout(_, id) {
-    return this.$axios
-      .patch(`/api/users/${id}/logout`, {})
-      .then((response) => {
-        return response;
-      })
-      .catch((error) => {
-        throw new Error(`API ${error}`);
-      });
-  },
+  // logout(_, id) {
+  //   return this.$axios
+  //     .patch(`/api/users/${id}/logout`, {})
+  //     .then((response) => {
+  //       return response;
+  //     })
+  //     .catch((error) => {
+  //       throw new Error(`API ${error}`);
+  //     });
+  // },
 };
