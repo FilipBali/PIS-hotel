@@ -30,6 +30,8 @@
           {{staysBoardType(item.boardType) }}</template>
         <template v-slot:item.paymentType="{ item }">
           {{staysPaymentType(item.paymentType) }}</template>
+        <template v-slot:item.stayCreator="{ item }">
+          {{getCustomerFullName(item.stayCreator) }}</template>
 
         <template v-slot:item.actions="{ item }">
           <v-icon small class="mr-2" @click="tableRowChangeBtn(item)">
@@ -246,15 +248,11 @@ export default {
           value: "id",
         },
         {
-          text: "Meno zákazníka",
+          text: "Zákazník",
           align: "start",
-          value: "stayCreator.firstName",
+          value: "stayCreator",
         },
-        {
-          text: "Priezvisko zákazníka",
-          align: "start",
-          value: "stayCreator.lastName",
-        },
+
         { text: "Číslo Izby",
           align: "start",
           value: "rooms.roomNumber"
@@ -318,7 +316,8 @@ export default {
        this.$router.push('new-stay');
     },
 
-    customSearch (value, search, item) {
+    customSearch (value, search, item)
+    {
       if (Array.isArray(value)) {
       // Only date
 
@@ -557,6 +556,11 @@ export default {
       this.selectedEndDate = moment(item.dateTo).format('YYYY-MM-DD')
 
       this.dialog = true;
+    },
+
+    getCustomerFullName(stayCreator)
+    {
+      return stayCreator.firstName.concat(" ",stayCreator.lastName);
     },
 
 
