@@ -311,6 +311,7 @@
               <v-card-text>
                 <template>
                   <v-data-table
+                    ref="roomsTable"
                     :headers="headersRooms"
                     :items="rooms"
                     :items-per-page="5"
@@ -321,7 +322,7 @@
                       <v-icon small class="mr-2" @click="roomTableRowChangeBtn(item)">
                         mdi-pencil
                       </v-icon>
-                      <v-icon small @click="deleteRoom(item)"> mdi-delete </v-icon>
+                      <v-icon small @click="deleteRoomAndUpdateTable(item)"> mdi-delete </v-icon>
                     </template>
                   </v-data-table>
                 </template>
@@ -398,6 +399,7 @@ import { mapState } from "vuex";
 import ReceptionistLayout from "../../../layouts/bowling";
 import moment from "moment";
 import services from "../../../pages/receptionist/services";
+import stays from "@/pages/receptionist/stays";
 
 export default {
 
@@ -460,6 +462,8 @@ export default {
       serviceTable: false,
       rooms: [],
       concServices: [],
+
+      saveReferenceToStay: [],
 
       //##########################################
       //               HEADERS
@@ -758,12 +762,15 @@ export default {
     //##########################################
 
     roomTableBtn(item){
-      console.log(item)
+      this.roomTable = false;
+
+      this.saveReferenceToStay = item
 
       this.rooms = []
       for(let i = 0; i < item.rooms.length; i++){
         console.log(item.rooms[i]);
         this.rooms.push({
+          id: item.rooms[i].id,
           roomNumber: item.rooms[i].roomNumber,
           bedsNum: item.rooms[i].bedsNum,
           roomCategoryType: this.roomType(item.rooms[i].roomCategory.type),
@@ -816,10 +823,6 @@ export default {
     },
 
 
-
-    deleteRoom(item){
-
-    },
 
     roomTableRowChangeBtn(item){
 
@@ -965,7 +968,7 @@ export default {
 
     async getAllStaysApi() {
       try {
-        await console.log(this.$store.dispatch("stays/getAll"));
+        await this.$store.dispatch("stays/getAll");
       } catch (error) {
         console.error(error);
       }
@@ -997,12 +1000,39 @@ export default {
 
     async deleteStay(id) {
       await this.deleteStaysApi(id);
-      this.getAllStaysApi();
+      await this.getData();
     },
 
-    async deleteStaysApi() {
+    async deleteStaysApi(id) {
       try {
-        await this.$store.dispatch("stays/delete");
+        await this.$store.dispatch("stays/delete", id);
+      } catch (error) {
+        console.error(error);
+      }
+    },
+
+    async deleteRoomAndUpdateTable(item){
+      await this.deleteRoom(item);
+
+      let updatedStay
+      for(let i = 0; i < this.stays.length; i++){
+        if (this.stays[i].id === this.saveReferenceToStay.id){
+          updatedStay = this.stays[i]
+          break;
+        }
+      }
+      this.roomTableBtn(updatedStay)
+    },
+
+    async deleteRoom(item) {
+      await this.deleteRoomApi(item.id)
+      await this.getData()
+
+    },
+
+    async deleteRoomApi(id) {
+      try {
+        await this.$store.dispatch("rooms/delete", id);
       } catch (error) {
         console.error(error);
       }
