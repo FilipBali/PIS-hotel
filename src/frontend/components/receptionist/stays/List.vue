@@ -52,7 +52,7 @@
 
 
         <template v-slot:item.actions="{ item }">
-          <v-icon small class="mr-2" @click="tableRowChangeBtn(item)">
+          <v-icon small class="mr-2" @click="stayEditFormBtn(item)">
             mdi-pencil
           </v-icon>
           <v-icon small @click="deleteStay(item.id)"> mdi-delete </v-icon>
@@ -63,7 +63,7 @@
 
       <template>
           <v-dialog
-            v-model="dialog"
+            v-model="stayEditForm"
             persistent
             max-width="600px"
           >
@@ -154,8 +154,8 @@
                       sm="4"
                     >
                       <v-select
-                        v-model="selectedState"
-                        :items="roomStateEnum"
+                        v-model="selectedStayState"
+                        :items="stayStateEnum"
                         :item-text="item => item.fe"
                         item-value=be
                         label="Stav pobytu"
@@ -194,14 +194,14 @@
                 <v-btn
                   color="blue darken-1"
                   text
-                  @click="dialog = false"
+                  @click="stayEditForm = false"
                 >
                   Zatvoriť
                 </v-btn>
                 <v-btn
                   depressed
                   color="primary"
-                  @click="dialog = false"
+                  @click="stayEditForm = false"
                 >
                   Uložiť
                 </v-btn>
@@ -212,68 +212,70 @@
 
       <template>
         <v-dialog
-          v-model="roomForm"
+          v-model="roomEditForm"
           persistent
           max-width="600px"
         >
           <v-card>
             <v-card-title>
-              <span class="text-h5">Zmeniť pobyt</span>
+              <span class="text-h5">Zmeniť izbu</span>
             </v-card-title>
             <v-card-text>
               <v-container>
                 <v-row>
 
-                  <!--                    <v-col-->
-                  <!--                      cols="12"-->
-                  <!--                      sm="6"-->
-                  <!--                    >-->
-                  <!--                      <v-select-->
-                  <!--                        v-model="selectedRoomCategory"-->
-                  <!--                        :items="roomCategories"-->
-                  <!--                        :item-text="item => roomType(item.type)"-->
-                  <!--                        item-value=id-->
-                  <!--                        label="Typ izby"-->
-                  <!--                      ></v-select>-->
-                  <!--                    </v-col>-->
-
                   <v-col
                     cols="12"
                     sm="4"
                   >
                     <v-select
-                      v-model="selectedState"
+                      v-model="selectedRoomState"
                       :items="roomStateEnum"
                       :item-text="item => item.fe"
                       item-value=be
-                      label="Stav pobytu"
+                      label="Stav izby"
                     ></v-select>
                   </v-col>
 
+<!--                  <v-col-->
+<!--                    cols="12"-->
+<!--                    sm="4"-->
+<!--                  >-->
+<!--                    <v-select-->
+<!--                      v-model="selectedRoomType"-->
+<!--                      :items="RoomTypeEnum"-->
+<!--                      :item-text="item => item.fe"-->
+<!--                      item-value=be-->
+<!--                      label="Typ izby"-->
+<!--                    ></v-select>-->
+<!--                  </v-col>-->
+
                   <v-col
                     cols="12"
-                    sm="4"
+                    sm="6"
                   >
                     <v-select
-                      v-model="selectedStaysBoardType"
-                      :items="staysBoardTypeEnum"
-                      :item-text="item => item.fe"
-                      item-value=be
-                      label="Typ pobytu"
+                      v-model="selectedRoomType"
+                      :items="roomCategories"
+                      :item-text="item => roomType(item.type)"
+                      item-value=id
+                      label="Typ izby"
                     ></v-select>
                   </v-col>
-                  <v-col
-                    cols="12"
-                    sm="4"
-                  >
-                    <v-select
-                      v-model="selectedStaysPayment"
-                      :items="staysPaymentEnum"
-                      :item-text="item => item.fe"
-                      item-value=be
-                      label="Typ platby"
-                    ></v-select>
-                  </v-col>
+
+
+<!--                  <v-col-->
+<!--                    cols="12"-->
+<!--                    sm="4"-->
+<!--                  >-->
+<!--                    <v-select-->
+<!--                      v-model="selectedStaysPayment"-->
+<!--                      :items="staysPaymentEnum"-->
+<!--                      :item-text="item => item.fe"-->
+<!--                      item-value=be-->
+<!--                      label="Typ platby"-->
+<!--                    ></v-select>-->
+<!--                  </v-col>-->
                 </v-row>
               </v-container>
             </v-card-text>
@@ -282,14 +284,14 @@
               <v-btn
                 color="blue darken-1"
                 text
-                @click="roomForm = false"
+                @click="roomEditForm = false"
               >
                 Zatvoriť
               </v-btn>
               <v-btn
                 depressed
                 color="primary"
-                @click="roomForm = false"
+                @click="roomEditForm = false"
               >
                 Uložiť
               </v-btn>
@@ -319,7 +321,7 @@
                   >
 
                     <template v-slot:item.roomActions="{ item }">
-                      <v-icon small class="mr-2" @click="roomTableRowChangeBtn(item)">
+                      <v-icon small class="mr-2" @click="roomEditFormBtn(item)">
                         mdi-pencil
                       </v-icon>
                       <v-icon small @click="deleteRoomAndUpdateTable(item)"> mdi-delete </v-icon>
@@ -396,14 +398,14 @@
 </template>
 <script>
 import { mapState } from "vuex";
-import ReceptionistLayout from "../../../layouts/bowling";
+import BowlingLayout from "../../../layouts/bowling";
 import moment from "moment";
 import services from "../../../pages/receptionist/services";
 import stays from "@/pages/receptionist/stays";
 
 export default {
 
-  components: {ReceptionistLayout},
+  components: {BowlingLayout},
   data() {
     return{
 
@@ -414,8 +416,8 @@ export default {
       //##########################################
 
       // form values initialization with fictive error values
-      selectedState: "UNAVAILABLE",
-      roomStateEnum: [
+      selectedStayState: "UNAVAILABLE",
+      stayStateEnum: [
         { be: 'RESERVED', fe: 'rezervovaný' },
         { be: 'CANCELED', fe: 'zrušený' },
         { be: 'ACTIVE', fe: 'aktívny' },
@@ -436,8 +438,17 @@ export default {
         { be: 'CASH', fe: 'hotovostne' }
       ],
       // form values initialization with fictive error values
-      selectedRoomCategory: -1,
+      // selectedRoomCategory: -1,
 
+      roomStateEnum: [
+        { be: 'AVAILABLE', fe: 'dostupná' },
+        { be: 'OCCUPIED', fe: 'nedostupná' },
+        { be: 'RESERVED', fe: 'obsadená' },
+        { be: 'UNAVAILABLE', fe: 'rezervovaná' },
+      ],
+
+      selectedRoomState: "UNAVAILABLE",
+      selectedRoomType: "UNAVAILABLE",
 
       //##########################################
       //               DATEPICKER
@@ -452,14 +463,18 @@ export default {
       //
       //##########################################
       isLoading: true,
-      dialog: false,
-      roomForm: false,
+
       search: "",
+
       dialogController: false,
       dialogRoom: {},
-      newRoomDialog: false,
+
+      stayEditForm: false,
+      roomEditForm: false,
+
       roomTable: false,
       serviceTable: false,
+
       rooms: [],
       concServices: [],
 
@@ -748,7 +763,6 @@ export default {
 
     editStay(room) {
       this.dialogController = true;
-      this.newRoomDialog = false;
       this.dialogRoom = JSON.parse(JSON.stringify(stays)); // deepcopy
     },
 
@@ -824,24 +838,15 @@ export default {
 
 
 
-    roomTableRowChangeBtn(item){
+    roomEditFormBtn(item){
 
-      // selectedRoomCategory needs id (database primary key from room_category table) of room type
-      this.selectedRoomCategory = this.roomTypeToRoomID(item.type)
+        console.log(item)
+        console.log(item.state)
 
-      // roomState needs backend(be) interpretation
-      this.selectedState = item.state
+        this.selectedRoomState = this.roomStateToBE(item.state)
+        this.selectedRoomType = this.roomTypeToRoomID(item.roomCategoryType)
 
-      // Also needs backend interpretation
-      this.selectedStaysBoardType = item.boardType
-      this.selectedStaysPayment = item.paymentType
-
-      // Needs ISO format => YYYY-MM-DD
-      this.selectedStartDate = moment(item.dateFrom).format('YYYY-MM-DD')
-      this.selectedEndDate = moment(item.dateTo).format('YYYY-MM-DD')
-
-      this.roomForm = true;
-
+        this.roomEditForm = true;
     },
 
     //TODO
@@ -849,13 +854,13 @@ export default {
 
     },
 
-    tableRowChangeBtn(item){
+    stayEditFormBtn(item){
 
       // selectedRoomCategory needs id (database primary key from room_category table) of room type
-      this.selectedRoomCategory = this.roomTypeToRoomID(item.type)
+      // this.selectedRoomCategory = this.roomTypeToRoomID(item.type)
 
       // roomState needs backend(be) interpretation
-      this.selectedState = item.state
+      this.selectedStayState = item.state
 
       // Also needs backend interpretation
       this.selectedStaysBoardType = item.boardType
@@ -865,7 +870,7 @@ export default {
       this.selectedStartDate = moment(item.dateFrom).format('YYYY-MM-DD')
       this.selectedEndDate = moment(item.dateTo).format('YYYY-MM-DD')
 
-      this.dialog = true;
+      this.stayEditForm = true;
 
     },
 
@@ -882,16 +887,33 @@ export default {
       switch (state) {
         case "AVAILABLE":
           return "dostupná";
-        case "UNAVAILABLE":
-          return "nedostupná";
         case "OCCUPIED":
           return "obsadená";
         case "RESERVED":
           return "rezervovaná";
+        case "UNAVAILABLE":
+          return "nedostupná";
         default:
           return "";
       }
     },
+
+    roomStateToBE(state) {
+      switch (state) {
+        case "dostupná":
+          return "AVAILABLE";
+        case "obsadená":
+          return "OCCUPIED";
+        case "rezervovaná":
+          return "RESERVED";
+        case "nedostupná":
+          return "UNAVAILABLE";
+        default:
+          return "";
+      }
+    },
+
+
 
     roomType(state) {
       switch (state) {
@@ -909,10 +931,13 @@ export default {
     roomTypeToRoomID(state) {
       switch (state) {
         case "STANDARD":
+        case "štandardná":
           return 1;
         case "APARTMENT":
+        case "apartment":
           return 2;
         case "LUXURY":
+        case "luxusná":
           return 3;
         default:
           return "";
