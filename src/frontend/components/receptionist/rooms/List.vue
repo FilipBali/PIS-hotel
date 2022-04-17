@@ -23,7 +23,7 @@
           <v-icon small class="mr-2" @click="editUser(item)">
             mdi-pencil
           </v-icon>
-          <v-icon small @click="deleteUser(item.id)"> mdi-delete </v-icon>
+          <v-icon small @click="deleteRoom(item.id)"> mdi-delete </v-icon>
         </template>
 
 
