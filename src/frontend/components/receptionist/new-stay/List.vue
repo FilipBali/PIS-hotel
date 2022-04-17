@@ -207,7 +207,7 @@
                 Na prveho sa zaklada rezervacia
               </small>
               <style>
-                div.v-select__selection:nth-child(1) {
+                .v-select.v-input--dense .v-select__selection--comma:nth-child(1) {
                   /*text-decoration: underline;*/
                   color: #e74c3c;
                 }
@@ -478,11 +478,13 @@ export default {
         phoneNumber: this.newHostFormPhoneNumber,
       };
 
+      //Create new host
       await this.db_createHost(this.newUser)
+
+      //Update data on page
       await this.getHostData();
 
-
-
+      // re-init form
       this.reset_newHostForm()
       this.resetValidation_newHostForm()
     },
