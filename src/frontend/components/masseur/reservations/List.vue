@@ -1,7 +1,7 @@
 <template>
   <v-card>
     <v-card-title primary-title>
-      Rezervácie bowlingu <v-spacer></v-spacer>
+      Rezervácie masáží <v-spacer></v-spacer>
 
       <v-spacer></v-spacer>
       <v-text-field
@@ -47,7 +47,7 @@ export default {
   data() {
     return {
       isLoading: true,
-      search: "BOWLING",
+      search: "MASSAGE",
       dialogController: false,
       dialogRoom: {},
       newRoomDialog: false,
@@ -88,10 +88,10 @@ export default {
 
   computed:
     {
-      ...mapState({
-        services: (state) => state.services.items,
-      }),
-    },
+    ...mapState({
+      services: (state) => state.services.items,
+    }),
+  },
   created() {
     this.getData();
   },

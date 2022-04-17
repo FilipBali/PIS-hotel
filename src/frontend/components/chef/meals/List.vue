@@ -11,7 +11,7 @@
 
 
       <v-text-field
-      v-model="search"
+      v-model="search1"
       append-icon="mdi-magnify"
       label="Hľadať"
       single-line
@@ -20,10 +20,9 @@
     ></v-text-field>
 
 
-
     </v-card-title>
     <v-card-text>
-      <v-data-table :headers="headers" :items="stays" :search="search1" :custom-filter="customSearch" flat>
+      <v-data-table :headers="headers" :items="stays" :search="search1"  :custom-filter="customSearch" flat>
 
          <template v-slot:item.rooms="{ item }" >
            {{ getRooms(item.rooms) }}</template>

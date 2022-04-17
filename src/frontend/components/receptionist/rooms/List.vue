@@ -89,7 +89,7 @@ export default {
         console.error(error);
       }
     },
-    async deleteUserApi(id) {
+    async deleteRoomsApi(id) {
       try {
         await this.$store.dispatch("rooms/delete", id);
       } catch (error) {
@@ -97,8 +97,8 @@ export default {
       }
     },
 
-    async deleteUser(id) {
-      await this.deleteUserApi(id);
+    async deleteRoom(id) {
+      await this.deleteRoomsApi(id);
       this.getAllRoomsApi();
     },
 

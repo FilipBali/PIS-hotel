@@ -86,9 +86,19 @@ public class Configurator {
                     "004209854535656",
                     "peter.petrovic@vut.cz"
             );
+            HostDO host3 = new HostDO(
+                    "Mária Anna",
+                    "Nováková",
+                    LocalDate.of(1992, Month.AUGUST, 12),
+                    "Ceska 39, Praha, CZ",
+                    "E502409856",
+                    "004209854535656",
+                    "majena.nov@vut.cz"
+            );
 
             hostService.createHost(host1);
             hostService.createHost(host2);
+            hostService.createHost(host3);
 
             RoomCategoryDO cat_s = new RoomCategoryDO(
                     RoomTypeEnum.STANDARD,
@@ -138,8 +148,18 @@ public class Configurator {
                     4,
                     cat_l
             );
+            RoomDO room5 = new RoomDO(
+                    2,
+                    2,
+                    cat_l
+            );
+            RoomDO room6 = new RoomDO(
+                    4,
+                    4,
+                    cat_s
+            );
 
-            roomRepository.saveAll(List.of(room, room2, room3, room4));
+            roomRepository.saveAll(List.of(room, room2, room3, room4,room5,room6));
 
 
             StayDO stay = new StayDO(
@@ -162,7 +182,27 @@ public class Configurator {
                     PaymentTypeEnum.CASH,
                     List.of(room3)
             );
-            stayRepository.saveAll(List.of(stay, stay2));
+            StayDO stay5 = new StayDO(
+                    2,
+                    LocalDate.of(2022, Month.MARCH, 20),
+                    LocalDate.of(2022, Month.MARCH, 23),
+                    StateEnum.ACTIVE,
+                    BoardTypeEnum.FULLBOARD,
+                    host3,
+                    PaymentTypeEnum.CASH,
+                    List.of(room4)
+            );
+            StayDO stay4 = new StayDO(
+                    2,
+                    LocalDate.of(2022, Month.MARCH, 16),
+                    LocalDate.of(2022, Month.MARCH, 23),
+                    StateEnum.ACTIVE,
+                    BoardTypeEnum.HALFBOARD,
+                    host3,
+                    PaymentTypeEnum.CASH,
+                    List.of(room5)
+            );
+            stayRepository.saveAll(List.of(stay, stay2,stay5,stay4));
 
             StayDTO stay3 = new StayDTO(
                     4,
@@ -174,6 +214,7 @@ public class Configurator {
                     PaymentTypeEnum.CARD,
                     List.of(3L)
             );
+
 
             stayService.createStayWithCreatorId(stay3);
 
@@ -198,7 +239,7 @@ public class Configurator {
             );
 
             ServiceDTO serviceDTO2 = new ServiceDTO(
-                    LocalDateTime.of(2022, Month.MARCH, 22, 14, 30),
+                    LocalDateTime.of(2022, Month.MARCH, 22, 14, 23),
                     LocalDateTime.of(2022, Month.MARCH, 22, 15, 30),
                     ServiceTypeEnum.MASSAGE,
                     PaymentTypeEnum.CASH,
