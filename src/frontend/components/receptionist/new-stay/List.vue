@@ -1,289 +1,232 @@
 <template>
     <v-card>
       <v-card-title>
-        {{ "Formulár pre nový pobyt" }}
+          {{ "Formulár pre nový pobyt" }}
+
+        <v-spacer></v-spacer>
+
+        <!--DEBUG BTN-->
+        <v-btn
+          color="primary"
+          dark
+          class="ma-2"
+          @click="getHostsCombobox()"
+        >
+          Zobraz combobox do console
+        </v-btn>
+
+
+        <v-dialog
+          v-model="formNewHost"
+          persistent
+          max-width="600px"
+        >
+          <!-- button newHost-->
+          <template v-slot:activator="{ on, attrs }">
+            <v-btn
+              color="primary"
+              dark
+              v-bind="attrs"
+              v-on="on"
+            >
+              Novy hosť
+            </v-btn>
+          </template>
+
+          <v-card>
+            <v-card-title>
+              <span class="text-h5">Vytvorenie nového hosťa</span>
+            </v-card-title>
+
+            <!-- newHost form-->
+            <v-card-text>
+              <v-container>
+                <v-form
+                  v-model="validFormNewHost"
+                  ref="formNewHost">
+                  <v-row>
+
+                    <!--        Name         -->
+                    <!-- create newHost Form -->
+                    <v-col
+                      cols="12"
+                      sm="6"
+                      md="6"
+                    >
+                      <v-text-field
+                        v-model="newHostFormName"
+                        :rules="[v => !!v || 'Item is required']"
+                        label="Meno*"
+                        required
+                      ></v-text-field>
+                    </v-col>
+
+                    <!--        Surname      -->
+                    <!-- create newHost Form -->
+                    <v-col
+                      cols="12"
+                      sm="6"
+                      md="6"
+                    >
+                      <v-text-field
+                        v-model="newHostFormSurname"
+                        :rules="[v => !!v || 'Item is required']"
+                        label="Priezvisko*"
+                        required
+                      ></v-text-field>
+                    </v-col>
+
+
+                    <!--         ID          -->
+                    <!-- create newHost Form -->
+                    <v-col
+                      cols="6"
+                      sm="6"
+                      md="6"
+                    >
+                      <v-text-field
+                        v-model="newHostFormID"
+                        label="číslo OP*"
+                        :rules="[v => /^E(\d){9}$/.test(v) || 'Item is required']"
+                        required
+                      ></v-text-field>
+                      <small>Nápoveda: E + deväť čísiel (príklad E123456789)</small>
+                    </v-col>
+
+                    <!--      Birthdate      -->
+                    <!-- create newHost Form -->
+                    <v-col
+                      cols="12"
+                      sm="6"
+                    >
+                      <v-menu
+                        v-model="datePickerStartStay"
+                        :close-on-content-click="false"
+                        :nudge-right="40"
+                        transition="scale-transition"
+                        offset-y
+                        required
+                        min-width="auto"
+                      >
+                        <template v-slot:activator="{ on, attrs }">
+                          <v-text-field
+                            v-model="selectedStartDate"
+                            label="Začiatok pobytu"
+                            prepend-icon="mdi-calendar"
+                            readonly
+                            v-bind="attrs"
+                            v-on="on"
+                          ></v-text-field>
+                        </template>
+                        <v-date-picker
+                          v-model="selectedStartDate"
+                          @input="datePickerStartStay = false"
+                        ></v-date-picker>
+                      </v-menu>
+                    </v-col>
+
+
+                    <!--       Address       -->
+                    <!-- create newHost Form -->
+                    <v-col cols="12">
+                      <v-text-field
+                        v-model="newHostFormAddress"
+                        label="Adresa*"
+                        :rules="[v => !!v || 'Item is required']"
+                        required
+                      ></v-text-field>
+                    </v-col>
+
+                    <!--        Email        -->
+                    <!-- create newHost Form -->
+                    <v-col cols="12">
+                      <v-text-field
+                        v-model="newHostFormEmail"
+                        :rules="[v => /.+@.+\..+/.test(v) || 'Item is required']"
+                        label="E-mail*"
+                        required
+                      ></v-text-field>
+                    </v-col>
+
+                    <!--     Phone number    -->
+                    <!-- create newHost Form -->
+                    <v-col cols="12">
+                      <v-text-field
+                        v-model="newHostFormPhoneNumber"
+                        :rules="[v => /^00(\d!*){10,12}$/.test(v) || 'Item is required']"
+                        label="Telefónne číslo*"
+                        required
+                      ></v-text-field>
+                      <small>Nápoveda: 00 + predvolba + číslo (príklad 00421222333444)</small>
+                    </v-col>
+
+                  </v-row>
+                </v-form>
+              </v-container>
+              <small>*povinné</small>
+            </v-card-text>
+
+            <!-- create newHost form footer -->
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn
+                color="blue darken-1"
+                text
+                @click="formNewHost = false"
+              >
+                Zavrieť
+              </v-btn>
+              <v-btn
+                :disabled="!validFormNewHost"
+                color="blue darken-1"
+                text
+                @click="createNewHost()"
+              >
+                Vytvoriť a pridať
+              </v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+
+
       </v-card-title>
+
       <v-card-text>
         <v-container fluid>
-
           <template>
+
+            <!----------------------------->
+            <!-- Formulár pre nový pobyt -->
+            <!----------------------------->
             <v-form
-              ref="form"
+              ref="addStayForm"
               v-model="valid"
-              lazy-validation
             >
 
-              <!------------>
-              <!-- POP-UP ADD NEW HOSTS -->
-              <!------------>
-                <template>
-                  <div>
-                    <v-row
-                      justify="center"
-                    >
-                      <!--    BUTTONS    -->
-                      <v-btn
-                        color="primary"
-                        class="ma-2"
-                        dark
-                        @click="dialog = true"
-                      >
-                        Pridať hostí
-                      </v-btn>
+              <small style="color:red">
+                Na prveho sa zaklada rezervacia
+              </small>
+              <style>
+                div.v-select__selection:nth-child(1) {
+                  /*text-decoration: underline;*/
+                  color: #e74c3c;
+                }
+              </style>
+              <v-combobox
+                v-model="selectedHostsCombobox"
+                :items="hosts"
+                :item-text="item => item.firstName +' '+ item.lastName  + ' | ' +item.idNumber"
+                item-value=id
+                label="Existujúci hostia ( Meno | Dátum narodenia | číslo OP )"
+                multiple
+                item-color='primary'
+                outlined
+                dense
+              >
+              </v-combobox>
 
-                      <v-dialog
-                        v-model="dialog"
-                        fullscreen
-                        hide-overlay
-                        transition="dialog-bottom-transition"
-                        scrollable
-                      >
-                        <v-card tile>
-                          <v-toolbar
-                            flat
-                            dark
-                            color="primary"
-                          >
-
-                            <!-- X button newHosts-->
-                            <v-btn
-                              icon
-                              dark
-                              @click="dialog = false"
-                            >
-                              <v-icon>mdi-close</v-icon>
-                            </v-btn>
-
-                            <v-toolbar-title>Formulár pre pridanie hostí</v-toolbar-title>
-
-                            <v-spacer></v-spacer>
-
-                            <!-- sa button newHosts-->
-                            <v-toolbar-items>
-                              <v-btn
-                                dark
-                                text
-                                @click="dialog = false"
-                              >
-                                Uložiť
-                              </v-btn>
-                            </v-toolbar-items>
-                          </v-toolbar>
-                          <v-card-text>
-
-                            <!--DEBUG-->
-                            <v-btn
-                              color="primary"
-                              dark
-                              class="ma-2"
-                              @click="getHostsCombobox()"
-                            >
-                              Zobraz combobox do console
-                            </v-btn>
-
-                            <template>
-                              <v-row justify="center">
-                                <v-dialog
-                                  v-model="dialogNewHost"
-                                  persistent
-                                  max-width="600px"
-                                >
-
-                                  <!-- button newHost-->
-                                  <template v-slot:activator="{ on, attrs }">
-                                    <v-btn
-                                      color="primary"
-                                      dark
-                                      v-bind="attrs"
-                                      v-on="on"
-                                    >
-                                      Novy hosť
-                                    </v-btn>
-                                  </template>
-
-                                  <v-card>
-                                    <v-card-title>
-                                      <span class="text-h5">Vytvorenie nového hosťa</span>
-                                    </v-card-title>
-
-                                    <!-- newHost form-->
-                                    <v-card-text>
-                                      <v-container>
-                                        <v-row>
-                                          <v-col
-                                            cols="12"
-                                            sm="6"
-                                            md="6"
-                                          >
-                                            <v-text-field v-model="newHostFormName"
-                                              label="Meno*"
-                                              required
-                                            ></v-text-field>
-                                          </v-col>
-
-                                          <v-col
-                                            cols="12"
-                                            sm="6"
-                                            md="6"
-                                          >
-                                            <v-text-field v-model="newHostFormSurname"
-                                              label="Priezvisko*"
-                                              required
-                                            ></v-text-field>
-                                          </v-col>
-
-                                          <v-col
-                                            cols="6"
-                                            sm="6"
-                                            md="6"
-                                          >
-                                            <v-text-field v-model="newHostFormID"
-                                              label="číslo OP*"
-                                              required
-                                            ></v-text-field>
-                                          </v-col>
-
-                                          <v-col
-                                            cols="6"
-                                            sm="6"
-                                            md="6"
-                                          >
-                                            <v-menu
-                                              ref="calendarPicker"
-                                              v-model="calendarPicker"
-                                              :close-on-content-click="false"
-                                              :return-value.sync="newHostFormBirthDate"
-                                              transition="scale-transition"
-                                              offset-y
-                                              min-width="auto"
-                                            >
-                                              <template v-slot:activator="{ on, attrs }">
-                                                <v-text-field
-                                                  v-model="newHostFormBirthDate"
-                                                  label="Date"
-                                                  prepend-icon="mdi-calendar"
-                                                  readonly
-                                                  v-bind="attrs"
-                                                  v-on="on"
-                                                ></v-text-field>
-                                              </template>
-                                              <v-date-picker
-                                                v-model="newHostFormBirthDate"
-                                                no-title
-                                                scrollable
-                                              >
-                                                <v-spacer></v-spacer>
-                                                <v-btn
-                                                  text
-                                                  color="primary"
-                                                  @click="calendarPicker = false"
-                                                >
-                                                  Cancel
-                                                </v-btn>
-                                                <v-btn
-                                                  text
-                                                  color="primary"
-                                                  @click="$refs.calendarPicker.save(date)"
-                                                >
-                                                  OK
-                                                </v-btn>
-                                              </v-date-picker>
-                                            </v-menu>
-                                          </v-col>
-
-
-                                          <v-col cols="12">
-                                            <v-text-field v-model="newHostFormAddress"
-                                              label="Adresa*"
-                                              required
-                                            ></v-text-field>
-                                          </v-col>
-                                          <v-col cols="12">
-                                            <v-text-field v-model="newHostFormEmail"
-                                              label="E-mail*"
-                                              required
-                                            ></v-text-field>
-                                          </v-col>
-                                          <v-col cols="12">
-                                            <v-text-field v-model="newHostFormPhoneNumber"
-                                              label="Telefónne číslo*"
-                                              required
-                                            ></v-text-field>
-                                          </v-col>
-                                        </v-row>
-                                      </v-container>
-
-                                      <small>*povinné</small>
-
-                                    </v-card-text>
-
-                                    <!-- newHost footer -->
-                                    <v-card-actions>
-                                      <v-spacer></v-spacer>
-                                      <v-btn
-                                        color="blue darken-1"
-                                        text
-                                        @click="dialogNewHost = false"
-                                      >
-                                        Zavrieť
-                                      </v-btn>
-                                      <v-btn
-                                        color="blue darken-1"
-                                        text
-                                        @click="createNewHost()"
-                                      >
-                                        Vytvoriť a pridať
-                                      </v-btn>
-                                    </v-card-actions>
-
-                                  </v-card>
-                                </v-dialog>
-                              </v-row>
-                            </template>
-
-                            <!--combobox-->
-                            <v-list>
-                              <template>
-                                <v-container fluid>
-                                  <v-row>
-                                    <v-col cols="6">
-                                      <v-combobox
-                                        v-model="selectedHostsCombobox"
-                                        :items="hosts"
-                                        :item-text="item => item.firstName +' '+ item.lastName  + ' | ' +item.idNumber"
-                                        item-value=id
-                                        label="Existujúci hostia ( Meno | Dátum narodenia | číslo OP )"
-                                        multiple
-                                        outlined
-                                        dense
-                                      >
-                                      </v-combobox>
-                                    </v-col>
-                                  </v-row>
-                                </v-container>
-                              </template>
-                            </v-list>
-                          </v-card-text>
-
-                          <div style="flex: 1 1 auto;"></div>
-                        </v-card>
-                      </v-dialog>
-
-                    </v-row>
-                  </div>
-                </template>
-
-
-              <v-select
-                v-model="select"
-                :items="availableRoomArray"
-                :rules="[v => !!v || 'Item is required']"
-                label="Cisla volných izieb."
-                required
-              ></v-select>
 
               <v-btn
-                :disabled="!valid"
                 color="success"
                 class="mr-4"
                 @click="validate"
@@ -307,7 +250,6 @@
               </v-btn>
             </v-form>
           </template>
-
         </v-container>
       </v-card-text>
     </v-card>
@@ -323,6 +265,9 @@ export default {
   components: {List},
   data: () => ({
 
+    selectedStartDate: (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10),
+    datePickerStartStay: false,
+
     calendarPicker: false,
 
     // Premenne formularu pre noveho hosta
@@ -336,11 +281,12 @@ export default {
 
     selectedHostsCombobox: [],
 
-    dialogNewHost: false,
-    dialog: false,
+    formNewHost: false,
 
+    validFormNewHost: true,
     valid: true,
     select: null,
+    numberRules: [],
 
     //TODO naplnit availableRoomArray
     availableRoomArray: [],
@@ -357,19 +303,33 @@ export default {
   },
 
   methods: {
+
     // Ziska ID vybranych uzivalov z comboboxu
     getHostsCombobox() {
+      console.log(this.selectedHostsCombobox)
       return this.selectedHostsCombobox
     },
 
-    validate () {
-      this.$refs.form.validate()
+
+    validate_addStayForm () {
+      this.$refs.addStayForm.validate()
     },
-    reset () {
-      this.$refs.form.reset()
+    reset_addStayForm () {
+      this.$refs.addStayForm.reset()
     },
-    resetValidation () {
-      this.$refs.form.resetValidation()
+    resetValidation_addStayForm () {
+      this.$refs.addStayForm.resetValidation()
+    },
+
+    //NewHost form tools
+    validate_newHostForm () {
+      this.$refs.formNewHost.validate()
+    },
+    reset_newHostForm () {
+      this.$refs.formNewHost.reset()
+    },
+    resetValidation_newHostForm () {
+      this.$refs.formNewHost.resetValidation()
     },
 
     // Ziska data z tabulky HOSTDO
@@ -400,11 +360,10 @@ export default {
       }
     },
 
-    createNewHost(){
-      console.log(this.newHostFormName)
-      this.dialogNewHost = false
+    async createNewHost() {
+      this.validate_newHostForm()
 
-      //TODO POST na BE a vytvorit hosta
+      this.formNewHost = false
 
       this.newUser = {
         firstName: this.newHostFormName,
@@ -416,17 +375,13 @@ export default {
         phoneNumber: this.newHostFormPhoneNumber,
       };
 
-      console.log(this.newUser)
+      await this.createHostApi(this.newUser)
+      await this.getHostData();
 
-      this.createHostApi(this.newUser)
 
-      this.newHostFormName = ''
-      this.newHostFormSurname = ''
-      this.newHostFormID = ''
-      this.newHostFormBirthDate= (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10)
-      this.newHostFormEmail = ''
-      this.newHostFormPhoneNumber = ''
-      this.newHostFormAddress = ''
+
+      this.reset_newHostForm()
+      this.resetValidation_newHostForm()
     },
 
   },
