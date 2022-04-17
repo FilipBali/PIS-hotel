@@ -7,12 +7,12 @@
 
         <!--DEBUG BTN-->
         <v-btn
-          color="primary"
+          color="secondary"
           dark
           class="ma-2"
           @click="getHostsCombobox()"
         >
-          Zobraz combobox do console
+          DEBUG: Zobraz combobox do console
         </v-btn>
 
 
@@ -316,27 +316,13 @@
               </v-row>
 
               <v-btn
-                color="success"
+                color="primary"
                 class="mr-4"
-                @click="validate"
+                @click="createNewStay()"
               >
-                Validate
+                Vytvotiť pobyt
               </v-btn>
 
-              <v-btn
-                color="error"
-                class="mr-4"
-                @click="reset"
-              >
-                Reset Form
-              </v-btn>
-
-              <v-btn
-                color="warning"
-                @click="resetValidation"
-              >
-                Reset Validation
-              </v-btn>
             </v-form>
           </template>
         </v-container>
@@ -462,6 +448,45 @@ export default {
     //               FORM CALL
     //##########################################
 
+    createNewStay(){
+      console.log(this.selectedHostsCombobox)
+      console.log(this.selectedStartDate)
+      console.log(this.selectedEndDate)
+      console.log(this.selectedNewStayBoardType)
+      console.log(this.selectedNewStayPayment)
+
+
+      this.roomCategory = {
+        cost_per_bed: 44.25,
+        equipment: "posteľ, nočný stolík, skriňa, písací stôl, zrkadlo a vešiaková stena, kúpelňa, TV, telefón, WIFI",
+        id: 1,
+        type: "STANDARD"
+      }
+
+      this.newRoom = {
+        bedsNum: 2,
+        id:1,
+        roomCategory: this.roomCategory,
+        roomNumber:1,
+        state: "AVAILABLE"
+      }
+
+      this.newStay = {
+        accommodatedNumber: this.selectedHostsCombobox.length,
+        boardType: this.selectedNewStayBoardType,
+        dateFrom: this.selectedStartDate,
+        dateTo: this.selectedEndDate,
+        paymentType: this.selectedNewStayPayment,
+        state: "RESERVED",
+        rooms: [this.newRoom],
+        stayCreator: this.selectedHostsCombobox[0]
+      }
+
+      console.log(this.newStay)
+      this.db_createStay(this.newStay)
+
+    },
+
     async createNewHost() {
 
       this.validate_newHostForm()
@@ -493,6 +518,17 @@ export default {
     //##########################################
     //                API CALL
     //##########################################
+
+
+
+    // API call to create new stay in stay table
+    async db_createStay(data) {
+      try {
+        await this.$store.dispatch("stays/create", data);
+      } catch (error) {
+        console.error(error);
+      }
+    },
 
     // API call to create new host in hostdo table
     async db_createHost(data) {
