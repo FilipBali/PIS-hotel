@@ -20,6 +20,13 @@
 
     <v-card-text>
       <v-data-table :headers="headers" :items="stays" :search="search" :custom-filter="customSearch" flat>
+
+        <template v-slot:item.actionShowRooms="{ item }">
+          <a class="font-italic" @click="roomTableBtn(item)">
+            Zobraz izby ({{ getNumberOfRooms(item.rooms) }})
+          </a>
+        </template>
+
         <template v-slot:item.dateFrom="{ item }" >
           {{ formatDate(item.dateFrom) }}</template>
         <template v-slot:item.dateTo="{ item }">
@@ -41,6 +48,7 @@
         </template>
 
       </v-data-table>
+
       <template>
           <v-dialog
             v-model="dialog"
@@ -116,22 +124,22 @@
 
                     </v-col>
 
-                    <v-col
-                      cols="12"
-                      sm="6"
-                    >
-                      <v-select
-                        v-model="selectedRoomCategory"
-                        :items="roomCategories"
-                        :item-text="item => roomType(item.type)"
-                        item-value=id
-                        label="Typ izby"
-                      ></v-select>
-                    </v-col>
+<!--                    <v-col-->
+<!--                      cols="12"-->
+<!--                      sm="6"-->
+<!--                    >-->
+<!--                      <v-select-->
+<!--                        v-model="selectedRoomCategory"-->
+<!--                        :items="roomCategories"-->
+<!--                        :item-text="item => roomType(item.type)"-->
+<!--                        item-value=id-->
+<!--                        label="Typ izby"-->
+<!--                      ></v-select>-->
+<!--                    </v-col>-->
 
                     <v-col
                       cols="12"
-                      sm="6"
+                      sm="4"
                     >
                       <v-select
                         v-model="selectedState"
@@ -144,7 +152,7 @@
 
                     <v-col
                       cols="12"
-                      sm="6"
+                      sm="4"
                     >
                       <v-select
                         v-model="selectedStaysBoardType"
@@ -156,7 +164,7 @@
                     </v-col>
                     <v-col
                       cols="12"
-                      sm="6"
+                      sm="4"
                     >
                       <v-select
                         v-model="selectedStaysPayment"
@@ -189,6 +197,137 @@
             </v-card>
           </v-dialog>
       </template>
+
+      <template>
+        <v-dialog
+          v-model="roomForm"
+          persistent
+          max-width="600px"
+        >
+          <v-card>
+            <v-card-title>
+              <span class="text-h5">Zmeniť pobyt</span>
+            </v-card-title>
+            <v-card-text>
+              <v-container>
+                <v-row>
+
+                  <!--                    <v-col-->
+                  <!--                      cols="12"-->
+                  <!--                      sm="6"-->
+                  <!--                    >-->
+                  <!--                      <v-select-->
+                  <!--                        v-model="selectedRoomCategory"-->
+                  <!--                        :items="roomCategories"-->
+                  <!--                        :item-text="item => roomType(item.type)"-->
+                  <!--                        item-value=id-->
+                  <!--                        label="Typ izby"-->
+                  <!--                      ></v-select>-->
+                  <!--                    </v-col>-->
+
+                  <v-col
+                    cols="12"
+                    sm="4"
+                  >
+                    <v-select
+                      v-model="selectedState"
+                      :items="roomStateEnum"
+                      :item-text="item => item.fe"
+                      item-value=be
+                      label="Stav pobytu"
+                    ></v-select>
+                  </v-col>
+
+                  <v-col
+                    cols="12"
+                    sm="4"
+                  >
+                    <v-select
+                      v-model="selectedStaysBoardType"
+                      :items="staysBoardTypeEnum"
+                      :item-text="item => item.fe"
+                      item-value=be
+                      label="Typ pobytu"
+                    ></v-select>
+                  </v-col>
+                  <v-col
+                    cols="12"
+                    sm="4"
+                  >
+                    <v-select
+                      v-model="selectedStaysPayment"
+                      :items="staysPaymentEnum"
+                      :item-text="item => item.fe"
+                      item-value=be
+                      label="Typ platby"
+                    ></v-select>
+                  </v-col>
+                </v-row>
+              </v-container>
+            </v-card-text>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn
+                color="blue darken-1"
+                text
+                @click="roomForm = false"
+              >
+                Zatvoriť
+              </v-btn>
+              <v-btn
+                depressed
+                color="primary"
+                @click="roomForm = false"
+              >
+                Uložiť
+              </v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+      </template>
+
+      <template>
+          <v-dialog
+            v-model="roomTable"
+            persistent
+
+          >
+            <v-card>
+              <v-card-title class="text-h8">
+                Izby pobytu
+              </v-card-title>
+              <v-card-text>
+                <template>
+                  <v-data-table
+                    :headers="headersRooms"
+                    :items="rooms"
+                    :items-per-page="5"
+                    class="elevation-1"
+                  >
+
+                    <template v-slot:item.roomActions="{ item }">
+                      <v-icon small class="mr-2" @click="roomTableRowChangeBtn(item)">
+                        mdi-pencil
+                      </v-icon>
+                      <v-icon small @click="deleteRoom(item)"> mdi-delete </v-icon>
+                    </template>
+                  </v-data-table>
+                </template>
+              </v-card-text>
+              <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn
+                  color="green darken-1"
+                  text
+                  @click="roomTable = false"
+                >
+                  Zavrieť
+                </v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-dialog>
+      </template>
+
     </v-card-text>
   </v-card>
 </template>
@@ -237,10 +376,42 @@ export default {
 
       isLoading: true,
       dialog: false,
+      roomForm: false,
       search: "",
       dialogController: false,
       dialogRoom: {},
       newRoomDialog: false,
+      roomTable: false,
+      rooms: [],
+
+      headersRooms: [
+        {
+          text: "Číslo izby",
+          align: "start",
+          value: "roomNumber",
+        },
+        {
+          text: "Počet lôžok",
+          align: "start",
+          value: "bedsNum",
+        },
+        {
+          text: "Typ",
+          align: "start",
+          value: "roomCategoryType",
+        },
+        {
+          text: "Stav",
+          align: "start",
+          value: "state",
+        },
+        {
+          text: "Akcie",
+          align: "start",
+          value: "roomActions",
+        },
+      ],
+
       headers: [
         {
           text: "Číslo pobytu",
@@ -253,14 +424,18 @@ export default {
           value: "stayCreator",
         },
 
-        { text: "Číslo Izby",
+        { text: "Izby (počet)",
           align: "start",
-          value: "rooms.roomNumber"
+          value: "actionShowRooms"
         },
-        { text: "Typ Izby",
-          align: "start",
-          value: "rooms.roomType"
-        },
+        // { text: "Číslo Izby",
+        //   align: "start",
+        //   value: "rooms.roomNumber"
+        // },
+        // { text: "Typ Izby",
+        //   align: "start",
+        //   value: "rooms.roomType"
+        // },
         { text: "Počiatok pobytu",
           align: "start",
           value: "dateFrom"
@@ -415,6 +590,10 @@ export default {
       return false;
     },
 
+    getNumberOfRooms(item){
+       return item.length
+    },
+
     async getData() {
       await Promise.all([await this.getAllStaysApi()]);
       await Promise.all([await this.getAllRoomCategoriesApi()]);
@@ -451,6 +630,21 @@ export default {
 
     formatDateDataPicker(date) {
       return moment(date).format("YYYY-");
+    },
+
+    roomState(state) {
+      switch (state) {
+        case "AVAILABLE":
+          return "dostupná";
+        case "UNAVAILABLE":
+          return "nedostupná";
+        case "OCCUPIED":
+          return "obsadená";
+        case "RESERVED":
+          return "rezervovaná";
+        default:
+          return "";
+      }
     },
 
     roomType(state) {
@@ -539,6 +733,48 @@ export default {
       this.dialogController = val;
     },
 
+    roomTableBtn(item){
+      console.log(item)
+
+      this.rooms = []
+      for(let i = 0; i < item.rooms.length; i++){
+        console.log(item.rooms[i]);
+        this.rooms.push({
+            roomNumber: item.rooms[i].roomNumber,
+            bedsNum: item.rooms[i].bedsNum,
+            roomCategoryType: this.roomType(item.rooms[i].roomCategory.type),
+            state: this.roomState(item.rooms[i].state)
+      })
+      }
+      console.log(this.rooms)
+
+      this.roomTable = true;
+    },
+
+    deleteRoom(item){
+
+    },
+
+    roomTableRowChangeBtn(item){
+
+      // selectedRoomCategory needs id (database primary key from room_category table) of room type
+      this.selectedRoomCategory = this.roomTypeToRoomID(item.type)
+
+      // roomState needs backend(be) interpretation
+      this.selectedState = item.state
+
+      // Also needs backend interpretation
+      this.selectedStaysBoardType = item.boardType
+      this.selectedStaysPayment = item.paymentType
+
+      // Needs ISO format => YYYY-MM-DD
+      this.selectedStartDate = moment(item.dateFrom).format('YYYY-MM-DD')
+      this.selectedEndDate = moment(item.dateTo).format('YYYY-MM-DD')
+
+      this.roomForm = true;
+
+    },
+
     tableRowChangeBtn(item){
 
       // selectedRoomCategory needs id (database primary key from room_category table) of room type
@@ -556,6 +792,7 @@ export default {
       this.selectedEndDate = moment(item.dateTo).format('YYYY-MM-DD')
 
       this.dialog = true;
+
     },
 
     getCustomerFullName(stayCreator)
