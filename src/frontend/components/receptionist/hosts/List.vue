@@ -147,14 +147,10 @@ export default {
     {
         let list = "";
 
-        console.log("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAaa");
-
-        for (let i = 0; i < this.stays.length; i++)
+          for (let i = 0; i < this.stays.length; i++)
         {
           if (this.stays[i].stayCreator.idNumber === person.idNumber)
             {
-              console.log( "ROVNAJU SAAAA::: " + person.firstName + " a " + this.stays[i].stayCreator.firstName);
-
               if (list === "")
               {
                 list = list.concat(this.stays[i].id.toString());

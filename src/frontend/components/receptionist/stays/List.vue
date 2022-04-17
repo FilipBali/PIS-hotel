@@ -780,9 +780,6 @@ export default {
     //##########################################
     serviceTableBtn(item)
     {
-      console.log("SOMMMMMMMMMMMMMMMM V SERVICEEEEEEE");
-      console.log(this.services);
-      console.log(item);
 
       let serv = this.services;
       this.concServices = [];
@@ -790,10 +787,8 @@ export default {
       for(let i = 0; i < serv.length; i++)
       {
 
-        console.log(serv[i].stay.id + " medzerka: " + item.id );
         if (serv[i].stay.id === item.id )
         {
-          console.log("ROVNAJU SA: " + serv[i].stay.id + " medzerka: " + item.id );
           this.concServices.push(
             {
               serviceType: serv[i].serviceType,

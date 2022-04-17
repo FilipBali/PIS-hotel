@@ -163,7 +163,7 @@
                       <template v-slot:activator="{ on, attrs }">
                         <v-text-field
                           v-model="selectedTime"
-                          label="Dátum"
+                          label="Čas"
                           prepend-icon="mdi-alarm"
                           readonly
                           v-bind="attrs"
@@ -176,13 +176,6 @@
                       @input="timePickerService = false"
                     ></v-time-picker>
                     </v-menu>
-                  </v-col>
-
-                  <v-col
-                    cols="12"
-                    sm="6"
-                  >
-
                   </v-col>
 
                   <v-col
@@ -223,6 +216,146 @@
         </v-dialog>
       </template>
 
+
+
+      <!--  EDIT SERVICE -->
+      <template>
+        <v-dialog
+          v-model="editDialog"
+          persistent
+          max-width="600px"
+        >
+          <v-card>
+            <v-card-title>
+              <span class="text-h5">Zmeniť službu</span>
+            </v-card-title>
+
+            <v-card-text>
+              <v-container>
+                <v-row>
+
+                  <v-col
+                    cols="12"
+                    sm="4"
+                  >
+                    <v-select
+                      v-model="selectReservationState"
+                      :items="reservationStateEnum"
+                      :item-text="item => item.fe"
+                      item-value=be
+                      label="Stav rezervácie"
+                    ></v-select>
+                  </v-col>
+
+                  <v-col
+                    cols="12"
+                    sm="4"
+                  >
+                    <v-select
+                      v-model="selectReservationState"
+                      :items="staysPaymentEnum"
+                      :item-text="item => item.fe"
+                      item-value=be
+                      label="Typ platby"
+                    ></v-select>
+                  </v-col>
+
+                  <v-col
+                    cols="12"
+                    sm="6"
+                  >
+                    <v-menu
+                      v-model="selectNewDate"
+                      :close-on-content-click="false"
+                      :nudge-right="40"
+                      transition="scale-transition"
+                      offset-y
+                      min-width="auto"
+                    >
+                      <template v-slot:activator="{ on, attrs }">
+                        <v-text-field
+                          v-model="selectedDateService"
+                          label="Dátum"
+                          prepend-icon="mdi-calendar"
+                          readonly
+                          v-bind="attrs"
+                          v-on="on"
+                        ></v-text-field>
+                      </template>
+                      <v-date-picker
+                        v-model="selectedDateService"
+                        @input="selectNewDate = false"
+                      ></v-date-picker>
+                    </v-menu>
+                  </v-col>
+
+                  <v-col
+                    cols="12"
+                    sm="6"
+                  >
+                    <v-menu
+                      v-model="selectedTimePickerService"
+                      :close-on-content-click="false"
+                      :nudge-right="40"
+                      transition="scale-transition"
+                      offset-y
+                      min-width="auto"
+                    >
+                      <template v-slot:activator="{ on, attrs }">
+                        <v-text-field
+                          v-model="selectedTime"
+                          label="Čas"
+                          prepend-icon="mdi-alarm"
+                          readonly
+                          v-bind="attrs"
+                          v-on="on"
+                        ></v-text-field>
+                      </template>
+                      <v-time-picker
+                        v-model="selectedTime"
+                        format="ampm"
+                        @input="selectedTimePickerService = false"
+                      ></v-time-picker>
+                    </v-menu>
+                  </v-col>
+
+                  <v-col
+                    cols="12"
+                    sm="6"
+                  >
+                    <v-text-field
+                      v-model="selectTrackAmout"
+                      label="Počet dráh"
+                    ></v-text-field>
+                 </v-col>
+
+
+                </v-row>
+              </v-container>
+            </v-card-text>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn
+                color="blue darken-1"
+                text
+                @click="editDialog = false"
+              >
+                Zatvoriť
+              </v-btn>
+              <v-btn
+                depressed
+                color="primary"
+                @click="editDialog = false"
+              >
+                Uložiť
+              </v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+      </template>
+
+
+
      </v-card-text>
   </v-card>
 </template>
@@ -239,6 +372,29 @@ export default {
         { be: 'MASSAGE', fe: 'masáž' }
       ],
 
+      reservationStateEnum: [
+        { be: 'ACTIVE', fe: 'aktívny' },
+        { be: 'RESERVED', fe: 'rezervovaný' },
+        { be: 'CANCELED', fe: 'zrušený' },
+        { be: 'FINISHED', fe: 'ukončený' }
+      ],
+
+      staysPaymentEnum: [
+        { be: 'CARD', fe: 'kartou' },
+        { be: 'CASH', fe: 'hotovostne' }
+      ],
+
+      selectReservationState : "UNAVAILABLE",
+      selectedService: "UNAVAILABLE",
+
+      selectedDateService: (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10),
+      datePickerStartStay: false,
+
+      //selectedTime: false,
+      //selectedTimePickerService:  (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10),
+
+      selectTrackAmout: 0,
+
       isLoading: true,
       search: "",
       selectedHostsCombobox: [],
@@ -247,8 +403,10 @@ export default {
       timePickerService: false,
       newTime: "",
 
+      editDialog: false,
+
       selectedStartDate: (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10),
-      datePickerStartStay: false,
+      selectNewDate: false,
 
 
       dialogController: false,
@@ -415,9 +573,6 @@ export default {
       };
     },
 
-    editService(user) {
-
-    },
 
     async getAllRoomsApi() {
       try {
@@ -428,6 +583,11 @@ export default {
     },
 
 
+    //EDIT FORM
+    editService(item)
+    {
+      this.editDialog = true;
+    },
 
   },
 };
