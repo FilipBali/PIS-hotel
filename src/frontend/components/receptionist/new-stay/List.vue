@@ -100,7 +100,7 @@
                       sm="6"
                     >
                       <v-menu
-                        v-model="datePickerStartStay"
+                        v-model="datePickerBirthStay"
                         :close-on-content-click="false"
                         :nudge-right="40"
                         transition="scale-transition"
@@ -110,7 +110,7 @@
                       >
                         <template v-slot:activator="{ on, attrs }">
                           <v-text-field
-                            v-model="selectedStartDate"
+                            v-model="selectedBirthDate"
                             label="Začiatok pobytu"
                             prepend-icon="mdi-calendar"
                             readonly
@@ -119,8 +119,8 @@
                           ></v-text-field>
                         </template>
                         <v-date-picker
-                          v-model="selectedStartDate"
-                          @input="datePickerStartStay = false"
+                          v-model="selectedBirthDate"
+                          @input="datePickerBirthStay = false"
                         ></v-date-picker>
                       </v-menu>
                     </v-col>
@@ -224,7 +224,96 @@
                 dense
               >
               </v-combobox>
+              <v-row>
+                  <v-col
+                    cols="1"
+                    sm="1"
 
+                  >
+                    <v-menu
+                      v-model="datePickerStartStay"
+                      :close-on-content-click="false"
+                      :nudge-right="40"
+                      transition="scale-transition"
+                      offset-y
+                      min-width="auto"
+                    >
+                      <template v-slot:activator="{ on, attrs }">
+                        <v-text-field
+                          v-model="selectedStartDate"
+                          label="Začiatok pobytu"
+                          prepend-icon="mdi-calendar"
+                          readonly
+                          v-bind="attrs"
+                          v-on="on"
+                        ></v-text-field>
+                      </template>
+                      <v-date-picker
+                        v-model="selectedStartDate"
+                        @input="datePickerStartStay = false"
+                      ></v-date-picker>
+                    </v-menu>
+
+                  </v-col>
+
+                  <v-col
+                    cols="1"
+                    sm="1"
+
+                  >
+                    <v-menu
+                      v-model="datePickerEndStay"
+                      :close-on-content-click="false"
+                      :nudge-right="40"
+                      transition="scale-transition"
+                      offset-y
+                      min-width="auto"
+                    >
+                      <template v-slot:activator="{ on, attrs }">
+                        <v-text-field
+                          v-model="selectedEndDate"
+                          label="Koniec pobytu"
+                          prepend-icon="mdi-calendar"
+                          readonly
+                          v-bind="attrs"
+                          v-on="on"
+                        ></v-text-field>
+                      </template>
+                      <v-date-picker
+                        v-model="selectedEndDate"
+                        @input="datePickerEndStay = false"
+                      ></v-date-picker>
+                    </v-menu>
+
+                  </v-col>
+
+
+                  <v-col
+                    cols="2"
+                    sm="2"
+                  >
+                    <v-select
+                      v-model="selectedNewStayBoardType"
+                      :items="newStaysBoardTypeEnum"
+                      :item-text="item => item.fe"
+                      item-value=be
+                      label="Typ pobytu"
+                    ></v-select>
+                  </v-col>
+
+                  <v-col
+                    cols="2"
+                    sm="2"
+                  >
+                    <v-select
+                      v-model="selectedNewStayPayment"
+                      :items="newStayPaymentEnum"
+                      :item-text="item => item.fe"
+                      item-value=be
+                      label="Typ platby"
+                    ></v-select>
+                  </v-col>
+              </v-row>
 
               <v-btn
                 color="success"
@@ -265,12 +354,23 @@ export default {
   components: {List},
   data: () => ({
 
+    //##########################################
+    //               DATEPICKER
+    //##########################################
+    selectedBirthDate: (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10),
+    datePickerBirthStay: false,
+
     selectedStartDate: (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10),
     datePickerStartStay: false,
 
+    selectedEndDate: (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10),
+    datePickerEndStay: false,
+
     calendarPicker: false,
 
-    // Premenne formularu pre noveho hosta
+    //##########################################
+    //               NEW HOST
+    //##########################################
     newHostFormName: '',
     newHostFormSurname: '',
     newHostFormID: '',
@@ -279,10 +379,28 @@ export default {
     newHostFormPhoneNumber: '',
     newHostFormAddress: '',
 
+    //##########################################
+    // be = backend interpretation
+    // fe = frontend interpretation
+    // We need create structure because there is no enumerator table for it
+    //##########################################
+    selectedNewStayBoardType: "",
+    newStaysBoardTypeEnum: [
+      { be: 'HALFBOARD', fe: 'polpenzia' },
+      { be: 'FULLBOARD', fe: 'plná penzia' }
+    ],
+    selectedNewStayPayment: "",
+    newStayPaymentEnum: [
+      { be: 'CARD', fe: 'kartou' },
+      { be: 'CASH', fe: 'hotovostne' }
+    ],
+
+
+    //##########################################
+    //
+    //##########################################
     selectedHostsCombobox: [],
-
     formNewHost: false,
-
     validFormNewHost: true,
     valid: true,
     select: null,
@@ -304,12 +422,20 @@ export default {
 
   methods: {
 
+    // Preformatuje datum
+    formatDate(date) {
+      return moment(date).format("DD. MM. YYYY");
+    },
+
+    //##########################################
+    //               FORM TOOLS
+    //##########################################
+
     // Ziska ID vybranych uzivalov z comboboxu
     getHostsCombobox() {
       console.log(this.selectedHostsCombobox)
       return this.selectedHostsCombobox
     },
-
 
     validate_addStayForm () {
       this.$refs.addStayForm.validate()
@@ -332,35 +458,12 @@ export default {
       this.$refs.formNewHost.resetValidation()
     },
 
-    // Ziska data z tabulky HOSTDO
-    async getHostData() {
-      // TODO: add getAllRoles()
-      await Promise.all([await this.getAllHosts()]);
-      this.isLoading = false;
-    },
-    // Ziska data z tabulky HOSTDO
-    async getAllHosts() {
-      try {
-        await this.$store.dispatch("hosts/getAll");
-      } catch (error) {
-        console.error(error);
-      }
-    },
-
-    // Preformatuje datum
-    formatDate(date) {
-      return moment(date).format("DD. MM. YYYY");
-    },
-
-    async createHostApi(data) {
-      try {
-        await this.$store.dispatch("hosts/create", data);
-      } catch (error) {
-        console.error(error);
-      }
-    },
+    //##########################################
+    //               FORM CALL
+    //##########################################
 
     async createNewHost() {
+
       this.validate_newHostForm()
 
       this.formNewHost = false
@@ -375,13 +478,43 @@ export default {
         phoneNumber: this.newHostFormPhoneNumber,
       };
 
-      await this.createHostApi(this.newUser)
+      await this.db_createHost(this.newUser)
       await this.getHostData();
 
 
 
       this.reset_newHostForm()
       this.resetValidation_newHostForm()
+    },
+
+
+    //##########################################
+    //                API CALL
+    //##########################################
+
+    // API call to create new host in hostdo table
+    async db_createHost(data) {
+      try {
+        await this.$store.dispatch("hosts/create", data);
+      } catch (error) {
+        console.error(error);
+      }
+    },
+
+    // Ziska data z tabulky HOSTDO
+    async getHostData() {
+      // TODO: add getAllRoles()
+      await Promise.all([await this.getAllHosts()]);
+      this.isLoading = false;
+    },
+
+    // Ziska data z tabulky HOSTDO
+    async getAllHosts() {
+      try {
+        await this.$store.dispatch("hosts/getAll");
+      } catch (error) {
+        console.error(error);
+      }
     },
 
   },

@@ -342,38 +342,50 @@ export default {
   data() {
     return{
 
+      //##########################################
       // be = backend interpretation
       // fe = frontend interpretation
       // We need create structure because there is no enumerator table for it
-      // TODO create global file with all structures and export it to all *.vue?
+      //##########################################
+
+      // form values initialization with fictive error values
+      selectedState: "UNAVAILABLE",
       roomStateEnum: [
         { be: 'RESERVED', fe: 'rezervovaný' },
         { be: 'CANCELED', fe: 'zrušený' },
         { be: 'ACTIVE', fe: 'aktívny' },
         { be: 'FINISHED', fe: 'skončený' }
       ],
+
+      // form values initialization with fictive error values
+      selectedStaysBoardType: "UNAVAILABLE",
       staysBoardTypeEnum: [
         { be: 'HALFBOARD', fe: 'polpenzia' },
         { be: 'FULLBOARD', fe: 'plná penzia' }
       ],
+
+      // form values initialization with fictive error values
+      selectedStaysPayment: "UNAVAILABLE",
       staysPaymentEnum: [
         { be: 'CARD', fe: 'kartou' },
         { be: 'CASH', fe: 'hotovostne' }
       ],
-
       // form values initialization with fictive error values
-      selectedState: "UNAVAILABLE",
       selectedRoomCategory: -1,
-      selectedStaysBoardType: "UNAVAILABLE",
-      selectedStaysPayment: "UNAVAILABLE",
 
+
+      //##########################################
+      //               DATEPICKER
+      //##########################################
       selectedStartDate: (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10),
       datePickerStartStay: false,
 
       selectedEndDate: (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10),
       datePickerEndStay: false,
 
-
+      //##########################################
+      //
+      //##########################################
       isLoading: true,
       dialog: false,
       roomForm: false,
@@ -384,6 +396,13 @@ export default {
       roomTable: false,
       rooms: [],
 
+      //##########################################
+      //               HEADERS
+      //##########################################
+
+      //#############################
+      //        ROOMS TABLE
+      //#############################
       headersRooms: [
         {
           text: "Číslo izby",
@@ -412,6 +431,9 @@ export default {
         },
       ],
 
+      //#############################
+      //        STAYS TABLE
+      //#############################
       headers: [
         {
           text: "Číslo pobytu",
@@ -490,6 +512,10 @@ export default {
       newStay() {
        this.$router.push('new-stay');
     },
+
+    //##########################################
+    //               TOOLS
+    //##########################################
 
     customSearch (value, search, item)
     {
@@ -594,35 +620,6 @@ export default {
        return item.length
     },
 
-    async getData() {
-      await Promise.all([await this.getAllStaysApi()]);
-      await Promise.all([await this.getAllRoomCategoriesApi()]);
-      this.isLoading = false;
-    },
-
-    async getAllStaysApi() {
-      try {
-        await console.log(this.$store.dispatch("stays/getAll"));
-      } catch (error) {
-        console.error(error);
-      }
-    },
-
-    async getAllRoomCategoriesApi() {
-      try {
-        await this.$store.dispatch("roomCategories/getAll");
-      } catch (error) {
-        console.error(error);
-      }
-    },
-
-    async deleteUserApi(id) {
-      try {
-        await this.$store.dispatch("stays/delete", id);
-      } catch (error) {
-        console.error(error);
-      }
-    },
 
     formatDate(date) {
       return moment(date).format("DD. MM. YYYY");
@@ -632,6 +629,92 @@ export default {
       return moment(date).format("YYYY-");
     },
 
+    editStay(room) {
+      this.dialogController = true;
+      this.newRoomDialog = false;
+      this.dialogRoom = JSON.parse(JSON.stringify(stays)); // deepcopy
+    },
+
+    closeDialog(val) {
+      this.dialogController = val;
+    },
+
+
+    //##########################################
+    //               FORM CALL
+    //##########################################
+
+    roomTableBtn(item){
+      console.log(item)
+
+      this.rooms = []
+      for(let i = 0; i < item.rooms.length; i++){
+        console.log(item.rooms[i]);
+        this.rooms.push({
+          roomNumber: item.rooms[i].roomNumber,
+          bedsNum: item.rooms[i].bedsNum,
+          roomCategoryType: this.roomType(item.rooms[i].roomCategory.type),
+          state: this.roomState(item.rooms[i].state)
+        })
+      }
+      console.log(this.rooms)
+
+      this.roomTable = true;
+    },
+
+    deleteRoom(item){
+
+    },
+
+    roomTableRowChangeBtn(item){
+
+      // selectedRoomCategory needs id (database primary key from room_category table) of room type
+      this.selectedRoomCategory = this.roomTypeToRoomID(item.type)
+
+      // roomState needs backend(be) interpretation
+      this.selectedState = item.state
+
+      // Also needs backend interpretation
+      this.selectedStaysBoardType = item.boardType
+      this.selectedStaysPayment = item.paymentType
+
+      // Needs ISO format => YYYY-MM-DD
+      this.selectedStartDate = moment(item.dateFrom).format('YYYY-MM-DD')
+      this.selectedEndDate = moment(item.dateTo).format('YYYY-MM-DD')
+
+      this.roomForm = true;
+
+    },
+
+    tableRowChangeBtn(item){
+
+      // selectedRoomCategory needs id (database primary key from room_category table) of room type
+      this.selectedRoomCategory = this.roomTypeToRoomID(item.type)
+
+      // roomState needs backend(be) interpretation
+      this.selectedState = item.state
+
+      // Also needs backend interpretation
+      this.selectedStaysBoardType = item.boardType
+      this.selectedStaysPayment = item.paymentType
+
+      // Needs ISO format => YYYY-MM-DD
+      this.selectedStartDate = moment(item.dateFrom).format('YYYY-MM-DD')
+      this.selectedEndDate = moment(item.dateTo).format('YYYY-MM-DD')
+
+      this.dialog = true;
+
+    },
+
+    getCustomerFullName(stayCreator)
+    {
+      return stayCreator.firstName.concat(" ",stayCreator.lastName);
+    },
+
+
+    //###########################
+    //         MAPPING
+    //###########################
     roomState(state) {
       switch (state) {
         case "AVAILABLE":
@@ -710,10 +793,37 @@ export default {
       }
     },
 
-    editStay(room) {
-      this.dialogController = true;
-      this.newRoomDialog = false;
-      this.dialogRoom = JSON.parse(JSON.stringify(stays)); // deepcopy
+    //##########################################
+    //                API CALL
+    //##########################################
+    async getData() {
+      await Promise.all([await this.getAllStaysApi()]);
+      await Promise.all([await this.getAllRoomCategoriesApi()]);
+      this.isLoading = false;
+    },
+
+    async getAllStaysApi() {
+      try {
+        await console.log(this.$store.dispatch("stays/getAll"));
+      } catch (error) {
+        console.error(error);
+      }
+    },
+
+    async getAllRoomCategoriesApi() {
+      try {
+        await this.$store.dispatch("roomCategories/getAll");
+      } catch (error) {
+        console.error(error);
+      }
+    },
+
+    async deleteUserApi(id) {
+      try {
+        await this.$store.dispatch("stays/delete", id);
+      } catch (error) {
+        console.error(error);
+      }
     },
 
     async deleteStay(id) {
@@ -728,78 +838,6 @@ export default {
         console.error(error);
       }
     },
-
-    closeDialog(val) {
-      this.dialogController = val;
-    },
-
-    roomTableBtn(item){
-      console.log(item)
-
-      this.rooms = []
-      for(let i = 0; i < item.rooms.length; i++){
-        console.log(item.rooms[i]);
-        this.rooms.push({
-            roomNumber: item.rooms[i].roomNumber,
-            bedsNum: item.rooms[i].bedsNum,
-            roomCategoryType: this.roomType(item.rooms[i].roomCategory.type),
-            state: this.roomState(item.rooms[i].state)
-      })
-      }
-      console.log(this.rooms)
-
-      this.roomTable = true;
-    },
-
-    deleteRoom(item){
-
-    },
-
-    roomTableRowChangeBtn(item){
-
-      // selectedRoomCategory needs id (database primary key from room_category table) of room type
-      this.selectedRoomCategory = this.roomTypeToRoomID(item.type)
-
-      // roomState needs backend(be) interpretation
-      this.selectedState = item.state
-
-      // Also needs backend interpretation
-      this.selectedStaysBoardType = item.boardType
-      this.selectedStaysPayment = item.paymentType
-
-      // Needs ISO format => YYYY-MM-DD
-      this.selectedStartDate = moment(item.dateFrom).format('YYYY-MM-DD')
-      this.selectedEndDate = moment(item.dateTo).format('YYYY-MM-DD')
-
-      this.roomForm = true;
-
-    },
-
-    tableRowChangeBtn(item){
-
-      // selectedRoomCategory needs id (database primary key from room_category table) of room type
-      this.selectedRoomCategory = this.roomTypeToRoomID(item.type)
-
-      // roomState needs backend(be) interpretation
-      this.selectedState = item.state
-
-      // Also needs backend interpretation
-      this.selectedStaysBoardType = item.boardType
-      this.selectedStaysPayment = item.paymentType
-
-      // Needs ISO format => YYYY-MM-DD
-      this.selectedStartDate = moment(item.dateFrom).format('YYYY-MM-DD')
-      this.selectedEndDate = moment(item.dateTo).format('YYYY-MM-DD')
-
-      this.dialog = true;
-
-    },
-
-    getCustomerFullName(stayCreator)
-    {
-      return stayCreator.firstName.concat(" ",stayCreator.lastName);
-    },
-
 
   }
 };
