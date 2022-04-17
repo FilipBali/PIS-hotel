@@ -149,12 +149,12 @@ public class Configurator {
                     cat_l
             );
             RoomDO room5 = new RoomDO(
-                    2,
+                    5,
                     2,
                     cat_l
             );
             RoomDO room6 = new RoomDO(
-                    4,
+                    6,
                     4,
                     cat_s
             );
