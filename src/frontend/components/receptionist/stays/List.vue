@@ -21,6 +21,11 @@
     <v-card-text>
       <v-data-table :headers="headers" :items="stays" :search="search" :custom-filter="customSearch" flat>
 
+
+        <template v-slot:item.stayCreator="{ item }">
+          {{getCustomerFullName(item.stayCreator) }}</template>
+
+
         <template v-slot:item.actionShowRooms="{ item }">
           <a class="font-italic" @click="roomTableBtn(item)">
             Zobraz izby ({{ getNumberOfRooms(item.rooms) }})
@@ -37,8 +42,14 @@
           {{staysBoardType(item.boardType) }}</template>
         <template v-slot:item.paymentType="{ item }">
           {{staysPaymentType(item.paymentType) }}</template>
-        <template v-slot:item.stayCreator="{ item }">
-          {{getCustomerFullName(item.stayCreator) }}</template>
+
+
+        <template v-slot:item.servicesList="{ item }">
+          <a class="font-italic" @click="serviceTableBtn(item)">
+            Zobraz služby ({{ getServicesNumber(item) }})
+          </a>
+        </template>
+
 
         <template v-slot:item.actions="{ item }">
           <v-icon small class="mr-2" @click="tableRowChangeBtn(item)">
@@ -48,6 +59,7 @@
         </template>
 
       </v-data-table>
+
 
       <template>
           <v-dialog
@@ -328,6 +340,56 @@
           </v-dialog>
       </template>
 
+      <!-- SERVICES TABLE -->
+      <template>
+        <v-dialog
+          v-model="serviceTable"
+          persistent>
+          <v-card>
+            <v-card-title class="text-h8">
+              Registrované služby
+            </v-card-title>
+            <v-card-text>
+              <template>
+                <v-data-table
+                  :headers="headersService"
+                  :items="concServices"
+                  :items-per-page="5"
+                  class="elevation-1"
+                >
+
+                  <template v-slot:item.serviceActions="{ item }">
+                    <v-icon small class="mr-2" @click="editService()">
+                      mdi-arrow-u-right-top
+                    </v-icon>
+                  </template>
+
+                  <template v-slot:item.timeFrom="{ item }" >
+                    {{ getDay(item.timeFrom) }}</template>
+
+                  <template v-slot:item.timeTo="{ item }" >
+                    {{ getTime(item.timeFrom,item.timeTo) }}</template>
+
+
+                </v-data-table>
+              </template>
+            </v-card-text>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn
+                color="green darken-1"
+                text
+                @click="serviceTable = false"
+              >
+                Zavrieť
+              </v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+      </template>
+
+
+
     </v-card-text>
   </v-card>
 </template>
@@ -335,6 +397,7 @@
 import { mapState } from "vuex";
 import ReceptionistLayout from "../../../layouts/bowling";
 import moment from "moment";
+import services from "../../../pages/receptionist/services";
 
 export default {
 
@@ -394,7 +457,9 @@ export default {
       dialogRoom: {},
       newRoomDialog: false,
       roomTable: false,
+      serviceTable: false,
       rooms: [],
+      concServices: [],
 
       //##########################################
       //               HEADERS
@@ -430,6 +495,37 @@ export default {
           value: "roomActions",
         },
       ],
+      //#############################
+      //        Service TABLE
+      //#############################
+      headersService: [
+        {
+          text: "Typ služby",
+          align: "start",
+          value: "serviceType",
+        },
+        {
+          text: "Počet dráh",
+          align: "start",
+          value: "bowlingTracks",
+        },
+        {
+          text: "Čas",
+          align: "start",
+          value: "timeTo",
+        },
+        {
+          text: "Dátum",
+          align: "start",
+          value: "timeFrom",
+        },
+        {
+          text: "Akcie",
+          align: "start",
+          value: "serviceActions",
+        },
+      ],
+
 
       //#############################
       //        STAYS TABLE
@@ -487,9 +583,9 @@ export default {
           value: "paymentType",
         },
         {
-          text: "Služby",
+          text: "Služby(počet)",
           align: "start",
-          value: "services",
+          value: "servicesList",
         },
         {
           text: "Akcie",
@@ -503,6 +599,7 @@ export default {
     ...mapState({
       stays: (state) => state.stays.items,
       roomCategories: (state) => state.roomCategories.items,
+      services: (state) => state.services.items,
     }),
   },
   created() {
@@ -511,6 +608,9 @@ export default {
   methods: {
       newStay() {
        this.$router.push('new-stay');
+    },
+    editService() {
+      this.$router.push('services');
     },
 
     //##########################################
@@ -620,6 +720,19 @@ export default {
        return item.length
     },
 
+    getServicesNumber(item)
+    {
+      let serv = this.services;
+      let count = 0;
+
+      for (let i = 0; i < serv.length; i++)
+      {
+          if (item.id === serv[i].stay.id)
+            count++;
+      }
+      return count;
+    },
+
 
     formatDate(date) {
       return moment(date).format("DD. MM. YYYY");
@@ -641,7 +754,7 @@ export default {
 
 
     //##########################################
-    //               FORM CALL
+    //               ROOM FORM CALL
     //##########################################
 
     roomTableBtn(item){
@@ -661,6 +774,53 @@ export default {
 
       this.roomTable = true;
     },
+
+    //##########################################
+    //               SERVICE FORM CALL
+    //##########################################
+    serviceTableBtn(item)
+    {
+      console.log("SOMMMMMMMMMMMMMMMM V SERVICEEEEEEE");
+      console.log(this.services);
+      console.log(item);
+
+      let serv = this.services;
+      this.concServices = [];
+
+      for(let i = 0; i < serv.length; i++)
+      {
+
+        console.log(serv[i].stay.id + " medzerka: " + item.id );
+        if (serv[i].stay.id === item.id )
+        {
+          console.log("ROVNAJU SA: " + serv[i].stay.id + " medzerka: " + item.id );
+          this.concServices.push(
+            {
+              serviceType: serv[i].serviceType,
+              bowlingTracks: serv[i].bowlingTracks,
+              timeFrom: serv[i].timeFrom,
+              timeTo: serv[i].timeTo,
+            })
+        }
+      }
+
+      this.serviceTable = true;
+    },
+
+    getDay(date)
+    {
+      return moment(date).format("DD. MM. YYYY");
+    },
+
+    getTime(start,stop)
+    {
+      let time = "";
+      time = time.concat(start[3].toString(),":",start[4].toString());
+      time = time.concat(" - ",stop[3].toString(),":",stop[4].toString())
+      return time;
+    },
+
+
 
     deleteRoom(item){
 
@@ -683,6 +843,11 @@ export default {
       this.selectedEndDate = moment(item.dateTo).format('YYYY-MM-DD')
 
       this.roomForm = true;
+
+    },
+
+    //TODO
+    serviceTableRowChangeBtn(item){
 
     },
 
@@ -799,6 +964,7 @@ export default {
     async getData() {
       await Promise.all([await this.getAllStaysApi()]);
       await Promise.all([await this.getAllRoomCategoriesApi()]);
+      await Promise.all([await this.getAllServicesApi()]);
       this.isLoading = false;
     },
 
@@ -813,6 +979,14 @@ export default {
     async getAllRoomCategoriesApi() {
       try {
         await this.$store.dispatch("roomCategories/getAll");
+      } catch (error) {
+        console.error(error);
+      }
+    },
+
+    async getAllServicesApi() {
+      try {
+        await this.$store.dispatch("services/getAll");
       } catch (error) {
         console.error(error);
       }

@@ -2,7 +2,7 @@
 <template>
   <v-card>
     <v-card-title primary-title>
-      Zoznam pobytov <v-spacer></v-spacer>
+      Zoznam hostí <v-spacer></v-spacer>
 
       <v-autocomplete
         dense
@@ -24,8 +24,14 @@
 
     <v-card-text>
       <v-data-table :headers="headers" :items="hosts" :search="search" flat>
+
         <template v-slot:item.dateOfBirth="{ item }">
           {{ formatDate(item.dateOfBirth) }}</template>
+
+        <template v-slot:item.staysList="{ item }">
+          {{ getStaysList(item) }}</template>
+
+
 
       </v-data-table>
     </v-card-text>
@@ -77,22 +83,9 @@ export default {
           value: "email",
         },
         {
-          text: "Pobyt",
+          text: "Pobyty",
           align: "start",
-          value: "stayID",
-        },
-        { text: "Číslo Izby",
-          align: "start",
-          value: "roomNumber" },
-        {
-          text: "Stav pobytu",
-          align: "start",
-          value: "staysState",
-        },
-        {
-          text: "Služby",
-          align: "start",
-          value: "services",
+          value: "staysList",
         },
       ],
     };
@@ -100,6 +93,7 @@ export default {
   computed: {
     ...mapState({
       hosts: (state) => state.hosts.items,
+      stays: (state) => state.stays.items,
     }),
   },
   created() {
@@ -109,6 +103,7 @@ export default {
 
     async getData() {
       await Promise.all([await this.getAllHostsApi()]);
+      await Promise.all([await this.getAllStaysApi()]);
       this.isLoading = false;
     },
 
@@ -116,6 +111,15 @@ export default {
       try {
         await console.log(this.$store.dispatch("hosts/getAll"));
         await this.$store.dispatch("hosts/getAll");
+      } catch (error) {
+        console.error(error);
+      }
+    },
+
+    async getAllStaysApi() {
+      try {
+        await console.log(this.$store.dispatch("stays/getAll"));
+        await this.$store.dispatch("stays/getAll");
       } catch (error) {
         console.error(error);
       }
@@ -137,6 +141,33 @@ export default {
     formatDate(date) {
       return moment(date).format("DD. MM. YYYY");
     },
+
+
+    getStaysList(person)
+    {
+        let list = "";
+
+        console.log("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAaa");
+
+        for (let i = 0; i < this.stays.length; i++)
+        {
+          if (this.stays[i].stayCreator.idNumber === person.idNumber)
+            {
+              console.log( "ROVNAJU SAAAA::: " + person.firstName + " a " + this.stays[i].stayCreator.firstName);
+
+              if (list === "")
+              {
+                list = list.concat(this.stays[i].id.toString());
+              }
+              else
+              {
+                list = list.concat(",",this.stays[i].id.toString());
+              }
+            }
+        }
+        return list;
+    },
+
 
   }
 };

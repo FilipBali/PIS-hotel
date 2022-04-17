@@ -102,7 +102,7 @@ public class Configurator {
                     "Nováková",
                     LocalDate.of(1992, Month.AUGUST, 12),
                     "Ceska 39, Praha, CZ",
-                    "E502409856",
+                    "E402409856",
                     "004209854535656",
                     "majena.nov@vut.cz"
             );
@@ -260,7 +260,18 @@ public class Configurator {
                     2L
             );
 
+            ServiceDO service2 = new ServiceDO(
+                    LocalDateTime.of(2022, Month.FEBRUARY, 27, 14, 30),
+                    LocalDateTime.of(2022, Month.FEBRUARY, 27, 15, 30),
+                    ServiceTypeEnum.BOWLING,
+                    PaymentTypeEnum.CARD,
+                    1,
+                    StateEnum.RESERVED,
+                    stay
+            );
+
             stayService.createService(service1);
+            stayService.createService(service2);
             stayService.createAndAssignService(serviceDTO2);
         };
     }
