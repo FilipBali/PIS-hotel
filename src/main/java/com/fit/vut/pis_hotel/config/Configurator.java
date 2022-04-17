@@ -64,8 +64,19 @@ public class Configurator {
                     "admin.fit@vut.cz",
                     "1234"
             );
+            UserDO rec = new UserDO(
+                    "rec",
+                    "rec",
+                    LocalDate.of(2000, Month.JUNE, 20),
+                    "Rec 2, Brno, CZ",
+                    "E50321123",
+                    "00420123456123",
+                    "rec",
+                    "rec"
+            );
             userService.createUser(karol);
             userService.createUser(admin);
+            userService.createUser(rec);
 
             HostDO host1 = new HostDO(
                     "Lukas",
@@ -227,6 +238,7 @@ public class Configurator {
 
             roleService.addRoleToUser(1L, "ROLE_USER");
             roleService.addRoleToUser(2L, "ROLE_ADMIN");
+            roleService.addRoleToUser(3L, "ROLE_RECEPTIONIST");
 
             ServiceDO service1 = new ServiceDO(
                     LocalDateTime.of(2022, Month.FEBRUARY, 27, 14, 30),
