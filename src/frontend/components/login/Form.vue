@@ -10,7 +10,6 @@
         />
         <v-text-field
           v-model="password"
-          name="name"
           label="Heslo:"
           :type="showPassword ? 'text' : 'password'"
           :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
@@ -26,6 +25,8 @@
 </template>
 
 <script>
+import jwt_decode from "jwt-decode";
+
 export default {
   data() {
     return {
@@ -40,62 +41,30 @@ export default {
   },
   methods: {
     login() {
-      if (!this.valid) {
+      if (this.valid) {
         try {
-          const loginData = {
-            login: this.username,
-            password: this.password,
-          };
-          // TODO: erase temporary login
-          if (loginData.login === "admin") {
-            let userData = {
-              id: 1,
-              login: "admin",
-              email: "admin@gmail.com",
-              roles: [
-                {
-                  id: 2,
-                  name: "ROLE_ADMIN",
-                },
-              ],
-            };
-            this.$auth.$storage.setUniversal("user", userData, true);
-            this.$auth.setUser(userData);
-            this.$toast.success("Úspešne prihlásený");
-            this.$router.push("admin/users");
-          } else if (loginData.login === "rec") {
-            let userData = {
-              id: 1,
-              login: "rec",
-              email: "rec@gmail.com",
-              roles: [
-                {
-                  id: 1,
-                  name: "ROLE_USER",
-                },
-              ],
-            };
-            this.$auth.$storage.setUniversal("user", userData, true);
-            this.$auth.setUser(userData);
-            this.$toast.success("Úspešne prihlásený");
-            this.$router.push("receptionist/stays");
-          } else {
-            this.$toast.error("Wrong login: admin or rec");
-          }
+          const loginData = new FormData();
+          loginData.append("email", this.username);
+          loginData.append("password", this.password);
 
-          // this.$auth.loginWith("local", { loginData })
-          // .then((response) => {
-          //   this.$auth.$storage.setUniversal("user", response.data, true);
-          //   this.$auth.setUser(response.data);
-          //   this.$auth.setUserToken(
-          //     response.data.token,
-          //     response.data.refresh_token
-          //   );
-          //   this.$toast.success("Úspešne prihlásený");
-          // })
-          // .catch((e) => {
-          //   console.error(e);
-          // });
+          this.$auth
+            .loginWith("local", { data: loginData })
+            .then((response) => {
+              this.$auth.setUserToken(
+                response.data.access_token,
+                response.data.refresh_token
+              );
+              this.$auth.$storage.setUniversal(
+                "user",
+                jwt_decode(response.data.access_token)
+              );
+
+              this.$toast.success("Úspešne prihlásený");
+            })
+            .catch((e) => {
+              this.$toast.error("Nesprávne prihlasovacie údaje");
+              console.error(e);
+            });
         } catch (err) {
           throw new Error(`API ${err}`);
         }

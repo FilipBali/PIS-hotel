@@ -87,7 +87,7 @@ export default {
   },
   methods: {
     async getData() {
-      await Promise.all([await this.getAllRoomsApi()]);
+      await Promise.all([this.getAllRoomsApi(), this.getAllRolesApi()]);
       this.isLoading = false;
     },
 
@@ -105,6 +105,13 @@ export default {
         console.error(error);
       }
     },
+    async getAllRolesApi() {
+      try {
+        await this.$store.dispatch("roomCathegories/getAll");
+      } catch (error) {
+        console.error(error);
+      }
+    },
 
     async deleteUser(id) {
       await this.deleteUserApi(id);
@@ -112,13 +119,13 @@ export default {
     },
 
     newRoom() {
-      // todo: doplnit room type
       this.dialogController = true;
       this.newRoomDialog = true;
       this.dialogRoom = {
         roomNumber: "",
         bedsNum: "",
         state: "",
+        roomCategory: null,
       };
     },
     editUser(room) {

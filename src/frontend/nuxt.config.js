@@ -95,7 +95,7 @@ export default {
         scheme: "refresh",
         token: {
           property: "token",
-          maxAge: 60 * 10,
+          maxAge: 60 * 30,
           type: "Bearer",
         },
         refreshToken: {
@@ -108,7 +108,7 @@ export default {
           autoFetch: false,
         },
         endpoints: {
-          login: { url: "api/user/login", method: "post" },
+          login: { url: "login", method: "post" },
           refresh: { url: "api/user/token/refresh", method: "post" },
           user: false,
           logout: false,
@@ -130,6 +130,7 @@ export default {
   router: {
     middleware: ["security"],
     base: "/",
+    cors: true,
   },
 
   // Build Configuration: https://go.nuxtjs.dev/config-build

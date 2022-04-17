@@ -27,12 +27,13 @@
               ></v-select>
             </v-col>
             <v-col>
-              <!-- <v-select
-                  v-model="selectedRoomType"
-                  :items="roomTypes"
-                  label="Typ izby"
-                  :rules="[rules.required]"
-                ></v-select> -->
+              <v-select
+                v-model="selectedRoomCat"
+                :items="roomCathegories"
+                :item-text="(item) => item.type"
+                label="Typ izby"
+                return-object
+              ></v-select>
             </v-col>
           </v-row>
         </v-container>
@@ -57,20 +58,27 @@ export default {
   data() {
     return {
       dialogController: this.dialog,
-      selectedState: "dostupná",
+      selectedState: this.isNewRoom
+        ? "dostupná"
+        : this.roomEnum(this.room.state),
       stateTypes: ["dostupná", "obsadená", "nedostupná"],
-      // selectedRoomType: '',
-      // roomTypes: roles.forEach(role => role[0].name),
+      selectedRoomCat: this.room.state,
     };
   },
   computed: {
     ...mapState({
-      roles: (state) => state.roles.items,
+      roomCathegories: (state) => state.roomCathegories.items,
     }),
   },
   watch: {
     dialog() {
       this.dialogController = this.dialog;
+    },
+    room() {
+      this.selectedState = this.isNewRoom
+        ? "dostupná"
+        : this.roomEnum(this.room.state);
+      this.selectedRoomCat = this.room.roomCategory;
     },
   },
   methods: {
@@ -104,7 +112,7 @@ export default {
       this.room.roomNumber = parseInt(room.roomNumber);
       this.room.bedsNum = parseInt(room.bedsNum);
       this.room.state = this.roomState(this.selectedState);
-
+      this.room.roomCategory = this.selectedRoomCat;
       return room;
     },
 
@@ -114,14 +122,29 @@ export default {
       } else {
         await this.updateRoom();
       }
+
       await this.getAllRooms();
       this.close();
     },
     close() {
       this.dialogController = false;
+      this.selectedState = "dostupná";
+      this.selectedRoomCat = "";
       this.$emit("close-dialog", this.dialogController);
     },
 
+    roomEnum(state) {
+      switch (state) {
+        case "AVAILABLE":
+          return "dostupná";
+        case "OCCUPIED":
+          return "obsadená";
+        case "UNAVAILABLE":
+          return "nedostupná";
+        default:
+          return "";
+      }
+    },
     roomState(state) {
       switch (state) {
         case "dostupná":
