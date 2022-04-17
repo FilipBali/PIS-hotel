@@ -9,7 +9,7 @@ export default function ({ route, $auth, app }) {
       if (user.roles.includes("ROLE_ADMIN")) {
         app.router.push("/admin/users");
       } else if (user.roles.includes("ROLE_RECEPTIONIST")) {
-        app.router.push("/receptionist");
+        app.router.push("/receptionist/stays");
       } else if (user.roles.includes("ROLE_COOK")) {
         app.router.push("/chef");
       } else if (user.roles.includes("ROLE_MASSEUR")) {
