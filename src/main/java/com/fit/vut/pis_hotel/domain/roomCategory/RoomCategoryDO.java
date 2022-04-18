@@ -43,11 +43,11 @@ public class RoomCategoryDO {
             name = "cost_per_bed",
             nullable = false
     )
-    private Double cost_per_bed;
+    private Double costPerBed;
 
-    public RoomCategoryDO(RoomTypeEnum type, String equipment, Double cost_per_bed) {
+    public RoomCategoryDO(RoomTypeEnum type, String equipment, Double costPerBed) {
         this.type = type;
         this.equipment = equipment;
-        this.cost_per_bed = cost_per_bed;
+        this.costPerBed = costPerBed;
     }
 }

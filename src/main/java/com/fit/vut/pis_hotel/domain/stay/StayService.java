@@ -2,14 +2,16 @@ package com.fit.vut.pis_hotel.domain.stay;
 
 import com.fit.vut.pis_hotel.domain.host.HostDO;
 import com.fit.vut.pis_hotel.domain.host.HostRepository;
+import com.fit.vut.pis_hotel.domain.room.RoomDO;
+import com.fit.vut.pis_hotel.domain.room.RoomRepository;
 import com.fit.vut.pis_hotel.domain.stay.enums.BoardTypeEnum;
 import com.fit.vut.pis_hotel.domain.stay.enums.PaymentTypeEnum;
 import com.fit.vut.pis_hotel.domain.stay.enums.StateEnum;
 import com.fit.vut.pis_hotel.domain.stay.service.ServiceDO;
 import com.fit.vut.pis_hotel.domain.stay.service.ServiceDTO;
 import com.fit.vut.pis_hotel.domain.stay.service.ServiceRepository;
-import com.fit.vut.pis_hotel.domain.stay.service.enums.ServiceTypeEnum;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -20,12 +22,14 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class StayService {
 
     private final StayRepository stayRepository;
     private final HostRepository hostRepository;
     private final ServiceRepository serviceRepository;
+    private final RoomRepository roomRepository;
 
     public List<StayDO> getStays() {
         return stayRepository.findAll();
@@ -50,23 +54,30 @@ public class StayService {
         return stays.stream().filter(s -> Objects.equals(s.getStayCreator().getId(), id)).collect(Collectors.toList());
     }
 
-    public void createStayWithCreatorId(StayDTO stayDTO) {
+    @Transactional
+    public void createStayWithSimple(StayDTO stayDTO) {
         HostDO creator = hostRepository.findById(stayDTO.getStayCreatorId())
-                .orElseThrow(() -> new IllegalStateException("User with id: " + stayDTO.getStayCreatorId() + " does not exist."));
-        StayDO newStay = new StayDO(stayDTO.getAccommodatedNumber(), stayDTO.getDateFrom(), stayDTO.getDateTo(), stayDTO.getState(), stayDTO.getBoardType(), creator, stayDTO.getPaymentType(), List.of());
-        createStay(newStay);
+                .orElseThrow(() -> new IllegalStateException("Host with id: " + stayDTO.getStayCreatorId() + " does not exist."));
+        List<RoomDO> rooms = roomRepository.findAllById(stayDTO.getRoomIds());
+        StayDO newStay = new StayDO(stayDTO.getAccommodatedNumber(), stayDTO.getDateFrom(), stayDTO.getDateTo(), stayDTO.getState(), stayDTO.getBoardType(), creator, stayDTO.getPaymentType(), rooms);
+        if (rooms.stream().allMatch(room -> isRoomAvailable(newStay, room))) {
+            createStay(newStay);
+        }
     }
 
     public void createStay(StayDO stay) {
-        stayRepository.save(stay);
+        if (stay.getRooms().stream().allMatch(room -> isRoomAvailable(stay, room))) {
+            stayRepository.save(stay);
+        }
     }
 
     public void deleteStay(Long id) {
         boolean exists = stayRepository.existsById(id);
         if (exists) {
             List<ServiceDO> services = getStayServices(id);
-            // removes all services which belongs to stay
+            // removes all services which belong to stay
             for (ServiceDO service : services) {
+                log.info("Deleting service with id: " + service.getId());
                 deleteService(service.getId());
             }
             stayRepository.deleteById(id);
@@ -76,33 +87,51 @@ public class StayService {
     }
 
     @Transactional
-    public void updateStay(Long id, Integer accommodatedNumber, LocalDate dateFrom, LocalDate dateTo, StateEnum state, BoardTypeEnum boardType, PaymentTypeEnum paymentType) {
+    public void updateStay(Long id, StayDO stayBody) {
 
         StayDO stay = stayRepository.findById(id)
                 .orElseThrow(() -> new IllegalStateException("Stay with id: " + id + " does not exist."));
 
+        Integer accommodatedNumber = stayBody.getAccommodatedNumber();
         if (isIntegerValid(accommodatedNumber, stay.getAccommodatedNumber())) {
             stay.setAccommodatedNumber(accommodatedNumber);
         }
 
+        LocalDate dateFrom = stayBody.getDateFrom();
         if (dateFrom != null && dateFrom != stay.getDateFrom()) {
             stay.setDateFrom(dateFrom);
         }
 
+        LocalDate dateTo = stayBody.getDateTo();
         if (dateTo != null && dateTo != stay.getDateTo()) {
             stay.setDateTo(dateTo);
         }
 
+        StateEnum state = stayBody.getState();
         if (state != null && state != stay.getState()) {
             stay.setState(state);
         }
 
+        BoardTypeEnum boardType = stayBody.getBoardType();
         if (boardType != null && boardType != stay.getBoardType()) {
             stay.setBoardType(boardType);
         }
 
+        PaymentTypeEnum paymentType = stayBody.getPaymentType();
         if (paymentType != null && paymentType != stay.getPaymentType()) {
             stay.setPaymentType(paymentType);
+        }
+
+        List<RoomDO> rooms = stayBody.getRooms();
+        if (rooms != null && !rooms.isEmpty() && !rooms.equals(stay.getRooms())) {
+            if (stay.getRooms().stream().allMatch(room -> isRoomAvailable(stay, room))) {
+                stay.setRooms(rooms);
+            }
+        }
+
+        List<HostDO> hosts = stayBody.getHosts();
+        if (hosts != null && !hosts.isEmpty() && !hosts.equals(stay.getHosts())) {
+            stay.setHosts(hosts);
         }
     }
 
@@ -132,19 +161,7 @@ public class StayService {
     }
 
     public ServiceDO createService(ServiceDO service) {
-        StayDO stay = service.getStay();
-        LocalDateTime stayTo = stay.getDateTo().atTime(11, 0);
-        LocalDateTime stayFrom = stay.getDateFrom().atTime(14, 0);
-        LocalDateTime serviceTo = service.getTimeTo();
-        LocalDateTime serviceFrom = service.getTimeFrom();
-
-        if (serviceFrom.isAfter(stayFrom) &&
-                serviceTo.isBefore(stayTo)) {
-            serviceRepository.save(service);
-            return service;
-        } else {
-            throw new IllegalStateException("Service can be created only during the stay with id " + stay.getId() + " (" + stayFrom + " - " + stayTo + "). You have provided service for: (" + serviceFrom + " - " + serviceTo + ").");
-        }
+        return isServiceDateValid(service) ? serviceRepository.save(service) : throwInvalidServiceDateException(service);
     }
 
     public void deleteService(Long id) {
@@ -156,32 +173,36 @@ public class StayService {
         }
     }
 
-    public void updateService(Long id, LocalDateTime timeFrom, LocalDateTime timeTo, ServiceTypeEnum serviceType, PaymentTypeEnum paymentType, Integer bowlingTracks, StateEnum state) {
+    public void updateService(Long id, ServiceDO serviceBody) {
         ServiceDO service = serviceRepository.findById(id)
                 .orElseThrow(() -> new IllegalStateException("Service with id: " + id + " does not exist."));
 
-        if (timeFrom != null && timeFrom != service.getTimeFrom()) {
-            service.setTimeFrom(timeFrom);
+        if (serviceBody.getTimeFrom() != null && serviceBody.getTimeFrom() != service.getTimeFrom()) {
+            if (isServiceDateValid(serviceBody, serviceBody.getTimeFrom(), null)) {
+                service.setTimeFrom(serviceBody.getTimeFrom());
+            }
         }
 
-        if (timeTo != null && timeTo != service.getTimeTo()) {
-            service.setTimeTo(timeTo);
+        if (serviceBody.getTimeTo() != null && serviceBody.getTimeTo() != service.getTimeTo()) {
+            if (isServiceDateValid(serviceBody, null, serviceBody.getTimeTo())) {
+                service.setTimeTo(serviceBody.getTimeTo());
+            }
         }
 
-        if (serviceType != null && serviceType != service.getServiceType()) {
-            service.setServiceType(serviceType);
+        if (serviceBody.getServiceType() != null && serviceBody.getServiceType() != service.getServiceType()) {
+            service.setServiceType(serviceBody.getServiceType());
         }
 
-        if (paymentType != null && paymentType != service.getPaymentType()) {
-            service.setPaymentType(paymentType);
+        if (serviceBody.getPaymentType() != null && serviceBody.getPaymentType() != service.getPaymentType()) {
+            service.setPaymentType(serviceBody.getPaymentType());
         }
 
-        if (isIntegerValid(bowlingTracks, service.getBowlingTracks())) {
-            service.setBowlingTracks(bowlingTracks);
+        if (isIntegerValid(serviceBody.getBowlingTracks(), service.getBowlingTracks())) {
+            service.setBowlingTracks(serviceBody.getBowlingTracks());
         }
 
-        if (state != null && state != service.getState()) {
-            service.setState(state);
+        if (serviceBody.getState() != null && serviceBody.getState() != service.getState()) {
+            service.setState(serviceBody.getState());
         }
 
     }
@@ -192,5 +213,53 @@ public class StayService {
 
     private boolean isIntegerValid(Integer integerToValidate, Integer originalInteger) {
         return integerToValidate != null && integerToValidate > 0 && !Objects.equals(integerToValidate, originalInteger);
+    }
+
+    private boolean isServiceDateValid(ServiceDO service) {
+        StayDO stay = service.getStay();
+        LocalDateTime stayTo = stay.getDateTo().atTime(11, 0);
+        LocalDateTime stayFrom = stay.getDateFrom().atTime(14, 0);
+        LocalDateTime serviceTo = service.getTimeTo();
+        LocalDateTime serviceFrom = service.getTimeFrom();
+
+        return serviceFrom.isAfter(stayFrom) && serviceTo.isBefore(stayTo);
+    }
+
+    private boolean isServiceDateValid(ServiceDO service, LocalDateTime newTimeFrom, LocalDateTime newTimeTo) {
+        StayDO stay = service.getStay();
+        LocalDateTime stayTo = stay.getDateTo().atTime(11, 0);
+        LocalDateTime stayFrom = stay.getDateFrom().atTime(14, 0);
+        LocalDateTime serviceTo = newTimeTo != null ? newTimeTo : service.getTimeTo();
+        LocalDateTime serviceFrom = newTimeFrom != null ? newTimeFrom : service.getTimeFrom();
+
+        return serviceFrom.isAfter(stayFrom) && serviceTo.isBefore(stayTo);
+    }
+
+    private ServiceDO throwInvalidServiceDateException(ServiceDO service) {
+        throw new IllegalStateException("Service can be created only during the stay with id "
+                + service.getStay().getId() + " ("
+                + service.getStay().getDateFrom().atTime(14, 0) + " - "
+                + service.getStay().getDateTo().atTime(11, 0) + "). You have provided service for: ("
+                + service.getTimeFrom() + " - " + service.getTimeTo() + ").");
+    }
+
+    private boolean isRoomAvailable(StayDO stay, RoomDO room) {
+        LocalDateTime dateFrom = stay.getDateFrom().atTime(14, 0);
+        LocalDateTime dateTo = stay.getDateTo().atTime(11, 0);
+        List<StayDO> stays = room.getStays();
+        for (StayDO oneStay : stays) {
+            if (isDateInBetween(oneStay.getDateFrom().atTime(14, 0), oneStay.getDateTo().atTime(11, 0), dateFrom) ||
+                    isDateInBetween(oneStay.getDateFrom().atTime(14, 0), oneStay.getDateTo().atTime(11, 0), dateTo)) {
+                throw new IllegalStateException("Room with id: " + room.getId() +
+                        " is already reserved for stay with id: " + stay.getId() +
+                        " for date from: " + oneStay.getDateFrom().atTime(14, 0) +
+                        " to: " + oneStay.getDateTo().atTime(11, 0) + ". ");
+            }
+        }
+        return true;
+    }
+
+    private boolean isDateInBetween(final LocalDateTime min, final LocalDateTime max, final LocalDateTime date) {
+        return !(date.isBefore(min) || date.isAfter(max));
     }
 }

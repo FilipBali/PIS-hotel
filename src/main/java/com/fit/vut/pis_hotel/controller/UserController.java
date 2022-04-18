@@ -58,14 +58,8 @@ public class UserController {
     }
 
     @PutMapping(path = {"{id}"})
-    public void updateUser(
-            @PathVariable("id") Long id,
-            @RequestParam(required = false) String firstName,
-            @RequestParam(required = false) String lastName,
-            @RequestParam(required = false) String email,
-            @RequestParam(required = false) String phoneNumber,
-            @RequestParam(required = false) String address) {
-        userService.updateUser(id, firstName, lastName, email, phoneNumber, address);
+    public void updateUser(@PathVariable("id") Long id, @RequestBody UserDO user) {
+        userService.updateUser(id, user);
     }
 
     @GetMapping("/token/refresh")

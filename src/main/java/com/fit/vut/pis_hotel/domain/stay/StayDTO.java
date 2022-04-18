@@ -21,8 +21,9 @@ public class StayDTO {
     private Long stayCreatorId;
     private PaymentTypeEnum paymentType;
     private List<Long> roomIds;
+    private List<Long> hostsIds;
 
-    public StayDTO(Integer accommodatedNumber, LocalDate dateFrom, LocalDate dateTo, StateEnum state, BoardTypeEnum boardType, Long stayCreatorId, PaymentTypeEnum paymentType, List<Long> roomIds) {
+    public StayDTO(Integer accommodatedNumber, LocalDate dateFrom, LocalDate dateTo, StateEnum state, BoardTypeEnum boardType, Long stayCreatorId, PaymentTypeEnum paymentType, List<Long> roomIds, List<Long> hostsIds) {
         this.accommodatedNumber = accommodatedNumber;
         this.dateFrom = dateFrom;
         this.dateTo = dateTo;
@@ -32,9 +33,10 @@ public class StayDTO {
         this.stayCreatorId = stayCreatorId;
         this.paymentType = paymentType;
         this.roomIds = roomIds;
+        this.hostsIds = hostsIds;
     }
 
-    public StayDTO(Long id, Integer accommodatedNumber, LocalDate dateFrom, LocalDate dateTo, StateEnum state, BoardTypeEnum boardType, Long stayCreatorId, PaymentTypeEnum paymentType, List<Long> roomIds) {
+    public StayDTO(Long id, Integer accommodatedNumber, LocalDate dateFrom, LocalDate dateTo, StateEnum state, BoardTypeEnum boardType, Long stayCreatorId, PaymentTypeEnum paymentType, List<Long> roomIds, List<Long> hostsIds) {
         this.id = id;
         this.accommodatedNumber = accommodatedNumber;
         this.dateFrom = dateFrom;
@@ -45,5 +47,6 @@ public class StayDTO {
         this.stayCreatorId = stayCreatorId;
         this.paymentType = paymentType;
         this.roomIds = roomIds;
+        this.hostsIds = hostsIds;
     }
 }
