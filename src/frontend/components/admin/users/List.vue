@@ -48,7 +48,16 @@ export default {
       isLoading: true,
       search: "",
       dialogController: false,
-      dialogUser: {},
+      dialogUser: {
+        firstName: "",
+        lastName: "",
+        address: "",
+        dateOfBirth: moment().format("yyyy-MM-DD"),
+        email: "",
+        phoneNumber: "",
+        roles: [],
+        password: "",
+      },
       newUserDialog: true,
       headers: [
         {
@@ -138,6 +147,7 @@ export default {
         email: "",
         phoneNumber: "",
         roles: [],
+        password: "",
       };
     },
     editUser(user) {
