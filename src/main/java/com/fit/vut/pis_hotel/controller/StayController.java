@@ -3,17 +3,11 @@ package com.fit.vut.pis_hotel.controller;
 import com.fit.vut.pis_hotel.domain.stay.StayDO;
 import com.fit.vut.pis_hotel.domain.stay.StayDTO;
 import com.fit.vut.pis_hotel.domain.stay.StayService;
-import com.fit.vut.pis_hotel.domain.stay.enums.BoardTypeEnum;
-import com.fit.vut.pis_hotel.domain.stay.enums.PaymentTypeEnum;
-import com.fit.vut.pis_hotel.domain.stay.enums.StateEnum;
 import com.fit.vut.pis_hotel.domain.stay.service.ServiceDO;
 import com.fit.vut.pis_hotel.domain.stay.service.ServiceDTO;
-import com.fit.vut.pis_hotel.domain.stay.service.enums.ServiceTypeEnum;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -48,9 +42,9 @@ public class StayController {
         stayService.createStay(stay);
     }
 
-    @PostMapping(value = "/creatorId")
-    public void createStayWithCreatorId(@RequestBody StayDTO stay) {
-        stayService.createStayWithCreatorId(stay);
+    @PostMapping(value = "/simple")
+    public void createStayWithSimple(@RequestBody StayDTO stay) {
+        stayService.createStayWithSimple(stay);
     }
 
     @DeleteMapping(value = "{id}")
@@ -60,14 +54,8 @@ public class StayController {
 
     @PutMapping(path = {"{id}"})
     public void updateStay(
-            @PathVariable("id") Long id,
-            @RequestParam(required = false) Integer accommodatedNumber,
-            @RequestParam(required = false) LocalDate dateFrom,
-            @RequestParam(required = false) LocalDate dateTo,
-            @RequestParam(required = false) StateEnum state,
-            @RequestParam(required = false) BoardTypeEnum boardType,
-            @RequestParam(required = false) PaymentTypeEnum paymentType) {
-        stayService.updateStay(id, accommodatedNumber, dateFrom, dateTo, state, boardType, paymentType);
+            @PathVariable("id") Long id, @RequestBody StayDO stay) {
+        stayService.updateStay(id, stay);
     }
 
     @GetMapping(value = "/service")
@@ -112,14 +100,8 @@ public class StayController {
 
     @PutMapping(value = "/service/{id}")
     public void updateService(
-            @PathVariable("id") Long id,
-            @RequestParam(required = false) LocalDateTime timeFrom,
-            @RequestParam(required = false) LocalDateTime timeTo,
-            @RequestParam(required = false) ServiceTypeEnum serviceType,
-            @RequestParam(required = false) PaymentTypeEnum paymentType,
-            @RequestParam(required = false) Integer bowlingTracks,
-            @RequestParam(required = false) StateEnum state) {
-        stayService.updateService(id, timeFrom, timeTo, serviceType, paymentType, bowlingTracks, state);
+            @PathVariable("id") Long id, @RequestBody ServiceDO service) {
+        stayService.updateService(id, service);
     }
 
 }

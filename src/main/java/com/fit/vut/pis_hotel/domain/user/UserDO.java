@@ -75,6 +75,10 @@ public class UserDO {
     )
     private String email;
 
+    @Column(
+            name = "password",
+            nullable = false
+    )
     private String password;
 
     @ManyToMany(fetch = FetchType.EAGER)

@@ -218,7 +218,8 @@ public class Configurator {
                     BoardTypeEnum.FULLBOARD,
                     host1,
                     PaymentTypeEnum.CARD,
-                    List.of(room, room2)
+                    List.of(room, room2),
+                    List.of(host1, host2)
             );
             StayDO stay2 = new StayDO(
                     2,
@@ -260,11 +261,11 @@ public class Configurator {
                     BoardTypeEnum.FULLBOARD,
                     host1.getId(),
                     PaymentTypeEnum.CARD,
-                    List.of(3L)
+                    List.of(room4.getId()),
+                    List.of(host1.getId())
             );
 
-
-            stayService.createStayWithCreatorId(stay3);
+            stayService.createStayWithSimple(stay3);
 
             RoleDO roleUser = roleService.saveRole(new RoleDO("ROLE_USER"));
             RoleDO roleAdmin = roleService.saveRole(new RoleDO("ROLE_ADMIN"));
