@@ -2,7 +2,6 @@ package com.fit.vut.pis_hotel.controller;
 
 import com.fit.vut.pis_hotel.domain.roomCategory.RoomCategoryDO;
 import com.fit.vut.pis_hotel.domain.roomCategory.RoomCategoryService;
-import com.fit.vut.pis_hotel.domain.roomCategory.enums.RoomTypeEnum;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -31,10 +30,7 @@ public class RoomCategoryController {
 
     @PutMapping(path = {"{id}"})
     public void updateRoomCategory(
-            @PathVariable("id") Long id,
-            @RequestParam(required = false) RoomTypeEnum type,
-            @RequestParam(required = false) String equipment,
-            @RequestParam(required = false) Double cost_per_bed) {
-        roomCategoryService.updateRoomCategory(id, type, equipment, cost_per_bed);
+            @PathVariable("id") Long id, @RequestBody RoomCategoryDO roomCategory) {
+        roomCategoryService.updateRoomCategory(id, roomCategory);
     }
 }

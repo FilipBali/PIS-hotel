@@ -1,5 +1,6 @@
 package com.fit.vut.pis_hotel.domain.room;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fit.vut.pis_hotel.domain.room.enums.RoomStateEnum;
 import com.fit.vut.pis_hotel.domain.roomCategory.RoomCategoryDO;
 import com.fit.vut.pis_hotel.domain.stay.StayDO;
@@ -56,6 +57,7 @@ public class RoomDO {
 
     @ManyToMany(mappedBy = "rooms")
     @OnDelete(action = OnDeleteAction.CASCADE)
+    @JsonIgnore
     private List<StayDO> stays;
 
     public RoomDO(Integer roomNumber, Integer bedsNum, RoomCategoryDO roomCategory) {

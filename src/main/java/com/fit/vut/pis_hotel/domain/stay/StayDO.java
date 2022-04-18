@@ -1,6 +1,5 @@
 package com.fit.vut.pis_hotel.domain.stay;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fit.vut.pis_hotel.domain.host.HostDO;
 import com.fit.vut.pis_hotel.domain.room.RoomDO;
 import com.fit.vut.pis_hotel.domain.stay.enums.BoardTypeEnum;
@@ -85,8 +84,14 @@ public class StayDO {
             name = "stay_room",
             joinColumns = @JoinColumn(name = "stay_id"),
             inverseJoinColumns = @JoinColumn(name = "room_id"))
-    @JsonIgnore
     private List<RoomDO> rooms;
+
+    @ManyToMany(cascade = {CascadeType.MERGE, CascadeType.REFRESH})
+    @JoinTable(
+            name = "stay_host",
+            joinColumns = @JoinColumn(name = "stay_id"),
+            inverseJoinColumns = @JoinColumn(name = "host_id"))
+    private List<HostDO> hosts;
 
     public StayDO(Integer accommodatedNumber, LocalDate dateFrom, LocalDate dateTo, StateEnum state, BoardTypeEnum boardType, HostDO stayCreator, PaymentTypeEnum paymentType, List<RoomDO> rooms) {
         this.accommodatedNumber = accommodatedNumber;
@@ -97,6 +102,19 @@ public class StayDO {
         this.stayCreator = stayCreator;
         this.paymentType = paymentType;
         this.rooms = rooms;
+        this.hosts = List.of(stayCreator);
+    }
+
+    public StayDO(Integer accommodatedNumber, LocalDate dateFrom, LocalDate dateTo, StateEnum state, BoardTypeEnum boardType, HostDO stayCreator, PaymentTypeEnum paymentType, List<RoomDO> rooms, List<HostDO> hosts) {
+        this.accommodatedNumber = accommodatedNumber;
+        this.dateFrom = dateFrom;
+        this.dateTo = dateTo;
+        this.state = state;
+        this.boardType = boardType;
+        this.stayCreator = stayCreator;
+        this.paymentType = paymentType;
+        this.rooms = rooms;
+        this.hosts = hosts;
     }
 
     public StayDTO toDto() {
@@ -109,6 +127,7 @@ public class StayDO {
                 this.getBoardType(),
                 this.getStayCreator().getId(),
                 this.getPaymentType(),
-                this.getRooms().stream().map(RoomDO::getId).collect(Collectors.toList()));
+                this.getRooms().stream().map(RoomDO::getId).collect(Collectors.toList()),
+                this.getHosts().stream().map(HostDO::getId).collect(Collectors.toList()));
     }
 }

@@ -34,20 +34,23 @@ public class RoomCategoryService {
     }
 
     @Transactional
-    public void updateRoomCategory(Long id, RoomTypeEnum type, String equipment, Double cost_per_bed){
+    public void updateRoomCategory(Long id, RoomCategoryDO roomCategoryBody) {
         RoomCategoryDO category = roomCategoryRepository.findById(id)
                 .orElseThrow(() -> new IllegalStateException("Room category with id: " + id + "does not exist."));
 
+        RoomTypeEnum type = roomCategoryBody.getType();
         if (type != null && type != category.getType()) {
             category.setType(type);
         }
 
+        String equipment = roomCategoryBody.getEquipment();
         if (equipment != null && !equipment.equals(category.getEquipment())) {
             category.setEquipment(equipment);
         }
 
-        if (isFloatValid(cost_per_bed, category.getCost_per_bed())) {
-            category.setCost_per_bed(cost_per_bed);
+        Double bedCost = roomCategoryBody.getCostPerBed();
+        if (isFloatValid(bedCost, category.getCostPerBed())) {
+            category.setCostPerBed(bedCost);
         }
 
     }
