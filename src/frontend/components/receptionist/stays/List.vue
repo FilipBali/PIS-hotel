@@ -291,7 +291,7 @@
               <v-btn
                 depressed
                 color="primary"
-                @click="roomEditForm = false"
+                @click="roomEditFormSave()"
               >
                 Uložiť
               </v-btn>
@@ -478,7 +478,12 @@ export default {
       rooms: [],
       concServices: [],
 
+
+      //##########################################
+      //         STORAGE/CACHE/REFERENCES
+      //##########################################
       saveReferenceToStay: [],
+      roomEditFormItem: [],
 
       //##########################################
       //               HEADERS
@@ -787,6 +792,7 @@ export default {
           id: item.rooms[i].id,
           roomNumber: item.rooms[i].roomNumber,
           bedsNum: item.rooms[i].bedsNum,
+          roomCategory: item.rooms[i].roomCategory,
           roomCategoryType: this.roomType(item.rooms[i].roomCategory.type),
           state: this.roomState(item.rooms[i].state)
         })
@@ -843,10 +849,42 @@ export default {
         console.log(item)
         console.log(item.state)
 
+        this.roomEditFormItem = item
+
         this.selectedRoomState = this.roomStateToBE(item.state)
         this.selectedRoomType = this.roomTypeToRoomID(item.roomCategoryType)
 
         this.roomEditForm = true;
+    },
+
+    roomEditFormSave(){
+      let item = this.roomEditFormItem;
+      console.log(item);
+      console.log(this.selectedRoomType);
+
+      let roomCategory = item.roomCategory;
+      if(item.roomCategory.id !== this.selectedRoomType){
+
+          for(let i = 0; i < this.roomCategories.length; i++ ){
+
+             if (this.roomCategories[i].id === this.selectedRoomType){
+                 roomCategory = this.roomCategories[i];
+                 break;
+             }
+          }
+      }
+
+      this.roomEditForm = false;
+      this.editedRoom = {
+        id: item.id,
+        roomNumber: item.roomNumber,
+        state: this.selectedRoomState,
+        bedsNum: item.bedsNum,
+        roomCategory: roomCategory
+      }
+      console.log("--------------------------")
+      console.log(this.editedRoom)
+      this.editRoom(this.editedRoom)
     },
 
     //TODO
@@ -984,6 +1022,10 @@ export default {
     //##########################################
     //                API CALL
     //##########################################
+
+    //###########################
+    //           GET
+    //###########################
     async getData() {
       await Promise.all([await this.getAllStaysApi()]);
       await Promise.all([await this.getAllRoomCategoriesApi()]);
@@ -1014,6 +1056,27 @@ export default {
         console.error(error);
       }
     },
+    //###########################
+    //     EDIT/POST/UPDATE
+    //###########################
+
+    async editRoom(data) {
+      await this.editRoomApi(data.id, data)
+      await this.getData()
+    },
+
+    async editRoomApi(id, data) {
+      try {
+        await this.$store.dispatch("rooms/update", {id, data});
+      } catch (error) {
+        console.error("error");
+        console.error(error);
+      }
+    },
+
+    //###########################
+    //           DELETE
+    //###########################
 
     async deleteUserApi(id) {
       try {
