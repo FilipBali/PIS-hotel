@@ -802,6 +802,17 @@ export default {
       this.roomTable = true;
     },
 
+    updateRoomTable(){
+      let updatedStay
+      for(let i = 0; i < this.stays.length; i++){
+        if (this.stays[i].id === this.saveReferenceToStay.id){
+          updatedStay = this.stays[i]
+          break;
+        }
+      }
+      this.roomTableBtn(updatedStay)
+    },
+
     //##########################################
     //               SERVICE FORM CALL
     //##########################################
@@ -874,7 +885,7 @@ export default {
           }
       }
 
-      this.roomEditForm = false;
+
       this.editedRoom = {
         id: item.id,
         roomNumber: item.roomNumber,
@@ -885,6 +896,7 @@ export default {
       console.log("--------------------------")
       console.log(this.editedRoom)
       this.editRoom(this.editedRoom)
+      this.roomEditForm = false;
     },
 
     //TODO
@@ -1063,6 +1075,8 @@ export default {
     async editRoom(data) {
       await this.editRoomApi(data.id, data)
       await this.getData()
+
+      this.updateRoomTable()
     },
 
     async editRoomApi(id, data) {
@@ -1100,22 +1114,10 @@ export default {
     },
 
     async deleteRoomAndUpdateTable(item){
-      await this.deleteRoom(item);
-
-      let updatedStay
-      for(let i = 0; i < this.stays.length; i++){
-        if (this.stays[i].id === this.saveReferenceToStay.id){
-          updatedStay = this.stays[i]
-          break;
-        }
-      }
-      this.roomTableBtn(updatedStay)
-    },
-
-    async deleteRoom(item) {
       await this.deleteRoomApi(item.id)
       await this.getData()
 
+      this.updateRoomTable()
     },
 
     async deleteRoomApi(id) {
