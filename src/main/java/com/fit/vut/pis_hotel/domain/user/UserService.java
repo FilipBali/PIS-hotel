@@ -1,5 +1,6 @@
 package com.fit.vut.pis_hotel.domain.user;
 
+import com.fit.vut.pis_hotel.domain.role.RoleDO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -103,6 +104,11 @@ public class UserService implements UserDetailsService {
         if (isStringValid(password, user.getPassword())) {
             log.info("Changing password of user with id: " + user.getId() + ".");
             user.setPassword(passwordEncoder.encode(password));
+        }
+
+        Collection<RoleDO> roles = userBody.getRoles();
+        if (roles != null && !roles.isEmpty() && !roles.equals(user.getRoles())) {
+            user.setRoles(roles);
         }
 
     }
