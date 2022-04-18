@@ -65,18 +65,55 @@ public class Configurator {
                     "1234"
             );
             UserDO rec = new UserDO(
-                    "rec",
-                    "rec",
+                    "Mária",
+                    "Kudláčková",
                     LocalDate.of(2000, Month.JUNE, 20),
                     "Rec 2, Brno, CZ",
                     "E50321123",
                     "00420123456123",
-                    "rec",
+                    "rec.fit@vut.cz",
                     "rec"
             );
+
+            UserDO chef = new UserDO(
+                    "Ján Baltazár",
+                    "Magin",
+                    LocalDate.of(1999, Month.MAY, 13),
+                    "Antonská 3, Praha, CZ",
+                    "E9955131763",
+                    "00420722356678",
+                    "chef.fit@vut.cz",
+                    "chef"
+            );
+
+            UserDO bowling = new UserDO(
+                    "Amália",
+                    "Brežná",
+                    LocalDate.of(1998, Month.APRIL, 04),
+                    "Malinovská 467, Bratislava, CZ",
+                    "E9754043572",
+                    "00424698723478",
+                    "bowling.fit@vut.cz",
+                    "bowling"
+            );
+
+            UserDO masseur = new UserDO(
+                    "Ignác",
+                    "Bajza",
+                    LocalDate.of(1996, Month.NOVEMBER, 07),
+                    "Hradská 467, Bratislava, CZ",
+                    "E9611073439",
+                    "00420613850765",
+                    "masseur.fit@vut.cz",
+                    "masseur"
+            );
+
             userService.createUser(karol);
             userService.createUser(admin);
             userService.createUser(rec);
+            userService.createUser(chef);
+            userService.createUser(bowling);
+            userService.createUser(masseur);
 
             HostDO host1 = new HostDO(
                     "Lukas",
