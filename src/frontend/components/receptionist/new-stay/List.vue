@@ -207,16 +207,20 @@
                 Na prveho sa zaklada rezervacia
               </small>
               <style>
-                .v-select.v-input--dense .v-select__selection--comma:nth-child(1) {
+                 .hostCombobox .v-select__selection--comma:nth-child(1) {
                   /*text-decoration: underline;*/
                   color: #e74c3c;
                 }
               </style>
+              <div
+              class="hostCombobox"
+              >
               <v-combobox
                 v-model="selectedHostsCombobox"
                 :items="hosts"
                 :item-text="item => item.firstName +' '+ item.lastName  + ' | ' +item.idNumber"
                 item-value=id
+                :id="hostCombobox"
                 label="Existujúci hostia ( Meno | Dátum narodenia | číslo OP )"
                 multiple
                 item-color='primary'
@@ -224,6 +228,22 @@
                 dense
               >
               </v-combobox>
+              </div>
+
+              <v-combobox
+                v-model="selectedRoomsCombobox"
+                :items="getAvailableRooms(rooms)"
+                :item-text="item => 'Číslo izby: ' + item.roomNumber + ' (Postelí: '+ item.bedsNum + ') | Typ: ' + item.roomCategory.type"
+                item-value=id
+                label="Vybrane izby (Číslo izby (Počet postelí) | Typ izby)"
+                multiple
+                item-color='primary'
+                outlined
+                dense
+              >
+              </v-combobox>
+
+
               <v-row>
                   <v-col
                     cols="1"
@@ -315,14 +335,17 @@
                   </v-col>
               </v-row>
 
-              <v-btn
-                color="primary"
-                class="mr-4"
-                @click="createNewStay()"
-              >
-                Vytvotiť pobyt
-              </v-btn>
 
+
+              <v-col class="text-right">
+                <v-btn
+                  color="primary"
+                  class="mr-4"
+                  @click="createNewStay()"
+                >
+                  Vytvotiť pobyt
+                </v-btn>
+              </v-col>
             </v-form>
           </template>
         </v-container>
@@ -375,6 +398,7 @@ export default {
       { be: 'HALFBOARD', fe: 'polpenzia' },
       { be: 'FULLBOARD', fe: 'plná penzia' }
     ],
+
     selectedNewStayPayment: "",
     newStayPaymentEnum: [
       { be: 'CARD', fe: 'kartou' },
@@ -386,11 +410,15 @@ export default {
     //
     //##########################################
     selectedHostsCombobox: [],
+    selectedRoomsCombobox: [],
+
     formNewHost: false,
     validFormNewHost: true,
     valid: true,
     select: null,
     numberRules: [],
+
+    hostCombobox:null,
 
     //TODO naplnit availableRoomArray
     availableRoomArray: [],
@@ -399,11 +427,13 @@ export default {
   computed: {
     ...mapState({
       hosts: (state) => state.hosts.items,
+      rooms: (state) => state.rooms.items,
+      roomCategories: (state) => state.roomCategories.items,
     }),
   },
 
   created() {
-    this.getHostData();
+    this.getData();
   },
 
   methods: {
@@ -471,14 +501,25 @@ export default {
         state: "AVAILABLE"
       }
 
+      let selectedStartDateMoment = moment(this.selectedStartDate).toArray()
+      let selectedEndDateMoment = moment(this.selectedEndDate).toArray()
+
+      //Pretoze indexuje mesiace od 0!!
+      selectedStartDateMoment[1] = selectedStartDateMoment[1] + 1
+      selectedEndDateMoment[1] = selectedEndDateMoment[1] + 1
+
+      selectedStartDateMoment.length = 3
+      selectedEndDateMoment.length = 3
+
       this.newStay = {
         accommodatedNumber: this.selectedHostsCombobox.length,
         boardType: this.selectedNewStayBoardType,
-        dateFrom: this.selectedStartDate,
-        dateTo: this.selectedEndDate,
+        dateFrom: selectedStartDateMoment,
+        dateTo: selectedEndDateMoment,
+        hosts: this.selectedHostsCombobox.splice(1),
         paymentType: this.selectedNewStayPayment,
         state: "RESERVED",
-        rooms: [this.newRoom],
+        rooms: this.selectedRoomsCombobox,
         stayCreator: this.selectedHostsCombobox[0]
       }
 
@@ -519,6 +560,29 @@ export default {
     //                API CALL
     //##########################################
 
+    async getData() {
+      await Promise.all([await this.getAllRoomsApi()]);
+      await Promise.all([await this.getAllRoomCategoriesApi()]);
+      await Promise.all([await this.getHostData()]);
+      this.isLoading = false;
+    },
+
+
+    async getAllRoomCategoriesApi() {
+      try {
+        await this.$store.dispatch("roomCategories/getAll");
+      } catch (error) {
+        console.error(error);
+      }
+    },
+
+    async getAllRoomsApi() {
+      try {
+        await this.$store.dispatch("rooms/getAll");
+      } catch (error) {
+        console.error(error);
+      }
+    },
 
 
     // API call to create new stay in stay table
@@ -555,6 +619,18 @@ export default {
       }
     },
 
+
+    getAvailableRooms(data){
+      let availableRooms = []
+
+      for(let i = 0; i < data.length; i++){
+          if (data[i].state === "AVAILABLE"){
+              availableRooms.push(data[i])
+          }
+      }
+
+      return availableRooms
+    }
   },
 }
 </script>
