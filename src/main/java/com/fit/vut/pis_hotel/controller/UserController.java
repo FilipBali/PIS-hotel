@@ -47,6 +47,11 @@ public class UserController {
         return userService.getUser(id);
     }
 
+    @GetMapping(value = "/email/{email}")
+    public UserDO getUserByEmail(@PathVariable("email") String email) {
+        return userService.getUserByEmail(email);
+    }
+
     @PostMapping
     public void createUser(@RequestBody UserDO user) {
         userService.createUser(user);
@@ -78,6 +83,7 @@ public class UserController {
                         .withExpiresAt(new Date(System.currentTimeMillis() + 10 * 60 * 1000))
                         .withIssuer(request.getRequestURL().toString())
                         .withClaim("roles", user.getRoles().stream().map(RoleDO::getName).collect(Collectors.toList()))
+                        .withClaim("userId", user.getId())
                         .sign(algorithm);
 
                 Map<String, String> tokens = new HashMap<>();
