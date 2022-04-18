@@ -194,14 +194,14 @@
                 <v-btn
                   color="blue darken-1"
                   text
-                  @click="stayEditForm = false"
+                  @click="stayEditFormCancel()"
                 >
                   Zatvoriť
                 </v-btn>
                 <v-btn
                   depressed
                   color="primary"
-                  @click="stayEditForm = false"
+                  @click="stayEditFormSave()"
                 >
                   Uložiť
                 </v-btn>
@@ -226,7 +226,7 @@
 
                   <v-col
                     cols="12"
-                    sm="4"
+                    sm="6"
                   >
                     <v-select
                       v-model="selectedRoomState"
@@ -284,7 +284,7 @@
               <v-btn
                 color="blue darken-1"
                 text
-                @click="roomEditForm = false"
+                @click="roomEditFormCancel()"
               >
                 Zatvoriť
               </v-btn>
@@ -442,9 +442,9 @@ export default {
 
       roomStateEnum: [
         { be: 'AVAILABLE', fe: 'dostupná' },
-        { be: 'OCCUPIED', fe: 'nedostupná' },
-        { be: 'RESERVED', fe: 'obsadená' },
-        { be: 'UNAVAILABLE', fe: 'rezervovaná' },
+        { be: 'OCCUPIED', fe: 'obsadená' },
+        { be: 'RESERVED', fe: 'rezervovaná' },
+        { be: 'UNAVAILABLE', fe: 'nedostupná' },
       ],
 
       selectedRoomState: "UNAVAILABLE",
@@ -484,6 +484,7 @@ export default {
       //##########################################
       saveReferenceToStay: [],
       roomEditFormItem: [],
+      stayEditFormItem: [],
 
       //##########################################
       //               HEADERS
@@ -762,18 +763,19 @@ export default {
       return moment(date).format("DD. MM. YYYY");
     },
 
-    formatDateDataPicker(date) {
-      return moment(date).format("YYYY-");
-    },
-
-    editStay(room) {
-      this.dialogController = true;
-      this.dialogRoom = JSON.parse(JSON.stringify(stays)); // deepcopy
-    },
-
-    closeDialog(val) {
-      this.dialogController = val;
-    },
+    // TODO deprecated?
+    // formatDateDataPicker(date) {
+    //   return moment(date).format("YYYY-");
+    // },
+    //
+    // editStay(room) {
+    //   this.dialogController = true;
+    //   this.dialogRoom = JSON.parse(JSON.stringify(stays)); // deepcopy
+    // },
+    //
+    // closeDialog(val) {
+    //   this.dialogController = val;
+    // },
 
 
     //##########################################
@@ -899,12 +901,21 @@ export default {
       this.roomEditForm = false;
     },
 
+    roomEditFormCancel(){
+      //  TODO reset form
+
+      this.roomEditForm = false;
+    },
+
+
     //TODO
     serviceTableRowChangeBtn(item){
 
     },
 
     stayEditFormBtn(item){
+
+      this.stayEditFormItem = item
 
       // selectedRoomCategory needs id (database primary key from room_category table) of room type
       // this.selectedRoomCategory = this.roomTypeToRoomID(item.type)
@@ -923,6 +934,48 @@ export default {
       this.stayEditForm = true;
 
     },
+
+    stayEditFormSave(){
+      let item = this.stayEditFormItem
+
+      console.log(this.selectedStartDate)
+      console.log(this.selectedEndDate)
+
+      let selectedStartDateMoment = moment(this.selectedStartDate).toArray()
+      let selectedEndDateMoment = moment(this.selectedEndDate).toArray()
+
+      //Pretoze indexuje mesiace od 0!!
+      selectedStartDateMoment[1] = selectedStartDateMoment[1] + 1
+      selectedEndDateMoment[1] = selectedEndDateMoment[1] + 1
+
+      selectedStartDateMoment.length = 3
+      selectedEndDateMoment.length = 3
+
+      this.editedStay = {
+          accommodatedNumber: item.accommodatedNumber,
+          boardType: this.selectedStaysBoardType,
+          dateFrom: selectedStartDateMoment,
+          dateTo: selectedEndDateMoment,
+          hosts: item.hosts,
+          id: item.id,
+          paymentType: this.selectedStaysPayment,
+          rooms: item.rooms,
+          state: this.selectedStayState,
+          stayCreator: item.stayCreator
+      }
+
+      console.log(item)
+      console.log(this.editedStay)
+      this.editStay(this.editedStay)
+      this.stayEditForm = false;
+    },
+
+    stayEditFormCancel(){
+      //  TODO reset form
+
+      this.stayEditForm = false;
+    },
+
 
     getCustomerFullName(stayCreator)
     {
@@ -993,6 +1046,8 @@ export default {
           return "";
       }
     },
+
+
 
     staysState(state) {
       switch (state) {
@@ -1082,6 +1137,21 @@ export default {
     async editRoomApi(id, data) {
       try {
         await this.$store.dispatch("rooms/update", {id, data});
+      } catch (error) {
+        console.error("error");
+        console.error(error);
+      }
+    },
+
+    async editStay(data) {
+      await this.editStayApi(data.id, data)
+      await this.getData()
+
+    },
+
+    async editStayApi(id, data) {
+      try {
+        await this.$store.dispatch("stays/update", {id, data});
       } catch (error) {
         console.error("error");
         console.error(error);
