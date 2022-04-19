@@ -50,19 +50,37 @@ export default {
           title: "Izby",
           to: "/admin/rooms",
         },
+        {
+          title: "Pridať pobyt",
+          to: "/receptionist/new-stay",
+        },
+        {
+          title: "Pobyty",
+          to: "/receptionist/stays",
+        },
+        {
+          title: "Izby",
+          to: "/receptionist/rooms",
+        },
+        {
+          title: "Hostia",
+          to: "/receptionist/hosts",
+        },
+        {
+          title: "Služby pre hostí",
+          to: "/receptionist/services",
+        },
       ],
     };
   },
   methods: {
     async logout() {
-      // TODO: update after logout api implementation
-      // await this.$store.dispatch('user/logout', this.$auth.user.id)
       await this.$auth.logout();
       this.$auth.$storage.removeUniversal("user");
       this.$router.push("/login");
     },
     profile() {
-      console.log("Ta ak bude, ta otvorime profila");
+      this.$router.push("/admin/profile");
     },
   },
 };

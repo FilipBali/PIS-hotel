@@ -13,10 +13,10 @@
       >
       <v-spacer />
       <v-avatar color="secondary" size="40">JH</v-avatar>
-      <v-btn plain min-height="100%"> Janko Hrasko </v-btn>
+      <v-btn plain min-height="100%" @click="profile"> Janko Hrasko </v-btn>
       <v-tooltip bottom>
         <template v-slot:activator="{ on, attrs }">
-          <v-btn icon plain v-bind="attrs" v-on="on">
+          <v-btn icon plain v-bind="attrs" v-on="on" @click="logout">
             <v-icon>mdi-logout</v-icon>
           </v-btn>
         </template>
@@ -49,6 +49,15 @@ export default {
       ],
     };
   },
-  methods: {},
+  methods: {
+    async logout() {
+      await this.$auth.logout();
+      this.$auth.$storage.removeUniversal("user");
+      this.$router.push("/login");
+    },
+    profile() {
+      this.$router.push("/masseur/profile");
+    },
+  },
 };
 </script>

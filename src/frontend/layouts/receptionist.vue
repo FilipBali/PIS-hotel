@@ -72,7 +72,7 @@ export default {
       this.$router.push("/login");
     },
     profile() {
-      console.log("Ta ak bude, ta otvorime profila");
+      this.$router.push("/receptionist/profile");
     },
   },
 };
