@@ -128,7 +128,6 @@ export default {
       };
     },
     editRoom(room) {
-      console.log(this.dialogRoom);
       this.dialogController = true;
       this.newRoomDialog = false;
       this.dialogRoom = JSON.parse(JSON.stringify(room)); // deepcopy

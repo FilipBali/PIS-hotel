@@ -1,5 +1,5 @@
 <template>
-  <v-card>
+  <v-card v-if="!isLoading">
     <v-card-title primary-title>
       Zoznam užívateľov <v-spacer></v-spacer
       ><v-text-field
@@ -16,7 +16,7 @@
     <v-card-text>
       <v-data-table :headers="headers" :items="users" :search="search" flat>
         <template v-slot:item.dateOfBirth="{ item }">
-          {{ formatDate(item) }}</template
+          {{ formatDate(item.dateOfBirth) }}</template
         >
         <template v-slot:item.roles="{ item }">
           {{ userRole(item.roles[0].name) }}</template

@@ -132,6 +132,7 @@ export default {
         this.newSelectedRole = this.roles.find((e) => e.name === "ROLE_USER");
       this.editSelectedRole =
         this.user.roles && this.user.roles.length > 0 ? this.user.roles[0] : "";
+      this.dateOfBirth = moment(this.user.dateOfBirth).format("yyyy-MM-DD");
     },
   },
   methods: {
@@ -142,7 +143,6 @@ export default {
         console.error(error);
       }
     },
-    // TODO: update user fix after be fix
     async updateUser() {
       let user = {
         id: this.user.id,
@@ -170,14 +170,15 @@ export default {
     },
 
     updateDate(val) {
-      this.user.dateOfBirth = val;
+      this.dateOfBirth = val;
     },
 
     async save() {
       await this.$refs.form.validate();
 
       if (this.validForm) {
-        this.user.dateOfBirth = this.dateOfBirth;
+        this.user.dateOfBirth = moment(this.dateOfBirth).toArray().slice(0, 3);
+        console.log(this.user.dateOfBirth);
 
         if (this.isNewUser) {
           this.user.roles.push(this.newSelectedRole);

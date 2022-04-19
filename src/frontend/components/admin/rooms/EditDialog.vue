@@ -79,9 +79,6 @@ export default {
       ],
     };
   },
-  mounted() {
-    console.log(this.room);
-  },
   computed: {
     ...mapState({
       roomCathegories: (state) => state.roomCathegories.items,
@@ -108,7 +105,6 @@ export default {
     },
     async updateRoom() {
       try {
-        console.log(this.room);
         await this.$store.dispatch("rooms/update", {
           id: this.room.id,
           data: this.prepare(this.room),
