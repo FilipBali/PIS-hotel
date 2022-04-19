@@ -103,11 +103,9 @@ export default {
     return {
       dialogController: this.dialog,
       dateOfBirth: moment(this.user.dateOfBirth).format("yyyy-MM-DD"),
-      newSelectedRole: "užívateľ",
+      newSelectedRole: "",
       editSelectedRole:
-        this.user.roles && this.user.roles.length > 0
-          ? this.user.roles[0]
-          : "užívateľ",
+        this.user.roles && this.user.roles.length > 0 ? this.user.roles[0] : "",
 
       validForm: true,
       emailRules: [
@@ -130,6 +128,8 @@ export default {
       this.dialogController = this.dialog;
     },
     user() {
+      if (this.roles)
+        this.newSelectedRole = this.roles.find((e) => e.name === "ROLE_USER");
       this.editSelectedRole =
         this.user.roles && this.user.roles.length > 0 ? this.user.roles[0] : "";
     },
@@ -188,7 +188,6 @@ export default {
           } else {
             this.user.roles.push(this.editSelectedRole);
           }
-          console.log(this.user);
           await this.updateUser();
         }
         await this.getAllUsers();
