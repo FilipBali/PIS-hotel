@@ -15,7 +15,7 @@
         hide-details
       ></v-text-field>
 
-      <v-btn class="ml-8" color="secondary" @click="dialog = true">
+      <v-btn class="ml-8" color="secondary" @click="newServiceFormBtn(item)">
         Pridať službu
       </v-btn>
 
@@ -44,18 +44,19 @@
           {{serviceStateType(item.state) }}</template>
 
         <template v-slot:item.actions="{ item }">
-          <v-icon small class="mr-2" @click="editService(item)">
+          <v-icon small class="mr-2" @click="editServiceFormBtn(item)">
             mdi-pencil
           </v-icon>
-          <v-icon small @click="deleteService(item.id)"> mdi-delete </v-icon>
+          <v-icon small @click="deleteServiceBtn(item.id)"> mdi-delete </v-icon>
         </template>
 
 
       </v-data-table>
 
+      <!--  NEW SERVICE -->
       <template>
         <v-dialog
-          v-model="dialog"
+          v-model="newServiceForm"
           persistent
           max-width="600px"
         >
@@ -133,7 +134,7 @@
                     >
                       <template v-slot:activator="{ on, attrs }">
                         <v-text-field
-                          v-model="selectedDate"
+                          v-model="selectedDateCreateService"
                           label="Dátum"
                           prepend-icon="mdi-calendar"
                           readonly
@@ -162,7 +163,7 @@
                     >
                       <template v-slot:activator="{ on, attrs }">
                         <v-text-field
-                          v-model="selectedTime"
+                          v-model="selectedTimeCreateService"
                           label="Čas"
                           prepend-icon="mdi-alarm"
                           readonly
@@ -200,14 +201,14 @@
               <v-btn
                 color="blue darken-1"
                 text
-                @click="dialog = false"
+                @click="newServiceFormCancel()"
               >
                 Zatvoriť
               </v-btn>
               <v-btn
                 depressed
                 color="primary"
-                @click="dialog = false"
+                @click="newServiceFormSave()"
               >
                 Uložiť
               </v-btn>
@@ -221,7 +222,7 @@
       <!--  EDIT SERVICE -->
       <template>
         <v-dialog
-          v-model="editDialog"
+          v-model="editServiceForm"
           persistent
           max-width="600px"
         >
@@ -233,13 +234,12 @@
             <v-card-text>
               <v-container>
                 <v-row>
-
                   <v-col
                     cols="12"
-                    sm="4"
+                    sm="6"
                   >
                     <v-select
-                      v-model="selectReservationState"
+                      v-model="selectReservationStateEdit"
                       :items="reservationStateEnum"
                       :item-text="item => item.fe"
                       item-value=be
@@ -249,15 +249,106 @@
 
                   <v-col
                     cols="12"
-                    sm="4"
+                    sm="6"
                   >
                     <v-select
-                      v-model="selectReservationState"
+                      v-model="selectReservationPaymentEdit"
                       :items="staysPaymentEnum"
                       :item-text="item => item.fe"
                       item-value=be
                       label="Typ platby"
                     ></v-select>
+                  </v-col>
+
+                  <v-col
+                    cols="12"
+                    sm="6"
+                  >
+                    <v-dialog
+                      ref="dialogTimeFrom"
+                      v-model="selectedServiceTimeFromDialog"
+                      :return-value.sync="selectedServiceTimeFromValue"
+                      persistent
+                      width="290px"
+                    >
+                      <template v-slot:activator="{ on, attrs }">
+                        <v-text-field
+                          v-model="selectedServiceTimeFromValue"
+                          label="Do (čas)"
+                          prepend-icon="mdi-clock-time-four-outline"
+                          readonly
+                          v-bind="attrs"
+                          v-on="on"
+                        ></v-text-field>
+                      </template>
+                      <v-time-picker
+                        v-if="selectedServiceTimeFromDialog"
+                        v-model="selectedServiceTimeFromValue"
+                        full-width
+                      >
+                        <v-spacer></v-spacer>
+                        <v-btn
+                          text
+                          color="primary"
+                          @click="selectedServiceTimeFromDialog = false"
+                        >
+                          Cancel
+                        </v-btn>
+                        <v-btn
+                          text
+                          color="primary"
+                          @click="$refs.dialogTimeFrom.save(selectedServiceTimeFromValue)"
+                        >
+                          OK
+                        </v-btn>
+                      </v-time-picker>
+                    </v-dialog>
+                  </v-col>
+
+
+                  <v-col
+                    cols="12"
+                    sm="6"
+                  >
+                    <v-dialog
+                      ref="dialogTimeTo"
+                      v-model="selectedServiceTimeToDialog"
+                      :return-value.sync="selectedServiceTimeToValue"
+                      persistent
+                      width="290px"
+                    >
+                      <template v-slot:activator="{ on, attrs }">
+                        <v-text-field
+                          v-model="selectedServiceTimeToValue"
+                          label="Do (čas)"
+                          prepend-icon="mdi-clock-time-four-outline"
+                          readonly
+                          v-bind="attrs"
+                          v-on="on"
+                        ></v-text-field>
+                      </template>
+                      <v-time-picker
+                        v-if="selectedServiceTimeToDialog"
+                        v-model="selectedServiceTimeToValue"
+                        full-width
+                      >
+                        <v-spacer></v-spacer>
+                        <v-btn
+                          text
+                          color="primary"
+                          @click="selectedServiceTimeToDialog = false"
+                        >
+                          Cancel
+                        </v-btn>
+                        <v-btn
+                          text
+                          color="primary"
+                          @click="$refs.dialogTimeTo.save(selectedServiceTimeToValue)"
+                        >
+                          OK
+                        </v-btn>
+                      </v-time-picker>
+                    </v-dialog>
                   </v-col>
 
                   <v-col
@@ -293,44 +384,15 @@
                     cols="12"
                     sm="6"
                   >
-                    <v-menu
-                      v-model="selectedTimePickerService"
-                      :close-on-content-click="false"
-                      :nudge-right="40"
-                      transition="scale-transition"
-                      offset-y
-                      min-width="auto"
-                    >
-                      <template v-slot:activator="{ on, attrs }">
-                        <v-text-field
-                          v-model="selectedTime"
-                          label="Čas"
-                          prepend-icon="mdi-alarm"
-                          readonly
-                          v-bind="attrs"
-                          v-on="on"
-                        ></v-text-field>
-                      </template>
-                      <v-time-picker
-                        v-model="selectedTime"
-                        format="ampm"
-                        @input="selectedTimePickerService = false"
-                      ></v-time-picker>
-                    </v-menu>
-                  </v-col>
-
-                  <v-col
-                    cols="12"
-                    sm="6"
-                  >
                     <v-text-field
                       v-model="selectTrackAmout"
+                      :rules="[v => /^(\s*|\d+)$/.test(v)]"
                       label="Počet dráh"
                     ></v-text-field>
                  </v-col>
 
+              </v-row>
 
-                </v-row>
               </v-container>
             </v-card-text>
             <v-card-actions>
@@ -338,14 +400,14 @@
               <v-btn
                 color="blue darken-1"
                 text
-                @click="editDialog = false"
+                @click="editServiceFormCancel()"
               >
                 Zatvoriť
               </v-btn>
               <v-btn
                 depressed
                 color="primary"
-                @click="editDialog = false"
+                @click="editServiceFormSave()"
               >
                 Uložiť
               </v-btn>
@@ -384,14 +446,22 @@ export default {
         { be: 'CASH', fe: 'hotovostne' }
       ],
 
-      selectReservationState : "UNAVAILABLE",
-      selectedService: "UNAVAILABLE",
+      selectedService: "",
 
       selectedDateService: (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10),
       datePickerStartStay: false,
 
-      //selectedTime: false,
-      //selectedTimePickerService:  (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10),
+      selectedServiceTimeFromDialog: false,
+      selectedServiceTimeFromValue:  null,
+
+      selectedServiceTimeToDialog: false,
+      selectedServiceTimeToValue:  null,
+
+      selectedDateCreateService: '',
+      selectedTimeCreateService: '',
+
+      selectReservationPaymentEdit: '',
+      selectReservationStateEdit: '',
 
       selectTrackAmout: 0,
 
@@ -403,16 +473,20 @@ export default {
       timePickerService: false,
       newTime: "",
 
-      editDialog: false,
+      editServiceForm: false,
 
       selectedStartDate: (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10),
       selectNewDate: false,
 
 
       dialogController: false,
-      dialogRoom: {},
-      dialog: false,
-      newRoomDialog: false,
+      newServiceForm: false,
+
+      //##########################################
+      //         STORAGE/CACHE/REFERENCES
+      //##########################################
+      serviceEditFormItem: [],
+
       headers: [
         {
           text: "Pobyt",
@@ -482,7 +556,7 @@ export default {
 
     async getAllServicesApi() {
       try {
-        await console.log(this.$store.dispatch("services/getAll"));
+        await this.$store.dispatch("services/getAll");
       } catch (error) {
         console.error(error);
       }
@@ -497,11 +571,11 @@ export default {
     },
 
 
-    /*async deleteService(id) {
+    async deleteServiceBtn(id) {
       await this.deleteServiceApi(id);
       this.getAllServicesApi();
     },
-*/
+
 
     getDay(date)
     {
@@ -559,18 +633,32 @@ export default {
       }
     },
 
-    newService() {
-      this.dialogController = true;
-      this.newUserDialog = true;
-      this.dialogUser = {
-        stayid: "",
-        lastName: "",
-        address: "",
-        dateOfBirth: moment().format("yyyy-MM-DD"),
-        timeTo: "",
-        paymentType: "",
-        state: "",
-      };
+    newServiceFormBtn(item) {
+      this.newServiceForm = true
+
+      // this.dialogController = true;
+      // this.newUserDialog = true;
+      // this.dialogUser = {
+      //   stayid: "",
+      //   lastName: "",
+      //   address: "",
+      //   dateOfBirth: moment().format("yyyy-MM-DD"),
+      //   timeTo: "",
+      //   paymentType: "",
+      //   state: "",
+      // };
+    },
+
+    //TODO
+    newServiceFormSave() {
+
+      this.newServiceForm = false;
+    },
+
+    //TODO
+    newServiceFormCancel() {
+
+      this.newServiceForm = false;
     },
 
 
@@ -583,10 +671,81 @@ export default {
     },
 
 
-    //EDIT FORM
-    editService(item)
+    //TODO
+    editServiceFormBtn(item) {
+      console.log(item)
+
+      //TODO rules na selectTrackAmout
+      // ak otvorim s nezadanym, zatvorim, otvorim so zadanym, zatvorim a opat otovorim s nezadanym, tak vyzaduje cislo
+      // =>reset formularu po zavreti
+
+      this.serviceEditFormItem = item
+
+      this.selectTrackAmout = item.bowlingTracks
+      this.selectReservationPaymentEdit = item.paymentType
+      this.selectReservationStateEdit = item.state
+      this.selectedServiceTimeFromValue = item.timeFrom[3] +':' + item.timeFrom[4]
+      this.selectedServiceTimeToValue = item.timeTo[3] +':' + item.timeTo[4]
+
+      this.editServiceForm = true;
+    },
+
+    //TODO
+    editServiceFormSave()
     {
-      this.editDialog = true;
+
+      let item = this.serviceEditFormItem
+      let newSplitTimeFrom = this.selectedServiceTimeFromValue.split(':')
+      let newSplitTimeTo = this.selectedServiceTimeToValue.split(':')
+
+      item.timeFrom[3] = parseInt(newSplitTimeFrom[0])
+      item.timeFrom[4] = parseInt(newSplitTimeFrom[1])
+
+      item.timeTo[3] = parseInt(newSplitTimeTo[0])
+      item.timeTo[4] = parseInt(newSplitTimeTo[1])
+
+      this.newService = {
+        bowlingTracks: this.selectTrackAmout,
+        id: item.id,
+        paymentType: this.selectReservationPaymentEdit,
+        serviceType: item.serviceType,
+        state: this.selectReservationStateEdit,
+        stay: item.stay,
+        timeFrom: item.timeFrom,
+        timeTo: item.timeTo,
+      }
+
+      console.log(newSplitTimeFrom)
+      console.log(newSplitTimeTo)
+      console.log(this.newService)
+
+      //TODO nemeni sa db
+      this.editService(this.newService)
+
+      this.editServiceForm = false;
+    },
+
+    //TODO
+    editServiceFormCancel()
+    {
+      this.editServiceForm = false;
+    },
+
+
+    async editService(data) {
+      await this.editServiceApi(data.id, data)
+      this.getData()
+
+      // this.updateRoomTable()
+    },
+
+    async editServiceApi(id, data) {
+      try {
+        await this.$store.dispatch("services/update", {id, data});
+      } catch (error) {
+        console.error("error");
+        console.error(error);
+      }
     },
 
   },
