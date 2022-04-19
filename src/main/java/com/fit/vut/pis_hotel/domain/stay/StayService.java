@@ -246,12 +246,16 @@ public class StayService {
     private boolean isRoomAvailable(StayDO stay, RoomDO room) {
         LocalDateTime dateFrom = stay.getDateFrom().atTime(14, 0);
         LocalDateTime dateTo = stay.getDateTo().atTime(11, 0);
-        List<StayDO> stays = room.getStays();
+        RoomDO realRoom = roomRepository.getById(room.getId());
+        List<StayDO> stays = realRoom.getStays();
         for (StayDO oneStay : stays) {
+            if (Objects.equals(oneStay.getId(), stay.getId())) {
+                continue;
+            }
             if (isDateInBetween(oneStay.getDateFrom().atTime(14, 0), oneStay.getDateTo().atTime(11, 0), dateFrom) ||
                     isDateInBetween(oneStay.getDateFrom().atTime(14, 0), oneStay.getDateTo().atTime(11, 0), dateTo)) {
                 throw new IllegalStateException("Room with id: " + room.getId() +
-                        " is already reserved for stay with id: " + stay.getId() +
+                        " is already reserved for stay with id: " + oneStay.getId() +
                         " for date from: " + oneStay.getDateFrom().atTime(14, 0) +
                         " to: " + oneStay.getDateTo().atTime(11, 0) + ". ");
             }
