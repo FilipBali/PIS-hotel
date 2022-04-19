@@ -246,8 +246,8 @@
 
               <v-row>
                   <v-col
-                    cols="1"
-                    sm="1"
+                    cols="4"
+                    sm="2"
 
                   >
                     <v-menu
@@ -277,8 +277,8 @@
                   </v-col>
 
                   <v-col
-                    cols="1"
-                    sm="1"
+                    cols="4"
+                    sm="2"
 
                   >
                     <v-menu
