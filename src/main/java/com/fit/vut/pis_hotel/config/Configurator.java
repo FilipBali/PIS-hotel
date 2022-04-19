@@ -277,6 +277,9 @@ public class Configurator {
             roleService.addRoleToUser(1L, "ROLE_USER");
             roleService.addRoleToUser(2L, "ROLE_ADMIN");
             roleService.addRoleToUser(3L, "ROLE_RECEPTIONIST");
+            roleService.addRoleToUser(4L, "ROLE_COOK");
+            roleService.addRoleToUser(5L, "ROLE_BOWLING");
+            roleService.addRoleToUser(6L, "ROLE_MASSEUR");
 
             ServiceDO service1 = new ServiceDO(
                     LocalDateTime.of(2022, Month.FEBRUARY, 27, 14, 30),
