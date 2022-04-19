@@ -11,11 +11,11 @@ export default function ({ route, $auth, app }) {
       } else if (user.roles.includes("ROLE_RECEPTIONIST")) {
         app.router.push("/receptionist/stays");
       } else if (user.roles.includes("ROLE_COOK")) {
-        app.router.push("/chef");
+        app.router.push("/chef/reservations");
       } else if (user.roles.includes("ROLE_MASSEUR")) {
-        app.router.push("/masseur");
+        app.router.push("/masseur/reservations");
       } else if (user.roles.includes("ROLE_BOWLING")) {
-        app.router.push("/bowling");
+        app.router.push("/bowling/reservations");
       } else {
         app.router.push("/user");
       }
