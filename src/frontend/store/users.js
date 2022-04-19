@@ -22,20 +22,28 @@ export const actions = {
         throw new Error(`API ${error}`);
       });
   },
+  getById({ commit }, id) {
+    return this.$axios
+      .get(`/api/user/${id}`)
+      .then((response) => {
+        if (response.data) {
+          commit("SET_ITEMS", response.data);
+          return response.data;
+        }
+      })
+      .catch((error) => {
+        throw new Error(`API ${error}`);
+      });
+  },
   create(_, data) {
     return this.$axios.post(`/api/user`, data).catch((error) => {
       throw new Error(`API ${error}`);
     });
   },
   update(_, { id, data }) {
-    return this.$axios
-      .put(`/api/user/${id}`, data)
-      .then((response) => {
-        console.log(response);
-      })
-      .catch((error) => {
-        throw new Error(`API ${error}`);
-      });
+    return this.$axios.put(`/api/user/${id}`, data).catch((error) => {
+      throw new Error(`API ${error}`);
+    });
   },
   delete(_, id) {
     return this.$axios.delete(`/api/user/${id}`).catch((error) => {

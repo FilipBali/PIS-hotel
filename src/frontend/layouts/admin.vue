@@ -52,23 +52,23 @@ export default {
         },
         {
           title: "Pridať pobyt",
-          to: "/receptionist/new-stay",
+          to: "/admin/new-stay",
         },
         {
           title: "Pobyty",
-          to: "/receptionist/stays",
+          to: "/admin/stays",
         },
         {
           title: "Izby",
-          to: "/receptionist/rooms",
+          to: "/admin/rooms",
         },
         {
           title: "Hostia",
-          to: "/receptionist/hosts",
+          to: "/admin/hosts",
         },
         {
           title: "Služby pre hostí",
-          to: "/receptionist/services",
+          to: "/admin/services",
         },
       ],
     };

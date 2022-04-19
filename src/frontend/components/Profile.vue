@@ -42,7 +42,7 @@
               required
             ></v-text-field>
           </v-col>
-          <v-col v-if="isNewUser" cols="12" sm="6" md="4">
+          <!-- <v-col v-if="isNewUser" cols="12" sm="6" md="4">
             <v-text-field
               v-model="user.password"
               :rules="passwordRule"
@@ -50,45 +50,36 @@
               label="Heslo"
               required
             ></v-text-field>
-          </v-col>
-          <v-col cols="12" sm="6" md="4">
-            <v-select
-              v-if="isNewUser"
-              v-model="newSelectedRole"
-              :items="roles"
-              :item-text="(item) => this.userRole(item.name)"
-              label="Rola"
-              return-object
-            ></v-select>
-            <v-select
-              v-else
-              v-model="editSelectedRole"
-              :items="roles"
-              :item-text="(item) => this.userRole(item.name)"
-              label="Rola"
-              return-object
-            ></v-select>
-          </v-col>
+          </v-col> -->
         </v-row>
       </v-form>
     </v-card-text>
+    <v-card-actions>
+      <v-spacer></v-spacer>
+      <v-btn color="secondary" text @click="save"> Uložiť </v-btn>
+    </v-card-actions>
   </v-card>
 </template>
 
 <script>
 import { mapState } from "vuex";
-import DatePicker from "../../DatePicker.vue";
+import DatePicker from "./DatePicker.vue";
 import moment from "moment";
 
 export default {
   components: { DatePicker },
   data() {
     return {
-      dialogController: this.dialog,
-      dateOfBirth: moment(this.user.dateOfBirth).format("yyyy-MM-DD"),
-      newSelectedRole: "",
-      editSelectedRole:
-        this.user.roles && this.user.roles.length > 0 ? this.user.roles[0] : "",
+      user: {
+        firstName: "",
+        lastName: "",
+        address: "",
+        email: "",
+        phoneNumber: "",
+        // password: "",
+      },
+
+      dateOfBirth: moment().format("yyyy-MM-DD"),
 
       validForm: true,
       emailRules: [
@@ -98,32 +89,49 @@ export default {
             v
           ) || "Zadajte platný email",
       ],
-      passwordRule: [(v) => !!v.trim() || "Zadajte heslo"],
+      // passwordRule: [(v) => !!v.trim() || "Zadajte heslo"],
     };
   },
   computed: {
     ...mapState({
-      roles: (state) => state.roles.items,
+      myUser: (state) => state.users.items,
     }),
+    userId() {
+      let jwt = this.$auth.$storage.getUniversal("user");
+      return jwt.userId;
+    },
   },
   created() {
     this.getData();
   },
   methods: {
-    // TODO: update user fix after be fix
-    async updateUser() {
-      let user = {
-        id: this.user.id,
-        firstName: this.user.firstName,
-        lastName: this.user.lastName,
-        address: this.user.address,
-        email: this.user.email,
-        phoneNumber: this.user.phoneNumber,
+    async getData() {
+      await this.getUserApi();
+      this.user = {
+        firstName: this.myUser.firstName,
+        lastName: this.myUser.lastName,
+        address: this.myUser.address,
+        email: this.myUser.email,
+        phoneNumber: this.myUser.phoneNumber,
       };
+
+      this.dateOfBirth = moment(this.myUser.dateOfBirth).format("yyyy-MM-DD");
+
+      this.isLoading = false;
+    },
+    async getUserApi() {
+      try {
+        await this.$store.dispatch("users/getById", this.userId);
+      } catch (error) {
+        console.error(error);
+      }
+    },
+
+    async updateUser() {
       try {
         await this.$store.dispatch("users/update", {
-          id: this.user.id,
-          data: user,
+          id: this.userId,
+          data: this.user,
         });
       } catch (error) {
         console.error(error);
@@ -131,53 +139,18 @@ export default {
     },
 
     updateDate(val) {
-      this.user.dateOfBirth = val;
+      this.dateOfBirth = val;
     },
 
     async save() {
       await this.$refs.form.validate();
 
       if (this.validForm) {
-        this.user.dateOfBirth = this.dateOfBirth;
-
-        if (this.isNewUser) {
-          this.user.roles.push(this.newSelectedRole);
-          await this.createUser();
-        } else {
-          if (this.user.roles.length > 0) {
-            this.user.roles[0] = this.editSelectedRole;
-          } else {
-            this.user.roles.push(this.editSelectedRole);
-          }
-          await this.updateUser();
-        }
-        await this.getAllUsers();
-        this.close();
-      }
-    },
-    // close() {
-    //   this.dialogController = false;
-    //   this.selectedRole = "";
-    //   this.$refs.form.resetValidation();
-    //   this.$emit("close-dialog", this.dialogController);
-    // },
-
-    userRole(roleId) {
-      switch (roleId) {
-        case "ROLE_ADMIN":
-          return "administrátor";
-        case "ROLE_RECEPTIONIST":
-          return "recepčný";
-        case "ROLE_COOK":
-          return "kuchár";
-        case "ROLE_MASSEUR":
-          return "masér";
-        case "ROLE_BOWLING":
-          return "bowling";
-        case "ROLE_USER":
-          return "užívateľ";
-        default:
-          return "";
+        this.user.dateOfBirth = moment(this.dateOfBirth).toArray().slice(0, 3);
+        console.log("p-onsave-before update");
+        console.log(this.user.dateOfBirth);
+        await this.updateUser();
+        await this.getUserApi();
       }
     },
   },
