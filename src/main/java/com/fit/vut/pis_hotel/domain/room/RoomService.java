@@ -17,7 +17,7 @@ import java.util.Objects;
 public class RoomService {
 
     private final RoomRepository roomRepository;
-    private RoomCategoryRepository roomCategoryRepository;
+    private final RoomCategoryRepository roomCategoryRepository;
 
     public List<RoomDO> getRooms() {
         return roomRepository.findAll();
