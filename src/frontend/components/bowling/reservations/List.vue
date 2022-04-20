@@ -126,7 +126,7 @@ export default {
     },
     getDay(date)
     {
-      return moment(date).format("DD. MM. YYYY");
+      return moment(date).subtract(1, 'month').format("DD. MM. YYYY");
     },
 
     getTime(start,stop)

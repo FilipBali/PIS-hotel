@@ -755,7 +755,7 @@ export default {
 
 
     formatDate(date) {
-      return moment(date).format("DD. MM. YYYY");
+      return moment(date).subtract(1, 'month').format("DD. MM. YYYY");
     },
 
     // TODO deprecated?
@@ -839,7 +839,7 @@ export default {
 
     getDay(date)
     {
-      return moment(date).format("DD. MM. YYYY");
+      return moment(date).subtract(1, 'month').format("DD. MM. YYYY");
     },
 
     getTime(start,stop)
@@ -923,8 +923,8 @@ export default {
       this.selectedStaysPayment = item.paymentType
 
       // Needs ISO format => YYYY-MM-DD
-      this.selectedStartDate = moment(item.dateFrom).format('YYYY-MM-DD')
-      this.selectedEndDate = moment(item.dateTo).format('YYYY-MM-DD')
+      this.selectedStartDate = moment(item.dateFrom).subtract(1, 'month').format('YYYY-MM-DD')
+      this.selectedEndDate = moment(item.dateTo).subtract(1, 'month').format('YYYY-MM-DD')
 
       this.stayEditForm = true;
 
@@ -936,9 +936,10 @@ export default {
       console.log(this.selectedStartDate)
       console.log(this.selectedEndDate)
 
-      let selectedStartDateMoment = moment(this.selectedStartDate).toArray()
-      let selectedEndDateMoment = moment(this.selectedEndDate).toArray()
+      let selectedStartDateMoment = moment(this.selectedStartDate).subtract(1, 'month').toArray()
+      let selectedEndDateMoment = moment(this.selectedEndDate).subtract(1, 'month').toArray()
 
+      // TODO .subtract(1, 'month')
       //Pretoze indexuje mesiace od 0!!
       selectedStartDateMoment[1] = selectedStartDateMoment[1] + 1
       selectedEndDateMoment[1] = selectedEndDateMoment[1] + 1

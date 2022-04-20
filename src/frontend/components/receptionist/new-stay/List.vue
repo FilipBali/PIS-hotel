@@ -232,7 +232,7 @@
 
               <v-combobox
                 v-model="selectedRoomsCombobox"
-                :items="getAvailableRooms(rooms)"
+                :items="getAvailableRooms(roomsA)"
                 :item-text="item => 'Číslo izby: ' + item.roomNumber + ' (Postelí: '+ item.bedsNum + ') | Typ: ' + item.roomCategory.type"
                 item-value=id
                 label="Vybrane izby (Číslo izby (Počet postelí) | Typ izby)"
@@ -429,6 +429,7 @@ export default {
       hosts: (state) => state.hosts.items,
       rooms: (state) => state.rooms.items,
       roomCategories: (state) => state.roomCategories.items,
+      roomsA: (state) => state.roomsA.items,
     }),
   },
 
@@ -440,7 +441,7 @@ export default {
 
     // Preformatuje datum
     formatDate(date) {
-      return moment(date).format("DD. MM. YYYY");
+      return moment(date).subtract(1, 'month').format("DD. MM. YYYY");
     },
 
     //##########################################
@@ -501,9 +502,10 @@ export default {
         state: "AVAILABLE"
       }
 
-      let selectedStartDateMoment = moment(this.selectedStartDate).toArray()
-      let selectedEndDateMoment = moment(this.selectedEndDate).toArray()
+      let selectedStartDateMoment = moment(this.selectedStartDate).subtract(1, 'month').toArray()
+      let selectedEndDateMoment = moment(this.selectedEndDate).subtract(1, 'month').toArray()
 
+      //TODO .subtract(1, 'month')
       //Pretoze indexuje mesiace od 0!!
       selectedStartDateMoment[1] = selectedStartDateMoment[1] + 1
       selectedEndDateMoment[1] = selectedEndDateMoment[1] + 1
@@ -564,6 +566,7 @@ export default {
       await Promise.all([await this.getAllRoomsApi()]);
       await Promise.all([await this.getAllRoomCategoriesApi()]);
       await Promise.all([await this.getHostData()]);
+      await Promise.all([await this.getAvailableRoomsApi('2022-03-27', '2022-03-30')]);
       this.isLoading = false;
     },
 
@@ -587,7 +590,7 @@ export default {
 
     async getAvailableRoomsApi(from, to) {
       try {
-        await this.$store.dispatch("rooms/getAvailableRooms",{from, to});
+        return await this.$store.dispatch("roomsA/getAvailableRooms",{from, to});
       } catch (error) {
         console.error(error);
       }
@@ -629,22 +632,28 @@ export default {
     },
 
 
-    getAvailableRooms(data){
+     getAvailableRooms(data) {
+      console.log(data)
       let availableRooms = []
 
       //console.log(this.selectedStartDate);
 
 
-      console.log(this.getAvailableRoomsApi('2022-01-01', '2023-01-01'));
+      // console.log(await this.getAvailableRoomsApi('2023-01-01', '2023-01-01'));
+      // console.log(this.roomsA)
 
-      for(let i = 0; i < data.length; i++){
-          if (data[i].state === "AVAILABLE"){
-              availableRooms.push(data[i])
-          }
+      for (let i = 0; i < data.length; i++) {
+        if (data[i].state === "AVAILABLE") {
+          availableRooms.push(data[i])
+        }
       }
 
-      return availableRooms
+      // console.log(availableRooms);
+
+      return data
     }
   },
+
+
 }
 </script>
