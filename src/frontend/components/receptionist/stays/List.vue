@@ -322,9 +322,8 @@
 
                     <template v-slot:item.roomActions="{ item }">
                       <v-icon small class="mr-2" @click="roomEditFormBtn(item)">
-                        mdi-pencil
+                        mdi-arrow-u-right-top
                       </v-icon>
-                      <v-icon small @click="deleteRoomAndUpdateTable(item)"> mdi-delete </v-icon>
                     </template>
                   </v-data-table>
                 </template>
@@ -593,7 +592,7 @@ export default {
           value: "boardType",
         },
         {
-          text: "Počet hostí",
+          text: "Hostia",
           align: "start",
           value: "accommodatedNumber",
         },
@@ -851,8 +850,13 @@ export default {
     },
 
 
+    roomEditFormBtn(item)
+    {
+      this.$router.push('rooms');
+    },
 
-    roomEditFormBtn(item){
+
+    /*roomEditFormBtn(item){
 
         console.log(item)
         console.log(item.state)
@@ -863,7 +867,7 @@ export default {
         this.selectedRoomType = this.roomTypeToRoomID(item.roomCategoryType)
 
         this.roomEditForm = true;
-    },
+    },*/
 
     roomEditFormSave(){
       let item = this.roomEditFormItem;
@@ -1193,7 +1197,6 @@ export default {
         console.error(error);
       }
     },
-
   }
 };
 </script>
