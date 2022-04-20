@@ -3,11 +3,15 @@ package com.fit.vut.pis_hotel.domain.room;
 import com.fit.vut.pis_hotel.domain.room.enums.RoomStateEnum;
 import com.fit.vut.pis_hotel.domain.roomCategory.RoomCategoryDO;
 import com.fit.vut.pis_hotel.domain.roomCategory.RoomCategoryRepository;
+import com.fit.vut.pis_hotel.domain.stay.StayService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -18,6 +22,7 @@ public class RoomService {
 
     private final RoomRepository roomRepository;
     private final RoomCategoryRepository roomCategoryRepository;
+    private final StayService stayService;
 
     public List<RoomDO> getRooms() {
         return roomRepository.findAll();
@@ -73,5 +78,25 @@ public class RoomService {
 
     private boolean isIntegerValid(Integer integerToValidate, Integer originalInteger) {
         return integerToValidate != null && integerToValidate > 0 && !Objects.equals(integerToValidate, originalInteger);
+    }
+
+    public List<RoomDO> getAvailableRooms(LocalDate from, LocalDate to) {
+        LocalDateTime dateFrom = from.atTime(11, 0);
+        LocalDateTime dateTo = to.atTime(14, 0);
+        List<RoomDO> rooms = getRooms();
+        List<RoomDO> availableRooms = new ArrayList<>(List.of());
+        for (RoomDO room : rooms) {
+            boolean isRoomAvailable = room.getStays().stream().anyMatch(stayDO ->
+                    !isDateInBetween(dateFrom, dateTo, stayDO.getDateFrom().atTime(11, 0)) &&
+                            !isDateInBetween(dateFrom, dateTo, stayDO.getDateFrom().atTime(14, 0)));
+            if (isRoomAvailable) {
+                availableRooms.add(room);
+            }
+        }
+        return availableRooms;
+    }
+
+    private boolean isDateInBetween(final LocalDateTime min, final LocalDateTime max, final LocalDateTime date) {
+        return (date.isBefore(max) && date.isAfter(min)) || date.isEqual(min) || date.isEqual(max);
     }
 }
