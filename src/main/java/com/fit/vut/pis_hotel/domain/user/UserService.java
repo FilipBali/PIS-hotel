@@ -11,6 +11,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.time.LocalDate;
 import java.util.*;
 
 @Service
@@ -88,6 +89,13 @@ public class UserService implements UserDetailsService {
             log.info("Changing email of user with id: " + user.getId() + " from: " + user.getEmail() + " to: " + email + ".");
             user.setEmail(email);
         }
+
+        LocalDate birthDate = userBody.getDateOfBirth();
+        if (isDateValid(birthDate, user.getDateOfBirth())) {
+            log.info("Changing date of birth of user with id: " + user.getId() + " from: " + user.getDateOfBirth() + " to: " + birthDate + ".");
+            user.setDateOfBirth(birthDate);
+        }
+
         String phoneNumber = userBody.getPhoneNumber();
         if (isStringValid(phoneNumber, user.getPhoneNumber())) {
             log.info("Changing phoneNumber of user with id: " + user.getId() + " from: " + user.getPhoneNumber() + " to: " + phoneNumber + ".");
@@ -120,6 +128,10 @@ public class UserService implements UserDetailsService {
     private boolean isEmailTaken(String email) {
         Optional<UserDO> userByEmail = userRepository.findUserByEmail(email);
         return userByEmail.isPresent();
+    }
+
+    private boolean isDateValid(LocalDate dateToValidate, LocalDate originaldate) {
+        return dateToValidate != null && !Objects.equals(originaldate, dateToValidate);
     }
 
 }

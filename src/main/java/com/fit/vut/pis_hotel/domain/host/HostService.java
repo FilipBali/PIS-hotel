@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -72,6 +73,13 @@ public class HostService {
             log.info("Changing lastName of host with id: " + host.getId() + " from: " + host.getLastName() + " to: " + lastName + ".");
             host.setLastName(lastName);
         }
+
+        LocalDate birthDate = hostBody.getDateOfBirth();
+        if (isDateValid(birthDate, host.getDateOfBirth())) {
+            log.info("Changing date of birth of user with id: " + host.getId() + " from: " + host.getDateOfBirth() + " to: " + birthDate + ".");
+            host.setDateOfBirth(birthDate);
+        }
+
         String email = hostBody.getEmail();
         if (isStringValid(email, host.getEmail())) {
             if (isEmailTaken(email)) {
@@ -106,6 +114,10 @@ public class HostService {
     private boolean isEmailTaken(String email) {
         Optional<HostDO> hostByEmail = hostRepository.findHostByEmail(email);
         return hostByEmail.isPresent();
+    }
+
+    private boolean isDateValid(LocalDate dateToValidate, LocalDate originaldate) {
+        return dateToValidate != null && !Objects.equals(originaldate, dateToValidate);
     }
 
 
