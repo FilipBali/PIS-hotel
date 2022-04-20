@@ -77,11 +77,11 @@
                             <v-row>
                               <v-col cols="12">
                                 <v-combobox
-                                  v-model="selectedRoomsCombobox"
-                                  :items="rooms"
-                                  :item-text="item => item.roomNumber"
+                                  v-model="selectedStaysCombobox"
+                                  :items="stays"
+                                  :item-text="item => item.id + ' | ' + item.stayCreator.firstName +' '+ item.stayCreator.lastName"
                                   item-value=id
-                                  label="Existujúce izby"
+                                  label="Existujúce pobyty"
                                   multiple
                                   outlined
                                   dense
@@ -95,32 +95,6 @@
                     </v-col>
 
                    <v-col
-                    cols="12"
-                    sm="12">
-                    <v-list>
-                    <template>
-                      <v-container fluid>
-                        <v-row>
-                          <v-col cols="12">
-                            <v-combobox
-                              v-model="selectedHostsCombobox"
-                              :items="services"
-                              :item-text="item => item.stay.stayCreator.firstName +' '+ item.stay.stayCreator.lastName  + ' | ' +item.stay.stayCreator.idNumber"
-                              item-value=id
-                              label="Existujúci hostia"
-                              multiple
-                              outlined
-                              dense
-                            >
-                            </v-combobox>
-                          </v-col>
-                        </v-row>
-                      </v-container>
-                    </template>
-                  </v-list>
-                  </v-col>
-
-                  <v-col
                     cols="12"
                     sm="6"
                   >
@@ -469,6 +443,7 @@ export default {
       search: "",
       selectedHostsCombobox: [],
       selectedRoomsCombobox: [],
+      selectedStaysCombobox: [],
 
       timePickerService: false,
       newTime: "",
@@ -540,6 +515,7 @@ export default {
   computed: {
     ...mapState({
       services: (state) => state.services.items,
+      stays: (state) => state.stays.items,
       rooms: (state) => state.rooms.items,
     }),
   },
@@ -551,6 +527,7 @@ export default {
     async getData() {
       await Promise.all([await this.getAllServicesApi()]);
       await Promise.all([await this.getAllRoomsApi()]);
+      await Promise.all([await this.getAllStaysApi()]);
       this.isLoading = false;
     },
 
@@ -665,6 +642,14 @@ export default {
     async getAllRoomsApi() {
       try {
         await this.$store.dispatch("rooms/getAll");
+      } catch (error) {
+        console.error(error);
+      }
+    },
+
+    async getAllStaysApi() {
+      try {
+        await this.$store.dispatch("stays/getAll");
       } catch (error) {
         console.error(error);
       }
