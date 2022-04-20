@@ -150,6 +150,7 @@ export default {
         lastName: this.user.lastName,
         address: this.user.address,
         email: this.user.email,
+        dateOfBirth: this.user.dateOfBirth,
         phoneNumber: this.user.phoneNumber,
       };
       try {
@@ -178,7 +179,6 @@ export default {
 
       if (this.validForm) {
         this.user.dateOfBirth = moment(this.dateOfBirth).toArray().slice(0, 3);
-        console.log(this.user.dateOfBirth);
 
         if (this.isNewUser) {
           this.user.roles.push(this.newSelectedRole);
