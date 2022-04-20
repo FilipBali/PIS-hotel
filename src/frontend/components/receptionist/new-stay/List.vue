@@ -585,6 +585,15 @@ export default {
     },
 
 
+    async getAvailableRoomsApi(from, to) {
+      try {
+        await this.$store.dispatch("rooms/getAvailableRooms",{from, to});
+      } catch (error) {
+        console.error(error);
+      }
+    },
+
+
     // API call to create new stay in stay table
     async db_createStay(data) {
       try {
@@ -622,6 +631,11 @@ export default {
 
     getAvailableRooms(data){
       let availableRooms = []
+
+      //console.log(this.selectedStartDate);
+
+
+      console.log(this.getAvailableRoomsApi('2022-01-01', '2023-01-01'));
 
       for(let i = 0; i < data.length; i++){
           if (data[i].state === "AVAILABLE"){

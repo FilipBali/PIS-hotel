@@ -41,5 +41,21 @@ export const actions = {
     return this.$axios.delete(`/api/room/${id}`).catch((error) => {
       throw new Error(`API ${error}`);
     });
+    },
+
+  getAvailableRooms({ commit }, {from, to}) {
+    return this.$axios
+      .get(`/api/room/available-rooms?from=${from}&to=${to}`)
+      .then((response) => {
+        if (response.data) {
+          commit('SET_ITEM', response.data)
+          return response.data
+        }
+      })
+      .catch((error) => {
+        throw new Error(`API ${error}`)
+      })
   },
+
+
 };

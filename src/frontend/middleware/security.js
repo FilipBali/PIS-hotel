@@ -11,7 +11,7 @@ export default function ({ route, $auth, app }) {
       } else if (user.roles.includes("ROLE_RECEPTIONIST")) {
         app.router.push("/receptionist/stays");
       } else if (user.roles.includes("ROLE_COOK")) {
-        app.router.push("/chef/reservations");
+        app.router.push("/chef/meals");
       } else if (user.roles.includes("ROLE_MASSEUR")) {
         app.router.push("/masseur/reservations");
       } else if (user.roles.includes("ROLE_BOWLING")) {

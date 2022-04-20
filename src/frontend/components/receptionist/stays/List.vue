@@ -1018,7 +1018,7 @@ export default {
         case "STANDARD":
           return "štandardná";
         case "APARTMENT":
-          return "apartment";
+          return "apartmán";
         case "LUXURY":
           return "luxusná";
         default:
@@ -1032,7 +1032,7 @@ export default {
         case "štandardná":
           return 1;
         case "APARTMENT":
-        case "apartment":
+        case "apartmán":
           return 2;
         case "LUXURY":
         case "luxusná":
