@@ -232,7 +232,7 @@
 
               <v-combobox
                 v-model="selectedRoomsCombobox"
-                :items="getAvailableRooms(roomsA)"
+                :items="roomsA"
                 :item-text="item => 'Číslo izby: ' + item.roomNumber + ' (Postelí: '+ item.bedsNum + ') | Typ: ' + item.roomCategory.type"
                 item-value=id
                 label="Vybrane izby (Číslo izby (Počet postelí) | Typ izby)"
@@ -270,7 +270,7 @@
                       </template>
                       <v-date-picker
                         v-model="selectedStartDate"
-                        @input="datePickerStartStay = false"
+                        @input="datePickerStartStayChange()"
                       ></v-date-picker>
                     </v-menu>
 
@@ -301,7 +301,7 @@
                       </template>
                       <v-date-picker
                         v-model="selectedEndDate"
-                        @input="datePickerEndStay = false"
+                        @input="datePickerEndStayChange()"
                       ></v-date-picker>
                     </v-menu>
 
@@ -434,7 +434,7 @@ export default {
   },
 
   created() {
-    this.getData();
+    this.getData(this.selectedStartDate, this.selectedEndDate);
   },
 
   methods: {
@@ -562,11 +562,13 @@ export default {
     //                API CALL
     //##########################################
 
-    async getData() {
+    async getData(from = '', to = '') {
       await Promise.all([await this.getAllRoomsApi()]);
       await Promise.all([await this.getAllRoomCategoriesApi()]);
       await Promise.all([await this.getHostData()]);
-      await Promise.all([await this.getAvailableRoomsApi('2022-03-27', '2022-03-30')]);
+      if (from !== '') {
+        await Promise.all([await this.getAvailableRoomsApi(from, to)]);
+      }
       this.isLoading = false;
     },
 
@@ -631,26 +633,38 @@ export default {
       }
     },
 
+    datePickerStartStayChange(){
+      this.getData(this.selectedStartDate, this.selectedEndDate)
+      this.datePickerStartStay = false
+    },
 
-     getAvailableRooms(data) {
-      console.log(data)
-      let availableRooms = []
+    datePickerEndStayChange(){
+      this.getData(this.selectedStartDate, this.selectedEndDate)
+      this.datePickerEndStay = false
+    },
+
+    async getAvailableRooms() {
+      // let availableRooms = []
 
       //console.log(this.selectedStartDate);
+      // await Promise.all([await this.getAvailableRoomsApi('2022-02-27', '2022-02-28')]);
 
+      console.log(this.selectedStartDate)
+      await this.getAvailableRoomsApi(this.selectedStartDate, this.selectedEndDate)
 
       // console.log(await this.getAvailableRoomsApi('2023-01-01', '2023-01-01'));
       // console.log(this.roomsA)
 
-      for (let i = 0; i < data.length; i++) {
-        if (data[i].state === "AVAILABLE") {
-          availableRooms.push(data[i])
-        }
-      }
+      // for (let i = 0; i < data.length; i++) {
+      //   if (data[i].state === "AVAILABLE") {
+      //     availableRooms.push(data[i])
+      //   }
+      // }
 
       // console.log(availableRooms);
+      console.log(this.roomsA);
 
-      return data
+      return this.roomsA
     }
   },
 
