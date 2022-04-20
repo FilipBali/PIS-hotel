@@ -86,10 +86,10 @@ public class RoomService {
         List<RoomDO> rooms = getRooms();
         List<RoomDO> availableRooms = new ArrayList<>(List.of());
         for (RoomDO room : rooms) {
-            boolean isRoomAvailable = room.getStays().stream().anyMatch(stayDO ->
-                    !isDateInBetween(dateFrom, dateTo, stayDO.getDateFrom().atTime(11, 0)) &&
-                            !isDateInBetween(dateFrom, dateTo, stayDO.getDateFrom().atTime(14, 0)));
-            if (isRoomAvailable) {
+            boolean isRoomReserved = room.getStays().stream().anyMatch(stayDO ->
+                    isDateInBetween(dateFrom, dateTo, stayDO.getDateFrom().atTime(11, 0)) ||
+                            isDateInBetween(dateFrom, dateTo, stayDO.getDateFrom().atTime(14, 0)));
+            if (!isRoomReserved) {
                 availableRooms.add(room);
             }
         }
