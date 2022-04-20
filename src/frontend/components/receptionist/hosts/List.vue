@@ -4,14 +4,6 @@
     <v-card-title primary-title>
       Zoznam hostí <v-spacer></v-spacer>
 
-      <v-autocomplete
-        dense
-        auto-select-first
-        filled
-        rounded
-        single-line
-        solo
-      ></v-autocomplete>
       <v-spacer></v-spacer>
       <v-text-field
         v-model="search"
@@ -138,7 +130,8 @@ export default {
       this.getAllHostsApi();
     },
 
-    formatDate(date) {
+    formatDate(date)
+    {
       return moment(date).subtract(1, 'month').format("DD. MM. YYYY");
     },
 
@@ -147,18 +140,18 @@ export default {
     {
         let list = "";
 
-          for (let i = 0; i < this.stays.length; i++)
+        for (let i = 0; i < this.stays.length; i++)
         {
           if (this.stays[i].stayCreator.idNumber === person.idNumber)
-            {
+          {
               if (list === "")
-              {
+               {
                 list = list.concat(this.stays[i].id.toString());
-              }
-              else
-              {
-                list = list.concat(",",this.stays[i].id.toString());
-              }
+                }
+                else
+                {
+                  list = list.concat(",",this.stays[i].id.toString());
+                }
             }
         }
         return list;
