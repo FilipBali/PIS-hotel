@@ -84,6 +84,8 @@ public class UserController {
                         .withIssuer(request.getRequestURL().toString())
                         .withClaim("roles", user.getRoles().stream().map(RoleDO::getName).collect(Collectors.toList()))
                         .withClaim("userId", user.getId())
+                        .withClaim("firstName", user.getFirstName())
+                        .withClaim("lastName", user.getLastName())
                         .sign(algorithm);
 
                 Map<String, String> tokens = new HashMap<>();
