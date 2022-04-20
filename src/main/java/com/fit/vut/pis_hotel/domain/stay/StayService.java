@@ -173,6 +173,7 @@ public class StayService {
         }
     }
 
+    @Transactional
     public void updateService(Long id, ServiceDO serviceBody) {
         ServiceDO service = serviceRepository.findById(id)
                 .orElseThrow(() -> new IllegalStateException("Service with id: " + id + " does not exist."));
