@@ -12,6 +12,7 @@ import javax.transaction.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 
@@ -85,18 +86,24 @@ public class RoomService {
         LocalDateTime dateTo = to.atTime(14, 0);
         List<RoomDO> rooms = getRooms();
         List<RoomDO> availableRooms = new ArrayList<>(List.of());
+        HashSet<Long> reservedRooms = new HashSet<>(List.of());
         for (RoomDO room : rooms) {
             boolean isRoomReserved = room.getStays().stream().anyMatch(stayDO ->
-                    isDateInBetween(dateFrom, dateTo, stayDO.getDateFrom().atTime(11, 0)) ||
-                            isDateInBetween(dateFrom, dateTo, stayDO.getDateFrom().atTime(14, 0)));
-            if (!isRoomReserved) {
+                    isDatesOverlap(dateFrom, dateTo, stayDO.getDateFrom().atTime(11, 0), stayDO.getDateTo().atTime(14, 0)));
+            if (!isRoomReserved && !reservedRooms.contains(room.getId())) {
                 availableRooms.add(room);
+                //log.info("AVAILABLE ADDING: "+ room.getId());
+            } else {
+                reservedRooms.add(room.getId());
+                //log.info("Reserved ADDING: " + room.getId());
             }
         }
         return availableRooms;
     }
 
-    private boolean isDateInBetween(final LocalDateTime min, final LocalDateTime max, final LocalDateTime date) {
-        return (date.isBefore(max) && date.isAfter(min)) || date.isEqual(min) || date.isEqual(max);
+    private boolean isDatesOverlap(final LocalDateTime dateFrom1, final LocalDateTime dateTo1, final LocalDateTime dateFrom2, final LocalDateTime dateTo2) {
+        boolean ret = dateFrom1.isBefore(dateTo2) && dateFrom2.isBefore(dateTo1);
+        //log.info("DATE dateFrom1: "+ dateFrom1+"DATE dateTo1: "+ dateTo1+"DATE dateFrom2: "+ dateFrom2  +"DATE dateTo2: "+ dateTo2 + " ret: " + ret);
+        return ret;
     }
 }
