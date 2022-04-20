@@ -142,7 +142,7 @@ export default {
         case "STANDARD":
           return "štandardná";
         case "APARTMENT":
-          return "apartment";
+          return "apartmán";
         case "LUXURY":
           return "luxusná";
         default:
@@ -157,6 +157,8 @@ export default {
           return "obsadená";
         case "UNAVAILABLE":
           return "nedostupná";
+        case "RESERVED":
+          return "rezervovaná";
         default:
           return "";
       }

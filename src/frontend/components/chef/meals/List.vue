@@ -1,14 +1,11 @@
 <template>
    <v-card>
     <v-card-title primary-title>
-      Plná penzia <v-spacer></v-spacer>
+      Plná penzia
 
       <v-spacer></v-spacer>
-
-      <v-spacer>
         Počet stravníkov: {{getFullBoardCount(this.stays)}}
-      </v-spacer>
-
+      <v-spacer></v-spacer>
 
       <v-text-field
       v-model="search1"
@@ -36,16 +33,13 @@
            {{staysBoardType(item.boardType) }}</template>
 
        </v-data-table>
-
-       <v-divider></v-divider>
-
+    </v-card-text>
        <v-card-title primary-title>
          Polpenzia
-         <v-spacer></v-spacer>
 
-         <v-spacer>
+         <v-spacer></v-spacer>
            Počet stravníkov: {{getHalfBoardCount(this.stays)}}
-         </v-spacer>
+         <v-spacer></v-spacer>
 
          <v-text-field
          v-model="search"
@@ -56,7 +50,7 @@
          v-show="false"
        ></v-text-field>
        </v-card-title>
-
+     <v-card-text>
        <v-data-table :headers="headers" :items="stays" :search="search2" :custom-filter="customSearch" flat>
 
          <template v-slot:item.rooms="{ item }" >
@@ -76,8 +70,7 @@
        </v-data-table>
      </v-card-text>
    </v-card>
-
- </template>
+</template>
 
  <script>
  import { mapState } from "vuex";
