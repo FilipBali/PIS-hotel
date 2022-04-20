@@ -510,11 +510,6 @@ export default {
           value: "roomCategoryType",
         },
         {
-          text: "Stav",
-          align: "start",
-          value: "state",
-        },
-        {
           text: "Akcie",
           align: "start",
           value: "roomActions",
