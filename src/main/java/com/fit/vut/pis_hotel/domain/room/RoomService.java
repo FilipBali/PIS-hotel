@@ -90,7 +90,7 @@ public class RoomService {
         for (RoomDO room : rooms) {
             boolean isRoomReserved = room.getStays().stream().anyMatch(stayDO ->
                     isDatesOverlap(dateFrom, dateTo, stayDO.getDateFrom().atTime(11, 0), stayDO.getDateTo().atTime(14, 0)));
-            if (!isRoomReserved && !reservedRooms.contains(room.getId())) {
+            if (!isRoomReserved && !reservedRooms.contains(room.getId()) && room.getState().equals(RoomStateEnum.AVAILABLE)) {
                 availableRooms.add(room);
                 //log.info("AVAILABLE ADDING: "+ room.getId());
             } else {
@@ -102,8 +102,7 @@ public class RoomService {
     }
 
     private boolean isDatesOverlap(final LocalDateTime dateFrom1, final LocalDateTime dateTo1, final LocalDateTime dateFrom2, final LocalDateTime dateTo2) {
-        boolean ret = dateFrom1.isBefore(dateTo2) && dateFrom2.isBefore(dateTo1);
+        return dateFrom1.isBefore(dateTo2) && dateFrom2.isBefore(dateTo1);
         //log.info("DATE dateFrom1: "+ dateFrom1+"DATE dateTo1: "+ dateTo1+"DATE dateFrom2: "+ dateFrom2  +"DATE dateTo2: "+ dateTo2 + " ret: " + ret);
-        return ret;
     }
 }
