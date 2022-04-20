@@ -4,6 +4,7 @@ import com.fit.vut.pis_hotel.domain.room.enums.RoomStateEnum;
 import com.fit.vut.pis_hotel.domain.roomCategory.RoomCategoryDO;
 import com.fit.vut.pis_hotel.domain.roomCategory.RoomCategoryRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -11,11 +12,12 @@ import java.util.List;
 import java.util.Objects;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class RoomService {
 
     private final RoomRepository roomRepository;
-    private RoomCategoryRepository roomCategoryRepository;
+    private final RoomCategoryRepository roomCategoryRepository;
 
     public List<RoomDO> getRooms() {
         return roomRepository.findAll();
@@ -31,6 +33,7 @@ public class RoomService {
     public void deleteRoom(Long id) {
         boolean room_exists = roomRepository.existsById(id);
         if (room_exists) {
+            log.info("Deleting room with id: " + id);
             roomRepository.deleteById(id);
         } else {
             throw new IllegalStateException("Room with id: " + id + " does not exist.");
@@ -38,23 +41,27 @@ public class RoomService {
     }
 
     @Transactional
-    public void updateRoom(Long id, Integer roomNumber, RoomStateEnum state, Integer bedsNum, RoomCategoryDO roomCategory) {
+    public void updateRoom(Long id, RoomDO roomBody) {
 
         RoomDO room = roomRepository.findById(id)
                 .orElseThrow(() -> new IllegalStateException("Room with id: " + id + " does not exist."));
 
+        Integer roomNumber = roomBody.getRoomNumber();
         if (isIntegerValid(roomNumber, room.getRoomNumber())) {
             room.setRoomNumber(roomNumber);
         }
 
+        RoomStateEnum state = roomBody.getState();
         if (state != null && state != room.getState()) {
             room.setState(state);
         }
 
+        Integer bedsNum = roomBody.getBedsNum();
         if (isIntegerValid(bedsNum, room.getBedsNum())) {
             room.setBedsNum(bedsNum);
         }
 
+        RoomCategoryDO roomCategory = roomBody.getRoomCategory();
         if (roomCategory != null) {
             boolean cat_exists = roomCategoryRepository.existsById(roomCategory.getId());
             if (cat_exists) {

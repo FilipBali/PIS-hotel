@@ -47,6 +47,11 @@ public class UserController {
         return userService.getUser(id);
     }
 
+    @GetMapping(value = "/email/{email}")
+    public UserDO getUserByEmail(@PathVariable("email") String email) {
+        return userService.getUserByEmail(email);
+    }
+
     @PostMapping
     public void createUser(@RequestBody UserDO user) {
         userService.createUser(user);
@@ -58,14 +63,8 @@ public class UserController {
     }
 
     @PutMapping(path = {"{id}"})
-    public void updateUser(
-            @PathVariable("id") Long id,
-            @RequestParam(required = false) String firstName,
-            @RequestParam(required = false) String lastName,
-            @RequestParam(required = false) String email,
-            @RequestParam(required = false) String phoneNumber,
-            @RequestParam(required = false) String address) {
-        userService.updateUser(id, firstName, lastName, email, phoneNumber, address);
+    public void updateUser(@PathVariable("id") Long id, @RequestBody UserDO user) {
+        userService.updateUser(id, user);
     }
 
     @GetMapping("/token/refresh")
@@ -84,6 +83,9 @@ public class UserController {
                         .withExpiresAt(new Date(System.currentTimeMillis() + 10 * 60 * 1000))
                         .withIssuer(request.getRequestURL().toString())
                         .withClaim("roles", user.getRoles().stream().map(RoleDO::getName).collect(Collectors.toList()))
+                        .withClaim("userId", user.getId())
+                        .withClaim("firstName", user.getFirstName())
+                        .withClaim("lastName", user.getLastName())
                         .sign(algorithm);
 
                 Map<String, String> tokens = new HashMap<>();

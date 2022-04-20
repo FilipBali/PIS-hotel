@@ -19,7 +19,7 @@
           {{ roomState(item.state) }}</template
         >
         <template v-slot:item.actions="{ item }">
-          <v-icon small class="mr-2" @click="editUser(item)">
+          <v-icon small class="mr-2" @click="editRoom(item)">
             mdi-pencil
           </v-icon>
           <v-icon small @click="deleteUser(item.id)"> mdi-delete </v-icon>
@@ -44,7 +44,12 @@ export default {
       isLoading: true,
       search: "",
       dialogController: false,
-      dialogRoom: {},
+      dialogRoom: {
+        roomNumber: "",
+        bedsNum: "",
+        state: "",
+        roomCategory: null,
+      },
       newRoomDialog: false,
       headers: [
         {
@@ -122,7 +127,7 @@ export default {
         roomCategory: null,
       };
     },
-    editUser(room) {
+    editRoom(room) {
       this.dialogController = true;
       this.newRoomDialog = false;
       this.dialogRoom = JSON.parse(JSON.stringify(room)); // deepcopy

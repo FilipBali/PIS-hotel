@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -58,33 +59,52 @@ public class HostService {
     }
 
     @Transactional
-    public void updateHost(Long id, String firstName, String lastName, String email,
-                           String phoneNumber, String idNumber, String address) {
+    public void updateHost(Long id, HostDO hostBody) {
         HostDO host = hostRepository.findById(id)
                 .orElseThrow(() -> new IllegalStateException("Host with id: " + id + "does not exist."));
 
+        String firstName = hostBody.getFirstName();
         if (isStringValid(firstName, host.getFirstName())) {
+            log.info("Changing firstName of host with id: " + host.getId() + " from: " + host.getFirstName() + " to: " + firstName + ".");
             host.setFirstName(firstName);
         }
+        String lastName = hostBody.getLastName();
         if (isStringValid(lastName, host.getLastName())) {
+            log.info("Changing lastName of host with id: " + host.getId() + " from: " + host.getLastName() + " to: " + lastName + ".");
             host.setLastName(lastName);
         }
+
+        LocalDate birthDate = hostBody.getDateOfBirth();
+        if (isDateValid(birthDate, host.getDateOfBirth())) {
+            log.info("Changing date of birth of user with id: " + host.getId() + " from: " + host.getDateOfBirth() + " to: " + birthDate + ".");
+            host.setDateOfBirth(birthDate);
+        }
+
+        String email = hostBody.getEmail();
         if (isStringValid(email, host.getEmail())) {
             if (isEmailTaken(email)) {
-                throw new IllegalStateException("email taken");
+                throw new IllegalStateException("Email taken");
             }
+            log.info("Changing email of host with id: " + host.getId() + " from: " + host.getEmail() + " to: " + email + ".");
             host.setEmail(email);
         }
+        String phoneNumber = hostBody.getPhoneNumber();
         if (isStringValid(phoneNumber, host.getPhoneNumber())) {
+            log.info("Changing phoneNumber of host with id: " + host.getId() + " from: " + host.getPhoneNumber() + " to: " + phoneNumber + ".");
             host.setPhoneNumber(phoneNumber);
         }
-        if (isStringValid(idNumber, host.getIdNumber())) {
-            host.setIdNumber(idNumber);
-        }
+
+        String address = hostBody.getAddress();
         if (isStringValid(address, host.getAddress())) {
+            log.info("Changing address of host with id: " + host.getId() + " from: " + host.getAddress() + " to: " + address + ".");
             host.setAddress(address);
         }
 
+        String idNumber = hostBody.getIdNumber();
+        if (isStringValid(idNumber, host.getIdNumber())) {
+            log.info("Changing idNumber of host with id: " + host.getId() + " from: " + host.getIdNumber() + " to: " + idNumber + ".");
+            host.setIdNumber(idNumber);
+        }
     }
 
     private boolean isStringValid(String stringToValidate, String originalString) {
@@ -94,6 +114,10 @@ public class HostService {
     private boolean isEmailTaken(String email) {
         Optional<HostDO> hostByEmail = hostRepository.findHostByEmail(email);
         return hostByEmail.isPresent();
+    }
+
+    private boolean isDateValid(LocalDate dateToValidate, LocalDate originaldate) {
+        return dateToValidate != null && !Objects.equals(originaldate, dateToValidate);
     }
 
 

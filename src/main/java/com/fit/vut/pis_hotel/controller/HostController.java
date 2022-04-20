@@ -36,14 +36,8 @@ public class HostController {
 
     @PutMapping(path = {"{id}"})
     public void updateHost(
-            @PathVariable("id") Long id,
-            @RequestParam(required = false) String firstName,
-            @RequestParam(required = false) String lastName,
-            @RequestParam(required = false) String email,
-            @RequestParam(required = false) String phoneNumber,
-            @RequestParam(required = false) String idNumber,
-            @RequestParam(required = false) String address) {
-        hostService.updateHost(id, firstName, lastName, email, phoneNumber, idNumber, address);
+            @PathVariable("id") Long id, @RequestBody HostDO host) {
+        hostService.updateHost(id, host);
     }
 
 }

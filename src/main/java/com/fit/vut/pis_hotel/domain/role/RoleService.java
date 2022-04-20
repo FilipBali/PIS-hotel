@@ -33,9 +33,8 @@ public class RoleService {
 
 
     public RoleDO getRole(Long id) {
-        RoleDO role = roleRepository.findById(id)
+        return roleRepository.findById(id)
                 .orElseThrow(() -> new IllegalStateException("Role with id: " + id + " does not exist."));
-        return role;
     }
 
     public List<RoleDO> getRoles() {

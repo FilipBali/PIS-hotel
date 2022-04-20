@@ -3,15 +3,6 @@
     <v-app-bar fixed app dark color="primary">
       <v-toolbar-title v-text="title" />
       <v-spacer />
-      <v-btn
-        v-for="(item, i) in items"
-        :key="i"
-        min-height="100%"
-        plain
-        :to="item.to"
-        ><b>{{ item.title }}</b></v-btn
-      >
-      <v-spacer />
       <v-avatar color="secondary" size="40">{{ this.initials }}</v-avatar>
       <v-btn plain min-height="100%" @click="profile">
         {{ this.userName }}
@@ -31,48 +22,18 @@
       </v-container>
     </v-main>
     <v-footer :absolute="!fixed" app dark color="primary">
-      <span> {{ new Date().getFullYear() }}</span>
+      <span>&copy; {{ new Date().getFullYear() }}</span>
     </v-footer>
   </v-app>
 </template>
 
 <script>
 export default {
-  name: "AdminLayout",
+  name: "UserLayout",
   data() {
     return {
       fixed: false,
       title: "Hotel PIS",
-      items: [
-        {
-          title: "Užívatelia",
-          to: "/admin/users",
-        },
-        {
-          title: "Izby",
-          to: "/admin/rooms",
-        },
-        {
-          title: "Pridať pobyt",
-          to: "/admin/new-stay",
-        },
-        {
-          title: "Pobyty",
-          to: "/admin/stays",
-        },
-        {
-          title: "Izby",
-          to: "/admin/rooms",
-        },
-        {
-          title: "Hostia",
-          to: "/admin/hosts",
-        },
-        {
-          title: "Služby pre hostí",
-          to: "/admin/services",
-        },
-      ],
     };
   },
   computed: {
@@ -102,7 +63,7 @@ export default {
       this.$router.push("/login");
     },
     profile() {
-      this.$router.push("/admin/profile");
+      this.$router.push("/user/profile");
     },
   },
 };

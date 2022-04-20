@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <title>Projekt PIS</title>
+    <style type="text/css">
+    	table { border-collapse: collapse; }
+    	td, th { border: 1px solid black; padding: 0.3em 0.5em; text-align: left; }
+    	dt { font-weight: bold; margin-top: 0.5em; }
+    </style>
+</head>
+<body>
+
+<!-- Nahraďte prosím názvem tématu -->
+<h1>Hotel</h1>
+
+<dl>
+	<dt>Autori</dt>
+	<dd>Filip Bali
+	    <a href="mailto:xbalif00@stud.fit.vutbr.cz">xbalif00@stud.fit.vutbr.cz</a> -
+		uživateľské rozhranie
+	</dd>
+	<dd>Juraj Lazúr
+	    <a href="mailto:xlazur00@stud.fit.vutbr.cz">xlazur00@stud.fit.vutbr.cz</a> - 
+		databázový subsystém
+	</dd>
+    <dd>Marek Hrivňák
+	    <a href="mailto:xhrivn02@stud.fit.vutbr.cz">xhrivn02@stud.fit.vutbr.cz</a> - 
+		databázový subsystém
+	</dd>
+    <dd>Jozef Horvát
+	    <a href="mailto:xhorva11@stud.fit.vutbr.cz">xhorva11@stud.fit.vutbr.cz</a> - 
+		uživateľské rozhranie
+	</dd>
+    <dd>Žitňanská Lívia
+	    <a href="mailto:xzitna03@stud.fit.vutbr.cz">xzitna03@stud.fit.vutbr.cz</a> - 
+		uživateľské rozhranie
+	</dd>
+</dl>
+
+<!-- uživatelské účty -->
+<h2>Užívatelia systému pre testovanie</h2>
+<table>
+<tr><th>Login</th><th>Heslo</th><th>Role</th></tr>
+<tr><td>admin.fit@vut.cz</td><td>1234</td><td>Administrátor</td></tr>
+<tr><td>rec.fit@vut.cz</td><td>rec</td><td>Recepčná</td></tr>
+<tr><td>chef.fit@vut.cz</td><td>chef</td><td>Kuchár</td></tr>
+<tr><td>bowling.fit@vut.cz</td><td>bowling</td><td>Manažér bowlingu</td></tr>
+<tr><td>masseur.fit@vut.cz</td><td>masseur</td><td>Masér</td></tr>
+</table>
+
+<h2>Postup inštalácie</h2>
+<p> Pre inštaláciu sú nutné technológie Spring, jdk17, postgresql a Node.js</p>
+
+<p>Príkazy pre vytvorenie databázy:</p>
+<ol>
+    <li>CREATE DATABASE pis;</li>
+    <li>GRANT ALL PRIVILEGES ON DATABASE "pis" TO <user_name;</li>
+    <li>GRANT ALL PRIVILEGES ON DATABASE "pis" TO postgres;</li>
+</ol>
+
+
+<p>Inštalácia frontendu</p>
+<ol>
+    <li>Prechod do priečinka src/frontend</li>
+    <li>npm install</li>
+    <li>npm run build</li>
+</ol>
+
+<p>Spustenie aplikácie</p>
+<ol>
+    <li>Prechod do priečinka src/frontend</li>
+    <li>npm run build</li>
+    <li>Prechod do koreňového priečinka</li>
+    <li>./mvnw clean install</li>
+    <li>Spustenie aplikácie</li>
+    <ul>
+        <li>./mvnw spring-boot:run</li>
+    </ul>
+    <li>Spustenie frontendu</li>
+    <ul>
+        <li>npm run serve</li>
+    </ul>
+</ol>    
+</p>
+
+</body>
+</html>

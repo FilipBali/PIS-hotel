@@ -45,11 +45,13 @@ export default {
       menu: false,
       modal: false,
       isoDate: this.date,
+      skDate: moment(this.date).format("DD. MM. YYYY"),
     };
   },
-  computed: {
-    skDate() {
-      return moment(this.isoDate).format("DD. MM. YYYY");
+  watch: {
+    date() {
+      this.isoDate = this.date;
+      this.skDate = moment(this.date).format("DD. MM. YYYY");
     },
   },
   methods: {

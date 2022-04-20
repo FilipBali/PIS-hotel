@@ -1,22 +1,26 @@
 <template>
-  <v-dialog v-model="dialogController" max-width="800px">
+  <v-dialog v-model="dialogController" max-width="800px" @click:outside="close">
     <v-card>
       <v-card-title>
         {{ isNewRoom ? "Pridať užívateľa" : "Editácia užívateľa" }}
       </v-card-title>
       <v-card-text>
-        <v-container>
+        <v-form ref="form" v-model="validForm" @submit.prevent="save()">
           <v-row>
             <v-col cols="12" sm="6" md="4">
               <v-text-field
                 v-model="room.roomNumber"
+                :rules="roomNumRules"
                 label="Číslo izby"
+                required
               ></v-text-field>
             </v-col>
             <v-col cols="12" sm="6" md="4">
               <v-text-field
                 v-model="room.bedsNum"
+                :rules="bedsNumRules"
                 label="Počet lôžok"
+                required
               ></v-text-field>
             </v-col>
             <v-col>
@@ -36,7 +40,7 @@
               ></v-select>
             </v-col>
           </v-row>
-        </v-container>
+        </v-form>
       </v-card-text>
 
       <v-card-actions>
@@ -63,6 +67,16 @@ export default {
         : this.roomEnum(this.room.state),
       stateTypes: ["dostupná", "obsadená", "nedostupná"],
       selectedRoomCat: this.room.state,
+
+      validForm: true,
+      roomNumRules: [
+        (v) => !!v || "Zadajte číslo izby",
+        (v) => !isNaN(v) || "Číslo izby musí byť číslo",
+      ],
+      bedsNumRules: [
+        (v) => !!v || "Zadajte počet postelí",
+        (v) => !isNaN(v) || "Počet postelí musí byť číslo",
+      ],
     };
   },
   computed: {
@@ -91,7 +105,6 @@ export default {
     },
     async updateRoom() {
       try {
-        console.log(this.room);
         await this.$store.dispatch("rooms/update", {
           id: this.room.id,
           data: this.prepare(this.room),
@@ -109,27 +122,34 @@ export default {
     },
 
     prepare(room) {
-      this.room.roomNumber = parseInt(room.roomNumber);
-      this.room.bedsNum = parseInt(room.bedsNum);
-      this.room.state = this.roomState(this.selectedState);
-      this.room.roomCategory = this.selectedRoomCat;
-      return room;
+      let pRoom = {
+        roomNumber: parseInt(room.roomNumber),
+        bedsNum: parseInt(room.bedsNum),
+        state: this.roomState(this.selectedState),
+        roomCategory: this.selectedRoomCat,
+      };
+      return pRoom;
     },
 
     async save() {
-      if (this.isNewRoom) {
-        await this.createRoom();
-      } else {
-        await this.updateRoom();
-      }
+      await this.$refs.form.validate();
 
-      await this.getAllRooms();
-      this.close();
+      if (this.validForm) {
+        if (this.isNewRoom) {
+          await this.createRoom();
+        } else {
+          await this.updateRoom();
+        }
+
+        await this.getAllRooms();
+        this.close();
+      }
     },
     close() {
       this.dialogController = false;
       this.selectedState = "dostupná";
       this.selectedRoomCat = "";
+      this.$refs.form.resetValidation();
       this.$emit("close-dialog", this.dialogController);
     },
 
