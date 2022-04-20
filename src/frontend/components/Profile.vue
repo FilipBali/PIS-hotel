@@ -147,8 +147,6 @@ export default {
 
       if (this.validForm) {
         this.user.dateOfBirth = moment(this.dateOfBirth).toArray().slice(0, 3);
-        console.log("p-onsave-before update");
-        console.log(this.user.dateOfBirth);
         await this.updateUser();
         await this.getUserApi();
       }
