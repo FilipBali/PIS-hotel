@@ -252,8 +252,8 @@ export default {
       selectedRoomState: "",
       roomStateEnum: [
         { be: 'AVAILABLE', fe: 'dostupná' },
-        { be: 'OCCUPIED', fe: 'obsadená' },
-        { be: 'RESERVED', fe: 'rezervovaná' },
+        //{ be: 'OCCUPIED', fe: 'obsadená' },
+        //{ be: 'RESERVED', fe: 'rezervovaná' },
         { be: 'UNAVAILABLE', fe: 'nedostupná' },
       ],
       selectedRoomType: "",
