@@ -44,6 +44,12 @@
           {{staysPaymentType(item.paymentType) }}</template>
 
 
+        <template v-slot:item.hostsList="{ item }">
+          <a class="font-italic" @click="hostTableBtn(item)">
+            Zobraz hostí ({{ getHostsNumber(item) }})
+          </a>
+        </template>
+
         <template v-slot:item.servicesList="{ item }">
           <a class="font-italic" @click="serviceTableBtn(item)">
             Zobraz služby ({{ getServicesNumber(item) }})
@@ -74,6 +80,7 @@
               <v-card-text>
                 <v-container>
                   <v-row>
+
                     <v-col
                       cols="12"
                       sm="6"
@@ -321,10 +328,11 @@
                   >
 
                     <template v-slot:item.roomActions="{ item }">
-                      <v-icon small class="mr-2" @click="roomEditFormBtn(item)">
+                      <v-icon small class="mr-2" @click="roomEditFormBtn()">
                         mdi-arrow-u-right-top
                       </v-icon>
                     </template>
+
                   </v-data-table>
                 </template>
               </v-card-text>
@@ -390,6 +398,51 @@
         </v-dialog>
       </template>
 
+      <template>
+        <v-dialog
+          v-model="hostTable"
+          persistent
+
+        >
+          <v-card>
+            <v-card-title class="text-h8">
+              Hosťia pobytu
+            </v-card-title>
+            <v-card-text>
+              <template>
+                <v-data-table
+                  ref="hostsTable"
+                  :headers="headersHosts"
+                  :items="hosts"
+                  :items-per-page="5"
+                  class="elevation-1"
+                >
+
+                  <template v-slot:item.dateOfBirth="{ item }">
+                    {{ formatDate(item.dateOfBirth) }}</template>
+
+                  <template v-slot:item.hostActions="{ item }">
+                    <v-icon small class="mr-2" @click="hostViewFormBtn()">
+                      mdi-arrow-u-right-top
+                    </v-icon>
+                  </template>
+
+                </v-data-table>
+              </template>
+            </v-card-text>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn
+                color="green darken-1"
+                text
+                @click="hostTable = false"
+              >
+                Zavrieť
+              </v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+      </template>
 
 
     </v-card-text>
@@ -473,9 +526,11 @@ export default {
 
       roomTable: false,
       serviceTable: false,
+      hostTable: false,
 
       rooms: [],
       concServices: [],
+      hosts: [],
 
 
       //##########################################
@@ -591,10 +646,15 @@ export default {
           align: "start",
           value: "boardType",
         },
+        // {
+        //   text: "Hostia",
+        //   align: "start",
+        //   value: "accommodatedNumber",
+        // },
         {
-          text: "Hostia",
+          text: "Hostia(počet)",
           align: "start",
-          value: "accommodatedNumber",
+          value: "hostsList",
         },
         {
           text: "Platba",
@@ -610,6 +670,47 @@ export default {
           text: "Akcie",
           align: "start",
           value: "actions",
+        },
+      ],
+
+      //#############################
+      //        HOSTS TABLE
+      //#############################
+      headersHosts: [
+        {
+          text: "Meno",
+          align: "start",
+          value: "firstName",
+        },
+        {
+          text: "Priezvisko",
+          align: "start",
+          value: "lastName",
+        },
+        {
+          text: "Dátum narodenia",
+          align: "start",
+          value: "dateOfBirth",
+        },
+        {
+          text: "Adresa",
+          align: "start",
+          value: "address",
+        },
+        {
+          text: "Číslo",
+          align: "start",
+          value: "phoneNumber",
+        },
+        {
+          text: "Email",
+          align: "start",
+          value: "email",
+        },
+        {
+          text: "Akcie",
+          align: "start",
+          value: "hostActions",
         },
       ],
     };
@@ -638,100 +739,108 @@ export default {
 
     customSearch (value, search, item)
     {
-      if (Array.isArray(value)) {
-      // Only date
 
-      } else {
-         let acceptedRoomTypeStr =
-           [
-            'štandardná', 'apartment', 'luxusná',
-            'standardna', 'standardná', 'štandardna', 'luxusna'
-           ]
+       let acceptedRoomTypeStr =
+         [
+          'štandardná', 'apartment', 'luxusná',
+          'standardna', 'standardná', 'štandardna', 'luxusna'
+         ]
 
-         let acceptedStaysStateStr =
-           [
-             'rezervovaný', 'zrušený', 'aktívny', 'skončený',
-             'rezervovany', 'zruseny', 'zrusený','zrušeny', 'aktivny', 'skonceny', 'skoncený','skončeny',
-           ]
-         let acceptedStaysBoardTypeStr =
-           [
-             'polpenzia', 'plná penzia', 'plna penzia',
-           ]
-         let acceptedStaysPaymentTypeStr =
-           [
-             'kartou', 'hotovostne',
-           ]
+       let acceptedStaysStateStr =
+         [
+           'rezervovaný', 'zrušený', 'aktívny', 'skončený',
+           'rezervovany', 'zruseny', 'zrusený','zrušeny', 'aktivny', 'skonceny', 'skoncený','skončeny',
+         ]
+       let acceptedStaysBoardTypeStr =
+         [
+           'polpenzia', 'plná penzia', 'plna penzia',
+         ]
+       let acceptedStaysPaymentTypeStr =
+         [
+           'kartou', 'hotovostne',
+         ]
 
-         let firstName = item.stayCreator.firstName;
-         let lastName = item.stayCreator.lastName;
+       let firstName = item.stayCreator.firstName;
+       let lastName = item.stayCreator.lastName;
+       let dateFrom = moment(item.dateFrom).subtract(1, 'month').format("DD.MM.YYYY");
+       let dateTo = moment(item.dateTo).subtract(1, 'month').format("DD.MM.YYYY");
 
-         if (firstName.toLowerCase().startsWith(search.toLowerCase())){
-            return true;
+       if (dateFrom.startsWith(search)){
+         return true;
+       }
+       if (dateTo.startsWith(search)){
+         return true;
+       }
+       if (item.id.toString() === search){
+          return true;
+       }
+       if (firstName.toLowerCase().startsWith(search.toLowerCase())){
+          return true;
+       }
+
+       if (lastName.toLowerCase().startsWith(search.toLowerCase())){
+          return true;
+       }
+
+       for (let i = 0; i < acceptedRoomTypeStr.length; i++) {
+         if (acceptedRoomTypeStr[i].toLowerCase().startsWith(search.toLowerCase())){
+
+         let ret = this.roomType(item.roomType)
+
+         if (ret !== "" &&
+           ret.toLowerCase().startsWith(search.toLowerCase())){
+              return true;
+           }
          }
+       }
 
-         if (lastName.toLowerCase().startsWith(search.toLowerCase())){
-            return true;
-         }
+       for (let i = 0; i < acceptedStaysStateStr.length; i++) {
+         if (acceptedStaysStateStr[i].toLowerCase().startsWith(search.toLowerCase())){
 
-         for (let i = 0; i < acceptedRoomTypeStr.length; i++) {
-           if (acceptedRoomTypeStr[i].toLowerCase().startsWith(search.toLowerCase())){
-
-           let ret = this.roomType(item.roomType)
+           let ret = this.staysState(item.state)
 
            if (ret !== "" &&
              ret.toLowerCase().startsWith(search.toLowerCase())){
-                return true;
-             }
+             console.log(ret)
+             console.log(search)
+             console.log(item)
+             return true;
            }
          }
+       }
 
-         for (let i = 0; i < acceptedStaysStateStr.length; i++) {
-           if (acceptedStaysStateStr[i].toLowerCase().startsWith(search.toLowerCase())){
+      for (let i = 0; i < acceptedStaysBoardTypeStr.length; i++) {
+        if (acceptedStaysBoardTypeStr[i].toLowerCase().startsWith(search.toLowerCase())){
 
-             let ret = this.staysState(item.state)
+          let ret = this.staysBoardType(item.boardType)
 
-             if (ret !== "" &&
-               ret.toLowerCase().startsWith(search.toLowerCase())){
-               console.log(ret)
-               console.log(search)
-               console.log(item)
-               return true;
-             }
-           }
-         }
-
-        for (let i = 0; i < acceptedStaysBoardTypeStr.length; i++) {
-          if (acceptedStaysBoardTypeStr[i].toLowerCase().startsWith(search.toLowerCase())){
-
-            let ret = this.staysBoardType(item.boardType)
-
-            if (ret !== "" &&
-                ret.toLowerCase().startsWith(search.toLowerCase())){
-              console.log(ret)
-              console.log(search)
-              console.log(item)
-              return true;
-            }
-          }
-        }
-
-        for (let i = 0; i < acceptedStaysPaymentTypeStr.length; i++) {
-          if (acceptedStaysPaymentTypeStr[i].toLowerCase().startsWith(search.toLowerCase())){
-
-            let ret = this.staysPaymentType(item.paymentType)
-
-            if (ret !== "" &&
-                ret.toLowerCase().startsWith(search.toLowerCase())){
-
-
-              console.log(ret)
-              console.log(search)
-              console.log(item)
-              return true;
-            }
+          if (ret !== "" &&
+              ret.toLowerCase().startsWith(search.toLowerCase())){
+            console.log(ret)
+            console.log(search)
+            console.log(item)
+            return true;
           }
         }
       }
+
+      for (let i = 0; i < acceptedStaysPaymentTypeStr.length; i++) {
+        if (acceptedStaysPaymentTypeStr[i].toLowerCase().startsWith(search.toLowerCase())){
+
+          let ret = this.staysPaymentType(item.paymentType)
+
+          if (ret !== "" &&
+              ret.toLowerCase().startsWith(search.toLowerCase())){
+
+
+            console.log(ret)
+            console.log(search)
+            console.log(item)
+            return true;
+          }
+        }
+      }
+
       return false;
     },
 
@@ -752,25 +861,37 @@ export default {
       return count;
     },
 
-
-    formatDate(date) {
-      return moment(date).subtract(1, 'month').format("DD. MM. YYYY");
+    getHostsNumber(item){
+        return item.hosts.length
     },
 
-    // TODO deprecated?
-    // formatDateDataPicker(date) {
-    //   return moment(date).format("YYYY-");
-    // },
-    //
-    // editStay(room) {
-    //   this.dialogController = true;
-    //   this.dialogRoom = JSON.parse(JSON.stringify(stays)); // deepcopy
-    // },
-    //
-    // closeDialog(val) {
-    //   this.dialogController = val;
-    // },
 
+    formatDate(date) {
+      return moment(date).subtract(1, 'month').format("DD.MM.YYYY");
+    },
+
+    //##########################################
+    //             HOSTS FORM CALL
+    //##########################################
+
+    hostTableBtn(item){
+        this.hostTable = false
+
+        this.hosts = []
+        for(let i = 0; i < item.hosts.length; i++){
+          this.hosts.push({
+              address: item.hosts[i].address,
+              dateOfBirth: item.hosts[i].dateOfBirth,
+              email: item.hosts[i].email,
+              firstName: item.hosts[i].firstName,
+              id: item.hosts[i].id,
+              idNumber: item.hosts[i].idNumber,
+              lastName: item.hosts[i].lastName,
+              phoneNumber: item.hosts[i].phoneNumber
+          })
+        }
+        this.hostTable = true
+    },
 
     //##########################################
     //               ROOM FORM CALL
@@ -838,7 +959,7 @@ export default {
 
     getDay(date)
     {
-      return moment(date).subtract(1, 'month').format("DD. MM. YYYY");
+      return moment(date).subtract(1, 'month').format("DD.MM.YYYY");
     },
 
     getTime(start,stop)
@@ -850,24 +971,16 @@ export default {
     },
 
 
-    roomEditFormBtn(item)
+    roomEditFormBtn()
     {
       this.$router.push('rooms');
     },
 
+    hostViewFormBtn()
+    {
+      this.$router.push('hosts');
+    },
 
-    /*roomEditFormBtn(item){
-
-        console.log(item)
-        console.log(item.state)
-
-        this.roomEditFormItem = item
-
-        this.selectedRoomState = this.roomStateToBE(item.state)
-        this.selectedRoomType = this.roomTypeToRoomID(item.roomCategoryType)
-
-        this.roomEditForm = true;
-    },*/
 
     roomEditFormSave(){
       let item = this.roomEditFormItem;
@@ -940,10 +1053,9 @@ export default {
       console.log(this.selectedStartDate)
       console.log(this.selectedEndDate)
 
-      let selectedStartDateMoment = moment(this.selectedStartDate).subtract(1, 'month').toArray()
-      let selectedEndDateMoment = moment(this.selectedEndDate).subtract(1, 'month').toArray()
+      let selectedStartDateMoment = moment(this.selectedStartDate).toArray()
+      let selectedEndDateMoment = moment(this.selectedEndDate).toArray()
 
-      // TODO .subtract(1, 'month')
       //Pretoze indexuje mesiace od 0!!
       selectedStartDateMoment[1] = selectedStartDateMoment[1] + 1
       selectedEndDateMoment[1] = selectedEndDateMoment[1] + 1
