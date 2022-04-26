@@ -23,7 +23,7 @@
 
     <v-card-text>
 
-      <v-data-table :headers="headers" :items="services" :search="search" flat>
+      <v-data-table :headers="headers" :items="services" :search="search" :custom-filter="customSearch" flat>
 
         <template v-slot:item.stay.stayCreator="{ item }">
           {{ getCustomerFullName(item.stay.stayCreator) }}</template>
@@ -56,50 +56,152 @@
       <!--  NEW SERVICE -->
       <template>
         <v-dialog
-          v-model="newServiceForm"
+          v-model="newServiceDialog"
           persistent
           max-width="600px"
         >
           <v-card>
             <v-card-title>
-              <span class="text-h5">Zaregistrovať službu</span>
+              <span class="text-h5">Zaregistrovať službu pre pobyt</span>
             </v-card-title>
 
             <v-card-text>
               <v-container>
+                <v-form
+                  v-model="newServiceForm"
+                  persistent
+                  max-width="600px">
                 <v-row>
+                  <v-col
+                    cols="12"
+                    sm="6"
+                  >
+                    <v-select
+                      v-model="selectedReservationState_FServCreateVal"
+                      :items="reservationStateEnum"
+                      :item-text="item => item.fe"
+                      item-value=be
+                      label="Stav rezervácie"
+                      required
+                      :rules="[v => !!v || 'Item is required']"
+                    ></v-select>
+                  </v-col>
+
                     <v-col
                       cols="4"
                       sm="12">
-                      <v-list>
-                        <template>
-                          <v-container fluid>
-                            <v-row>
-                              <v-col cols="12">
-                                <v-combobox
-                                  v-model="selectedStaysCombobox"
-                                  :items="stays"
-                                  :item-text="item => item.id + ' | ' + item.stayCreator.firstName +' '+ item.stayCreator.lastName"
-                                  item-value=id
-                                  label="Existujúce pobyty"
-                                  multiple
-                                  outlined
-                                  dense
-                                >
-                                </v-combobox>
-                              </v-col>
-                            </v-row>
-                          </v-container>
-                        </template>
-                      </v-list>
+                      <v-select
+                        v-model="selectedStay_ServCreateVal"
+                        :items="getAvailableStays(stays)"
+                        :item-text="item => item.id + ' | ' + item.stayCreator.firstName +' '+ item.stayCreator.lastName"
+                        item-value=id
+                        @input="selectedStay_ServCreateChange()"
+                        label="Existujúce aktívne pobyty"
+                        required
+                        :rules="[v => !!v || 'Item is required']"
+                      ></v-select>
                     </v-col>
 
-                   <v-col
+
+                  <v-col
+                    cols="12"
+                    sm="6"
+                  >
+                    <v-dialog
+                      ref="dialogTimeFrom"
+                      v-model="selectedServiceTimeFrom_FCreateServDialog"
+                      :return-value.sync="selectedServiceTimeFrom_FCreateServVal"
+                      persistent
+                      width="290px"
+                    >
+                      <template v-slot:activator="{ on, attrs }">
+                        <v-text-field
+                          v-model="selectedServiceTimeFrom_FCreateServVal"
+                          label="Od (čas)"
+                          prepend-icon="mdi-clock-time-four-outline"
+                          readonly
+                          v-bind="attrs"
+                          v-on="on"
+                          :rules="[v => !!v || 'Item is required']"
+                        ></v-text-field>
+                      </template>
+                      <v-time-picker
+                        v-if="selectedServiceTimeFrom_FCreateServDialog"
+                        v-model="selectedServiceTimeFrom_FCreateServVal"
+                        full-width
+                      >
+                        <v-spacer></v-spacer>
+                        <v-btn
+                          text
+                          color="primary"
+                          @click="selectedServiceTimeFrom_FCreateServDialog = false"
+                        >
+                          Cancel
+                        </v-btn>
+                        <v-btn
+                          text
+                          color="primary"
+                          @click="$refs.dialogTimeFrom.save(selectedServiceTimeFrom_FCreateServVal)"
+                        >
+                          OK
+                        </v-btn>
+                      </v-time-picker>
+                    </v-dialog>
+                  </v-col>
+
+                  <v-col
+                    cols="12"
+                    sm="6"
+                  >
+                    <v-dialog
+                      ref="dialogTimeTo"
+                      v-model="selectedServiceTimeTo_FCreateServDialog"
+                      :return-value.sync="selectedServiceTimeTo_FCreateServVal"
+                      persistent
+                      width="290px"
+                    >
+                      <template v-slot:activator="{ on, attrs }">
+                        <v-text-field
+                          v-model="selectedServiceTimeTo_FCreateServVal"
+                          label="Do (čas)"
+                          prepend-icon="mdi-clock-time-four-outline"
+                          readonly
+                          v-bind="attrs"
+                          v-on="on"
+                          :rules="[v => !!v || 'Item is required']"
+                        ></v-text-field>
+                      </template>
+                      <v-time-picker
+                        v-if="selectedServiceTimeTo_FCreateServDialog"
+                        v-model="selectedServiceTimeTo_FCreateServVal"
+                        full-width
+                      >
+                        <v-spacer></v-spacer>
+                        <v-btn
+                          text
+                          color="primary"
+                          @click="selectedServiceTimeTo_FCreateServDialog = false"
+                        >
+                          Cancel
+                        </v-btn>
+                        <v-btn
+                          text
+                          color="primary"
+                          @click="$refs.dialogTimeTo.save(selectedServiceTimeTo_FCreateServVal)"
+                        >
+                          OK
+                        </v-btn>
+                      </v-time-picker>
+                    </v-dialog>
+                  </v-col>
+
+
+                  <v-col
                     cols="12"
                     sm="6"
                   >
                     <v-menu
-                      v-model="datePickerStartStay"
+                      v-model="selectedServiceDate_FServCreateDialog"
                       :close-on-content-click="false"
                       :nudge-right="40"
                       transition="scale-transition"
@@ -108,17 +210,22 @@
                     >
                       <template v-slot:activator="{ on, attrs }">
                         <v-text-field
-                          v-model="selectedDateCreateService"
+                          v-model="selectedServiceDate_FServCreateVal"
                           label="Dátum"
                           prepend-icon="mdi-calendar"
                           readonly
                           v-bind="attrs"
                           v-on="on"
+
                         ></v-text-field>
                       </template>
                       <v-date-picker
-                        v-model="selectedStartDate"
-                        @input="datePickerStartStay = false"
+                        v-model="selectedServiceDate_FServCreateVal"
+                        @input="disabledDataPicker_FServCreate()"
+
+                        :rules="[v => !!v || 'Item is required']"
+                        :min="selectedServiceDate_FServCreateMin"
+                        :max="selectedServiceDate_FServCreateMax"
                       ></v-date-picker>
                     </v-menu>
                   </v-col>
@@ -127,47 +234,46 @@
                     cols="12"
                     sm="6"
                   >
-                    <v-menu
-                      v-model="timePickerService"
-                      :close-on-content-click="false"
-                      :nudge-right="40"
-                      transition="scale-transition"
-                      offset-y
-                      min-width="auto"
-                    >
-                      <template v-slot:activator="{ on, attrs }">
-                        <v-text-field
-                          v-model="selectedTimeCreateService"
-                          label="Čas"
-                          prepend-icon="mdi-alarm"
-                          readonly
-                          v-bind="attrs"
-                          v-on="on"
-                        ></v-text-field>
-                      </template>
-                    <v-time-picker
-                      v-model="newTime"
-                      format="ampm"
-                      @input="timePickerService = false"
-                    ></v-time-picker>
-                    </v-menu>
+                    <v-select
+                      v-model="selectReservationPayment_FSerCreateVal"
+                      :items="staysPaymentEnum"
+                      :item-text="item => item.fe"
+                      item-value=be
+                      label="Typ platby"
+                      :rules="[v => !!v || 'Item is required']"
+                    ></v-select>
                   </v-col>
+
 
                   <v-col
                     cols="12"
                     sm="6"
                   >
                     <v-select
-                      v-model="selectedService"
+                      v-model="selectedServiceService_FServCreateVal"
                       :items="serviceTypeEnum"
                       :item-text="item => item.fe"
                       item-value=be
                       label="Typ služby"
+                      :rules="[v => !!v || 'Item is required']"
+                      required
                     ></v-select>
+                  </v-col>
+
+                  <v-col
+                    cols="12"
+                    sm="6"
+                  >
+                    <v-text-field
+                      v-model="selectedServiceTrackAmount_FServCreateVal"
+                      :rules="[v => /^(\s*|\d+)$/.test(v)]"
+                      label="Počet dráh"
+                    ></v-text-field>
                   </v-col>
 
 
                 </v-row>
+              </v-form>
               </v-container>
             </v-card-text>
             <v-card-actions>
@@ -180,6 +286,7 @@
                 Zatvoriť
               </v-btn>
               <v-btn
+                :disabled="!newServiceForm"
                 depressed
                 color="primary"
                 @click="newServiceFormSave()"
@@ -208,12 +315,13 @@
             <v-card-text>
               <v-container>
                 <v-row>
+
                   <v-col
                     cols="12"
                     sm="6"
                   >
                     <v-select
-                      v-model="selectReservationStateEdit"
+                      v-model="selectedReservationState_FServEditVal"
                       :items="reservationStateEnum"
                       :item-text="item => item.fe"
                       item-value=be
@@ -226,7 +334,7 @@
                     sm="6"
                   >
                     <v-select
-                      v-model="selectReservationPaymentEdit"
+                      v-model="selectReservationPayment_FSerEditVal"
                       :items="staysPaymentEnum"
                       :item-text="item => item.fe"
                       item-value=be
@@ -240,15 +348,15 @@
                   >
                     <v-dialog
                       ref="dialogTimeFrom"
-                      v-model="selectedServiceTimeFromDialog"
-                      :return-value.sync="selectedServiceTimeFromValue"
+                      v-model="selectedServiceTimeFrom_FEditServDialog"
+                      :return-value.sync="selectedServiceTimeFrom_FEditServVal"
                       persistent
                       width="290px"
                     >
                       <template v-slot:activator="{ on, attrs }">
                         <v-text-field
-                          v-model="selectedServiceTimeFromValue"
-                          label="Do (čas)"
+                          v-model="selectedServiceTimeFrom_FEditServVal"
+                          label="Od (čas)"
                           prepend-icon="mdi-clock-time-four-outline"
                           readonly
                           v-bind="attrs"
@@ -256,22 +364,22 @@
                         ></v-text-field>
                       </template>
                       <v-time-picker
-                        v-if="selectedServiceTimeFromDialog"
-                        v-model="selectedServiceTimeFromValue"
+                        v-if="selectedServiceTimeFrom_FEditServDialog"
+                        v-model="selectedServiceTimeFrom_FEditServVal"
                         full-width
                       >
                         <v-spacer></v-spacer>
                         <v-btn
                           text
                           color="primary"
-                          @click="selectedServiceTimeFromDialog = false"
+                          @click="selectedServiceTimeFrom_FEditServDialog = false"
                         >
                           Cancel
                         </v-btn>
                         <v-btn
                           text
                           color="primary"
-                          @click="$refs.dialogTimeFrom.save(selectedServiceTimeFromValue)"
+                          @click="$refs.dialogTimeFrom.save(selectedServiceTimeFrom_FEditServVal)"
                         >
                           OK
                         </v-btn>
@@ -286,14 +394,14 @@
                   >
                     <v-dialog
                       ref="dialogTimeTo"
-                      v-model="selectedServiceTimeToDialog"
-                      :return-value.sync="selectedServiceTimeToValue"
+                      v-model="selectedServiceTimeTo_FEditServDialog"
+                      :return-value.sync="selectedServiceTimeTo_FEditServVal"
                       persistent
                       width="290px"
                     >
                       <template v-slot:activator="{ on, attrs }">
                         <v-text-field
-                          v-model="selectedServiceTimeToValue"
+                          v-model="selectedServiceTimeTo_FEditServVal"
                           label="Do (čas)"
                           prepend-icon="mdi-clock-time-four-outline"
                           readonly
@@ -302,22 +410,22 @@
                         ></v-text-field>
                       </template>
                       <v-time-picker
-                        v-if="selectedServiceTimeToDialog"
-                        v-model="selectedServiceTimeToValue"
+                        v-if="selectedServiceTimeTo_FEditServDialog"
+                        v-model="selectedServiceTimeTo_FEditServVal"
                         full-width
                       >
                         <v-spacer></v-spacer>
                         <v-btn
                           text
                           color="primary"
-                          @click="selectedServiceTimeToDialog = false"
+                          @click="selectedServiceTimeTo_FEditServDialog = false"
                         >
                           Cancel
                         </v-btn>
                         <v-btn
                           text
                           color="primary"
-                          @click="$refs.dialogTimeTo.save(selectedServiceTimeToValue)"
+                          @click="$refs.dialogTimeTo.save(selectedServiceTimeTo_FEditServVal)"
                         >
                           OK
                         </v-btn>
@@ -330,7 +438,7 @@
                     sm="6"
                   >
                     <v-menu
-                      v-model="selectNewDate"
+                      v-model="selectedServiceDate_FEditServDialog"
                       :close-on-content-click="false"
                       :nudge-right="40"
                       transition="scale-transition"
@@ -339,7 +447,7 @@
                     >
                       <template v-slot:activator="{ on, attrs }">
                         <v-text-field
-                          v-model="selectedDateService"
+                          v-model="selectedServiceDate_FEditServVal"
                           label="Dátum"
                           prepend-icon="mdi-calendar"
                           readonly
@@ -348,18 +456,35 @@
                         ></v-text-field>
                       </template>
                       <v-date-picker
-                        v-model="selectedDateService"
-                        @input="selectNewDate = false"
+                        v-model="selectedServiceDate_FEditServVal"
+                        @input="selectedServiceDate_FEditServDialog = false"
+
+                        :min="selectedServiceDate_FServEditMin"
+                        :max="selectedServiceDate_FServEditMax"
                       ></v-date-picker>
                     </v-menu>
                   </v-col>
+
+
+<!--                  <v-col-->
+<!--                    cols="12"-->
+<!--                    sm="6"-->
+<!--                  >-->
+<!--                    <v-select-->
+<!--                      v-model="selectReservationPayment_FSerEditVal"-->
+<!--                      :items="staysPaymentEnum"-->
+<!--                      :item-text="item => item.fe"-->
+<!--                      item-value=be-->
+<!--                      label="Typ platby"-->
+<!--                    ></v-select>-->
+<!--                  </v-col>-->
 
                   <v-col
                     cols="12"
                     sm="6"
                   >
                     <v-text-field
-                      v-model="selectTrackAmout"
+                      v-model="selectedServiceTrackAmount_FEditServVal"
                       :rules="[v => /^(\s*|\d+)$/.test(v)]"
                       label="Počet dráh"
                     ></v-text-field>
@@ -420,42 +545,79 @@ export default {
         { be: 'CASH', fe: 'hotovostne' }
       ],
 
-      selectedService: "",
+      //##########################################
+      // DESCRIPTION
+      //
+      // FOR EXAMPLE:
+      //  selectedServiceDate_FEditServVal
+      //
+      //  selected = User
+      //  ServiceDate
+      //  F
+      //  EditServ
+      //  Val
+      //
+      //
+      //##########################################
 
-      selectedDateService: (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10),
-      datePickerStartStay: false,
+      //##########################################
+      //         SERVICE EDIT FORM
+      //##########################################
+      editServiceForm: false,
 
-      selectedServiceTimeFromDialog: false,
-      selectedServiceTimeFromValue:  null,
+      selectedServiceTimeFrom_FEditServDialog: false,
+      selectedServiceTimeFrom_FEditServVal:  null,
 
-      selectedServiceTimeToDialog: false,
-      selectedServiceTimeToValue:  null,
+      selectedServiceTimeTo_FEditServDialog: false,
+      selectedServiceTimeTo_FEditServVal:  null,
 
-      selectedDateCreateService: '',
-      selectedTimeCreateService: '',
+      selectReservationPayment_FSerEditVal: '',
+      selectedReservationState_FServEditVal: '',
 
-      selectReservationPaymentEdit: '',
-      selectReservationStateEdit: '',
+      selectedServiceDate_FEditServVal: (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10),
+      selectedServiceDate_FEditServDialog: false,
 
-      selectTrackAmout: 0,
+      selectedServiceDate_FServEditMin: '',
+      selectedServiceDate_FServEditMax: '',
+
+      selectedServiceTrackAmount_FEditServVal: 0,
+
+      //##########################################
+      //         SERVICE CREATE FORM
+      //##########################################
+      newServiceForm: false,
+      newServiceDialog: false,
+
+      selectedServiceTimeFrom_FCreateServDialog: false,
+      selectedServiceTimeFrom_FCreateServVal:  null,
+
+      selectedServiceTimeTo_FCreateServDialog: false,
+      selectedServiceTimeTo_FCreateServVal:  null,
+
+      selectedServiceTime_FServCreateDialog: false,
+      selectedServiceTime_FServCreateVal: '',
+
+      selectedServiceDate_FServCreateVal: '',
+      selectedServiceDate_FServCreateDialog: false,
+
+      selectReservationPayment_FSerCreateVal: '',
+      selectedServiceService_FServCreateVal: "",
+      selectedReservationState_FServCreateVal: '',
+      selectedServiceTrackAmount_FServCreateVal: '',
+
+      selectedServiceDate_FServCreateMin: '',
+      selectedServiceDate_FServCreateMax: '',
+      disabledDataPicker_FServCreateVal: true,
+
+      //#########################################
+
+      selectedHostsCombobox: [],
+      selectedRoomsCombobox: [],
+      selectedStay_ServCreateVal: '',
 
       isLoading: true,
       search: "",
-      selectedHostsCombobox: [],
-      selectedRoomsCombobox: [],
-      selectedStaysCombobox: [],
 
-      timePickerService: false,
-      newTime: "",
-
-      editServiceForm: false,
-
-      selectedStartDate: (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10),
-      selectNewDate: false,
-
-
-      dialogController: false,
-      newServiceForm: false,
 
       //##########################################
       //         STORAGE/CACHE/REFERENCES
@@ -523,6 +685,82 @@ export default {
     this.getData();
   },
   methods: {
+
+    customSearch (value, search, item)
+    {
+
+      console.log(value)
+      console.log(search)
+      console.log(item)
+
+      let acceptedServiceTypeStr =
+        [
+          'bowling', 'masáž'
+        ]
+
+      let acceptedServiceStateStr =
+        [
+          'rezervovaný', 'zrušený', 'aktívny', 'skončený',
+        ]
+
+      let acceptedServicePaymentTypeStr =
+        [
+          'kartou', 'hotovostne',
+        ]
+
+      let firstName = item.stay.stayCreator.firstName;
+      let lastName = item.stay.stayCreator.lastName;
+
+      if (item.stay.stayCreator.id.toString() === search){
+        return true;
+      }
+      if (firstName.toLowerCase().startsWith(search.toLowerCase())){
+        return true;
+      }
+
+      if (lastName.toLowerCase().startsWith(search.toLowerCase())){
+        return true;
+      }
+
+      for (let i = 0; i < acceptedServiceTypeStr.length; i++) {
+        if (acceptedServiceTypeStr[i].toLowerCase().startsWith(search.toLowerCase())){
+
+          let ret = this.serviceNameType(item.serviceType)
+
+          if (ret !== "" &&
+            ret.toLowerCase().startsWith(search.toLowerCase())){
+            return true;
+          }
+        }
+      }
+
+      for (let i = 0; i < acceptedServiceStateStr.length; i++) {
+        if (acceptedServiceStateStr[i].toLowerCase().startsWith(search.toLowerCase())){
+
+          let ret = this.serviceStateType(item.state)
+
+          if (ret !== "" &&
+            ret.toLowerCase().startsWith(search.toLowerCase())){
+            return true;
+          }
+        }
+      }
+
+      for (let i = 0; i < acceptedServicePaymentTypeStr.length; i++) {
+        if (acceptedServicePaymentTypeStr[i].toLowerCase().startsWith(search.toLowerCase())){
+
+          let ret = this.servicePaymentType(item.paymentType)
+
+          if (ret !== "" &&
+            ret.toLowerCase().startsWith(search.toLowerCase())){
+
+            return true;
+          }
+        }
+      }
+
+      return false;
+    },
 
     async getData() {
       await Promise.all([await this.getAllServicesApi()]);
@@ -611,31 +849,57 @@ export default {
     },
 
     newServiceFormBtn(item) {
-      this.newServiceForm = true
-
-      // this.dialogController = true;
-      // this.newUserDialog = true;
-      // this.dialogUser = {
-      //   stayid: "",
-      //   lastName: "",
-      //   address: "",
-      //   dateOfBirth: moment().format("yyyy-MM-DD"),
-      //   timeTo: "",
-      //   paymentType: "",
-      //   state: "",
-      // };
+      this.newServiceDialog = true
     },
 
     //TODO
     newServiceFormSave() {
 
-      this.newServiceForm = false;
+      let newServiceStay = this.stays.filter(obj => {
+        return obj.id === this.selectedStay_ServCreateVal
+      })
+
+      console.log("--------------------------------------------")
+      console.log(this.selectedServiceDate_FServCreateVal)
+      console.log("--------------------------------------------")
+
+      let newServDateTimeFrom = moment(this.selectedServiceDate_FServCreateVal).add(1, 'month').toArray()
+      let newServDateTimeTo = moment(this.selectedServiceDate_FServCreateVal).add(1, 'month').toArray()
+
+      let parsedTimeFrom = this.selectedServiceTimeFrom_FCreateServVal.split(':')
+      let parsedTimeTo = this.selectedServiceTimeTo_FCreateServVal.split(':')
+
+      newServDateTimeFrom[3] = parseInt(parsedTimeFrom[0])
+      newServDateTimeFrom[4] = parseInt(parsedTimeFrom[1])
+
+      newServDateTimeTo[3] = parseInt(parsedTimeTo[0])
+      newServDateTimeTo[4] = parseInt(parsedTimeTo[1])
+
+
+      console.log(newServDateTimeFrom)
+      console.log(newServDateTimeTo)
+      console.log(this.stays)
+      console.log(this.selectedStay_ServCreateVal)
+      this.newService = {
+        timeFrom: newServDateTimeFrom,
+        timeTo: newServDateTimeTo,
+        serviceType: this.selectedServiceService_FServCreateVal,
+        paymentType: this.selectReservationPayment_FSerCreateVal,
+        bowlingTracks: this.selectedServiceTrackAmount_FServCreateVal,
+        state: this.selectedReservationState_FServCreateVal,
+        stay: newServiceStay[0],
+
+      }
+
+      console.log(this.newService)
+      this.createService(this.newService)
+      this.newServiceDialog = false;
     },
 
     //TODO
     newServiceFormCancel() {
 
-      this.newServiceForm = false;
+      this.newServiceDialog = false;
     },
 
 
@@ -656,32 +920,31 @@ export default {
     },
 
 
-    //TODO
     editServiceFormBtn(item) {
-      console.log(item)
 
-      //TODO rules na selectTrackAmout
+      //TODO rules na selectedServiceTrackAmount_FEditServVal
       // ak otvorim s nezadanym, zatvorim, otvorim so zadanym, zatvorim a opat otovorim s nezadanym, tak vyzaduje cislo
       // =>reset formularu po zavreti
 
       this.serviceEditFormItem = item
 
-      this.selectTrackAmout = item.bowlingTracks
-      this.selectReservationPaymentEdit = item.paymentType
-      this.selectReservationStateEdit = item.state
-      this.selectedServiceTimeFromValue = item.timeFrom[3] +':' + item.timeFrom[4]
-      this.selectedServiceTimeToValue = item.timeTo[3] +':' + item.timeTo[4]
+      this.selectedServiceTrackAmount_FEditServVal = item.bowlingTracks
+      this.selectReservationPayment_FSerEditVal = item.paymentType
+      this.selectedReservationState_FServEditVal = item.state
+      this.selectedServiceTimeFrom_FEditServVal = item.timeFrom[3] +':' + item.timeFrom[4]
+      this.selectedServiceTimeTo_FEditServVal = item.timeTo[3] +':' + item.timeTo[4]
+
+      this.selectedServiceDate_FServEditMin = moment(item.stay.dateFrom).format("yyyy-MM-DD")
+      this.selectedServiceDate_FServEditMax = moment(item.stay.dateTo).format("yyyy-MM-DD")
 
       this.editServiceForm = true;
     },
 
-    //TODO
-    editServiceFormSave()
-    {
+    editServiceFormSave() {
 
       let item = this.serviceEditFormItem
-      let newSplitTimeFrom = this.selectedServiceTimeFromValue.split(':')
-      let newSplitTimeTo = this.selectedServiceTimeToValue.split(':')
+      let newSplitTimeFrom = this.selectedServiceTimeFrom_FEditServVal.split(':')
+      let newSplitTimeTo = this.selectedServiceTimeTo_FEditServVal.split(':')
 
       item.timeFrom[3] = parseInt(newSplitTimeFrom[0])
       item.timeFrom[4] = parseInt(newSplitTimeFrom[1])
@@ -689,12 +952,12 @@ export default {
       item.timeTo[3] = parseInt(newSplitTimeTo[0])
       item.timeTo[4] = parseInt(newSplitTimeTo[1])
 
-      this.newService = {
-        bowlingTracks: this.selectTrackAmout,
+      this.editedService = {
+        bowlingTracks: this.selectedServiceTrackAmount_FEditServVal,
         id: item.id,
-        paymentType: this.selectReservationPaymentEdit,
+        paymentType: this.selectReservationPayment_FSerEditVal,
         serviceType: item.serviceType,
-        state: this.selectReservationStateEdit,
+        state: this.selectedReservationState_FServEditVal,
         stay: item.stay,
         timeFrom: item.timeFrom,
         timeTo: item.timeTo,
@@ -702,24 +965,23 @@ export default {
 
       console.log(newSplitTimeFrom)
       console.log(newSplitTimeTo)
-      console.log(this.newService)
+      console.log(this.editedService)
 
-      //TODO nemeni sa db
-      this.editService(this.newService)
+      this.editService(this.editedService)
 
       this.editServiceForm = false;
     },
 
     //TODO
-    editServiceFormCancel()
-    {
+    editServiceFormCancel() {
+
       this.editServiceForm = false;
     },
 
 
     async editService(data) {
       await this.editServiceApi(data.id, data)
-      this.getData()
+      await this.getData()
 
       // this.updateRoomTable()
     },
@@ -728,11 +990,58 @@ export default {
       try {
         await this.$store.dispatch("services/update", {id, data});
       } catch (error) {
-        console.error("error");
         console.error(error);
       }
     },
 
+
+    async createService(data) {
+      await this.createServiceApi(data)
+      await this.getData()
+
+      // this.updateRoomTable()
+    },
+
+    async createServiceApi(data) {
+      try {
+          await this.$store.dispatch("services/create", data);
+      } catch (error) {
+          console.error(error);
+      }
+    },
+
+
+    selectedStay_ServCreateChange(){
+        let selectedServiceStay = this.stays.filter(obj => {
+          return obj.id === this.selectedStay_ServCreateVal
+        })
+        console.log(selectedServiceStay)
+        console.log(moment(selectedServiceStay[0].dateFrom).format("yyyy-MM-DD"))
+        console.log(moment(selectedServiceStay[0].dateTo).format("yyyy-MM-DD"))
+        this.selectedServiceDate_FServCreateMin = moment(selectedServiceStay[0].dateFrom).subtract(1, 'month').format("yyyy-MM-DD")
+        this.selectedServiceDate_FServCreateMax = moment(selectedServiceStay[0].dateTo).subtract(1, 'month').format("yyyy-MM-DD")
+        this.selectedServiceDate_FServCreateVal = moment(selectedServiceStay[0].dateFrom).subtract(1, 'month').format("yyyy-MM-DD")
+        this.disabledDataPicker_FServCreateVal = false
+    },
+
+    disabledDataPicker_FServCreate(){
+      console.log(this.disabledDataPicker_FServCreateVal)
+        if (this.disabledDataPicker_FServCreateVal){
+          this.selectedServiceDate_FServCreateVal = ''
+        }
+      this.selectedServiceDate_FServCreateDialog = false
+    },
+
+    getAvailableStays(stays){
+        let availableStays = []
+
+        for (let i = 0; i < stays.length; i++) {
+          if (stays[i].state === "ACTIVE") {
+            availableStays.push(stays[i])
+          }
+        }
+        return availableStays
+    }
   },
 };
 </script>
