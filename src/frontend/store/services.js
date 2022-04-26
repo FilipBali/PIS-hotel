@@ -23,7 +23,7 @@ export const actions = {
       });
   },
   create(_, data) {
-    return this.$axios.post(`/api/stay/services`, data).catch((error) => {
+    return this.$axios.post(`/api/stay/service`, data).catch((error) => {
       throw new Error(`API ${error}`);
     });
   },
