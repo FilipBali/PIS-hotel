@@ -16,7 +16,7 @@
 
     </v-card-title>
     <v-card-text>
-      <v-data-table :headers="headers" :items="rooms" :search="search" flat>
+      <v-data-table :headers="headers" :items="rooms" :search="search" :custom-filter="customSearch" flat>
 
         <template v-slot:item.state="{ item }">
           {{ roomState(item.state) }}</template>
@@ -37,92 +37,107 @@
       <!--                -->
       <!-- NEW ROOM FORM  -->
       <!--                -->
-        <v-dialog
-          v-model="roomNewForm"
-          persistent
-          max-width="600px"
-        >
-          <v-card>
+      <v-dialog
+        v-model="newRoomDialog"
+        max-width="600px"
+      >
+        <v-card>
             <v-card-title>
               <span class="text-h5">Vytvoriť izbu</span>
             </v-card-title>
             <v-card-text>
               <v-container>
-                <v-row>
+                <v-form
+                    ref="roomNewFormRef"
+                    v-model="roomNewForm"
+                    persistent
+                    max-width="600px"
+                >
+                  <v-row>
 
-                  <v-col
-                    cols="12"
-                    sm="6"
-                  >
-                    <v-text-field
-                      v-model="roomNumber"
-                      :rules="[v => /\d+/.test(v) || 'Item is required']"
-                      label="Číslo izby"
-                      required>
-                    </v-text-field>
-                  </v-col>
+                      <v-col
+                        cols="12"
+                        sm="6"
+                      >
+                        <v-text-field
+                          v-model="roomNumber"
+                          :rules="[v => /\d+/.test(v) || 'Item is required']"
+                          label="Číslo izby"
+                          required
+                        ></v-text-field>
+                      </v-col>
 
-                  <v-col
-                    cols="12"
-                    sm="6"
-                  >
-                    <v-select
-                      v-model="numBeds"
-                      :items="numBedsItems"
-                      label="Počet lôžok"
-                      required>
-                    </v-select>
-                  </v-col>
+                      <v-col
+                        cols="12"
+                        sm="6"
+                      >
+                        <v-select
+                          v-model="numBeds"
+                          :items="numBedsItems"
+                          label="Počet lôžok"
+                          :rules="[v => !!v || 'Item is required']"
+                          required
+                        ></v-select>
+                      </v-col>
 
 
-                  <v-col
-                    cols="12"
-                    sm="6"
-                  >
-                    <v-select
-                      v-model="selectedRoomState"
-                      :items="roomStateEnum"
-                      :item-text="item => item.fe"
-                      item-value=be
-                      label="Stav izby"
-                    ></v-select>
-                  </v-col>
+                      <v-col
+                        cols="12"
+                        sm="6"
+                      >
+                        <v-select
+                          v-model="selectedRoomState"
+                          :items="roomStateEnum"
+                          :item-text="item => item.fe"
+                          item-value=be
+                          label="Stav izby"
+                          :rules="[v => !!v || 'Item is required']"
+                          required
+                        ></v-select>
+                      </v-col>
 
-                  <v-col
-                    cols="12"
-                    sm="6"
-                  >
-                    <v-select
-                      v-model="selectedRoomType"
-                      :items="roomCategories"
-                      :item-text="item => roomType(item.type)"
-                      item-value=id
-                      label="Typ izby"
-                    ></v-select>
-                  </v-col>
+                      <v-col
+                        cols="12"
+                        sm="6"
+                      >
+                        <v-select
+                          v-model="selectedRoomType"
+                          :items="roomCategories"
+                          :item-text="item => roomType(item.type)"
+                          item-value=id
+                          label="Typ izby"
+                          :rules="[v => !!v || 'Item is required']"
+                          required
+                        ></v-select>
+                      </v-col>
 
-                </v-row>
+                  </v-row>
+                </v-form>
               </v-container>
             </v-card-text>
+
+
             <v-card-actions>
-              <v-spacer></v-spacer>
-              <v-btn
-                color="blue darken-1"
-                text
-                @click="roomNewFormCancel()"
-              >
-                Zatvoriť
-              </v-btn>
-              <v-btn
-                depressed
-                color="primary"
-                @click="roomNewFormSave()"
-              >
-                Uložiť
-              </v-btn>
+                <v-spacer></v-spacer>
+                <v-btn
+                  color="blue darken-1"
+                  text
+                  @click="roomNewFormCancel()"
+                >
+                  Zatvoriť
+                </v-btn>
+                <v-btn
+                  :disabled="!roomNewForm"
+                  depressed
+                  color="primary"
+                  @click="roomNewFormSave()"
+                >
+                  Uložiť
+                </v-btn>
             </v-card-actions>
-          </v-card>
-        </v-dialog>
+        </v-card>
+      </v-dialog>
+
 
       <!--                 -->
       <!-- EDIT ROOM FORM  -->
@@ -229,6 +244,7 @@
 
 <script>
 import { mapState } from "vuex";
+import moment from "moment";
 
 export default {
   data() {
@@ -308,6 +324,57 @@ export default {
       this.isLoading = false;
     },
 
+    customSearch (value, search, item)
+    {
+
+      let acceptedRoomTypeStr =
+        [
+          'štandardná', 'apartment', 'luxusná',
+          'standardna', 'standardná', 'štandardna', 'luxusna'
+        ]
+
+      let acceptedRoomsStateStr =
+        [
+          'dostupná', 'obsadená', 'rezervovaná', 'nedostupná',
+          'dostupna', 'obsadena', 'rezervovana', 'nedostupna'
+        ]
+
+
+      if (item.id.toString() === search){
+        return true;
+      }
+
+      if (item.bedsNum.toString() === search){
+        return true;
+      }
+
+
+      for (let i = 0; i < acceptedRoomTypeStr.length; i++) {
+        if (acceptedRoomTypeStr[i].toLowerCase().startsWith(search.toLowerCase())){
+
+          let ret = this.roomType(item.roomCategory.type)
+
+          if (ret !== "" &&
+            ret.toLowerCase().startsWith(search.toLowerCase())){
+            return true;
+          }
+        }
+      }
+
+      for (let i = 0; i < acceptedRoomsStateStr.length; i++) {
+        if (acceptedRoomsStateStr[i].toLowerCase().startsWith(search.toLowerCase())){
+
+          let ret = this.roomState(item.state)
+
+          if (ret !== "" &&
+            ret.toLowerCase().startsWith(search.toLowerCase())){
+            return true;
+          }
+        }
+      }
+      return false;
+    },
+
     async getAllRoomCategoriesApi() {
       try {
         await this.$store.dispatch("roomCategories/getAll");
@@ -385,7 +452,7 @@ export default {
 
 
     roomNewFormBtn(){
-        this.roomNewForm = true
+        this.newRoomDialog = true
     },
 
     roomNewFormSave(){
@@ -409,11 +476,24 @@ export default {
 
         console.log(this.newRoom)
         this.db_createRoom(this.newRoom)
-        this.roomNewForm = false
+        this.newRoomDialog = false
+
+        this.reset_newRoomForm()
+        this.resetValidation_newRoomForm()
+
+    },
+
+    reset_newRoomForm() {
+      this.$refs.roomNewFormRef.reset()
+    },
+    resetValidation_newRoomForm() {
+      this.$refs.roomNewFormRef.resetValidation()
     },
 
     roomNewFormCancel(){
-        this.roomNewForm = false
+        this.newRoomDialog = false
+        this.reset_newRoomForm()
+        this.resetValidation_newRoomForm()
     },
 
     async db_createRoom(data) {
