@@ -5,17 +5,6 @@
 
         <v-spacer></v-spacer>
 
-        <!--DEBUG BTN-->
-        <v-btn
-          color="secondary"
-          dark
-          class="ma-2"
-          @click="getHostsCombobox()"
-        >
-          DEBUG: Zobraz combobox do console
-        </v-btn>
-
-
         <v-dialog
           v-model="formNewHost"
           persistent
@@ -24,12 +13,12 @@
           <!-- button newHost-->
           <template v-slot:activator="{ on, attrs }">
             <v-btn
-              color="primary"
+              color="secondary"
               dark
               v-bind="attrs"
               v-on="on"
             >
-              Novy hosť
+              Nový hosť
             </v-btn>
           </template>
 
@@ -42,8 +31,9 @@
             <v-card-text>
               <v-container>
                 <v-form
+                  ref="formNewHost"
                   v-model="validFormNewHost"
-                  ref="formNewHost">
+                  >
                   <v-row>
 
                     <!--        Name         -->
@@ -110,8 +100,8 @@
                       >
                         <template v-slot:activator="{ on, attrs }">
                           <v-text-field
-                            v-model="selectedBirthDate"
-                            label="Začiatok pobytu"
+                            v-model="newHostFormBirthDate"
+                            label="Dátum narodenia"
                             prepend-icon="mdi-calendar"
                             readonly
                             v-bind="attrs"
@@ -119,8 +109,9 @@
                           ></v-text-field>
                         </template>
                         <v-date-picker
-                          v-model="selectedBirthDate"
+                          v-model="newHostFormBirthDate"
                           @input="datePickerBirthStay = false"
+                          :max="newHostFormBirthDate_max"
                         ></v-date-picker>
                       </v-menu>
                     </v-col>
@@ -172,14 +163,14 @@
               <v-btn
                 color="blue darken-1"
                 text
-                @click="formNewHost = false"
+                @click="cancelNewHost()"
               >
                 Zavrieť
               </v-btn>
               <v-btn
                 :disabled="!validFormNewHost"
-                color="blue darken-1"
-                text
+                depressed
+                color="primary"
                 @click="createNewHost()"
               >
                 Vytvoriť a pridať
@@ -271,6 +262,7 @@
                       <v-date-picker
                         v-model="selectedStartDate"
                         @input="datePickerStartStayChange()"
+                        :min="selectedStartDate_min"
                       ></v-date-picker>
                     </v-menu>
 
@@ -302,6 +294,7 @@
                       <v-date-picker
                         v-model="selectedEndDate"
                         @input="datePickerEndStayChange()"
+                        :min="selectedEndDate_min"
                       ></v-date-picker>
                     </v-menu>
 
@@ -366,7 +359,6 @@ export default {
     //##########################################
     //               DATEPICKER
     //##########################################
-    selectedBirthDate: (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10),
     datePickerBirthStay: false,
 
     selectedStartDate: (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10),
@@ -387,6 +379,11 @@ export default {
     newHostFormEmail: '',
     newHostFormPhoneNumber: '',
     newHostFormAddress: '',
+
+    newHostFormBirthDate_max: (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10),
+
+    selectedStartDate_min: (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10),
+    selectedEndDate_min: (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10),
 
     //##########################################
     // be = backend interpretation
@@ -439,20 +436,9 @@ export default {
 
   methods: {
 
-    // Preformatuje datum
-    formatDate(date) {
-      return moment(date).subtract(1, 'month').format("DD. MM. YYYY");
-    },
-
     //##########################################
     //               FORM TOOLS
     //##########################################
-
-    // Ziska ID vybranych uzivalov z comboboxu
-    getHostsCombobox() {
-      console.log(this.selectedHostsCombobox)
-      return this.selectedHostsCombobox
-    },
 
     validate_addStayForm () {
       this.$refs.addStayForm.validate()
@@ -502,13 +488,9 @@ export default {
         state: "AVAILABLE"
       }
 
-      let selectedStartDateMoment = moment(this.selectedStartDate).subtract(1, 'month').toArray()
-      let selectedEndDateMoment = moment(this.selectedEndDate).subtract(1, 'month').toArray()
-
-      //TODO .subtract(1, 'month')
       //Pretoze indexuje mesiace od 0!!
-      selectedStartDateMoment[1] = selectedStartDateMoment[1] + 1
-      selectedEndDateMoment[1] = selectedEndDateMoment[1] + 1
+      let selectedStartDateMoment = moment(this.selectedStartDate).add(1, 'month').toArray()
+      let selectedEndDateMoment = moment(this.selectedEndDate).add(1, 'month').toArray()
 
       selectedStartDateMoment.length = 3
       selectedEndDateMoment.length = 3
@@ -531,9 +513,6 @@ export default {
     },
 
     async createNewHost() {
-
-      this.validate_newHostForm()
-
       this.formNewHost = false
 
       this.newUser = {
@@ -546,6 +525,7 @@ export default {
         phoneNumber: this.newHostFormPhoneNumber,
       };
 
+
       //Create new host
       await this.db_createHost(this.newUser)
 
@@ -553,6 +533,12 @@ export default {
       await this.getHostData();
 
       // re-init form
+      this.reset_newHostForm()
+      this.resetValidation_newHostForm()
+    },
+
+    cancelNewHost(){
+      this.formNewHost = false
       this.reset_newHostForm()
       this.resetValidation_newHostForm()
     },
@@ -634,12 +620,26 @@ export default {
     },
 
     datePickerStartStayChange(){
+
+      if (moment(this.selectedStartDate).isAfter(this.selectedEndDate)){
+        //Start date nemoze byt vacsi ako End date
+        //Ak je vacsi, zmenime End date na rovnaky ako Start Date
+        this.selectedEndDate = this.selectedStartDate
+      }
+
       this.getData(this.selectedStartDate, this.selectedEndDate)
       this.datePickerStartStay = false
     },
 
     datePickerEndStayChange(){
       this.getData(this.selectedStartDate, this.selectedEndDate)
+
+      if (moment(this.selectedEndDate).isBefore(this.selectedStartDate)){
+        //End date nemoze byt mensi ako Start date
+        //Ak je mensi, zmenime Start date na rovnaky ako End Date
+        this.selectedStartDate = this.selectedEndDate
+      }
+
       this.datePickerEndStay = false
     },
 
