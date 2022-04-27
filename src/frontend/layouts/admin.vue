@@ -12,8 +12,10 @@
         ><b>{{ item.title }}</b></v-btn
       >
       <v-spacer />
-      <v-avatar color="secondary" size="40">JH</v-avatar>
-      <v-btn plain min-height="100%" @click="profile"> Janko Hrasko </v-btn>
+      <v-avatar color="secondary" size="40">{{ this.initials }}</v-avatar>
+      <v-btn plain min-height="100%" @click="profile">
+        {{ this.userName }}
+      </v-btn>
       <v-tooltip bottom>
         <template v-slot:activator="{ on, attrs }">
           <v-btn icon plain v-bind="attrs" v-on="on" @click="logout">
@@ -73,16 +75,34 @@ export default {
       ],
     };
   },
+  computed: {
+    actUser() {
+      return this.$auth.$storage.getUniversal("user");
+    },
+    initials() {
+      let initials = "";
+
+      if (this.actUser.firstName.length > 0) {
+        initials += this.actUser.firstName[0].toUpperCase();
+      }
+      if (this.actUser.lastName.length > 0) {
+        initials += this.actUser.lastName[0].toUpperCase();
+      }
+
+      return initials;
+    },
+    userName() {
+      return this.actUser.firstName + " " + this.actUser.lastName;
+    },
+  },
   methods: {
     async logout() {
-      // TODO: update after logout api implementation
-      // await this.$store.dispatch('user/logout', this.$auth.user.id)
       await this.$auth.logout();
       this.$auth.$storage.removeUniversal("user");
       this.$router.push("/login");
     },
     profile() {
-      console.log("Ta ak bude, ta otvorime profila");
+      this.$router.push("/admin/profile");
     },
   },
 };

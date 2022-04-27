@@ -17,7 +17,7 @@ export default function ({ route, $auth, app }) {
       } else if (user.roles.includes("ROLE_BOWLING")) {
         app.router.push("/bowling/reservations");
       } else {
-        app.router.push("/user");
+        app.router.push("/user/profile");
       }
     } else {
       app.router.push("/login");

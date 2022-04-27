@@ -1,11 +1,16 @@
 <template>
-  <v-dialog v-model="dialogController" max-width="800px">
+  <v-dialog v-model="dialogController" max-width="800px" @click:outside="close">
     <v-card>
       <v-card-title>
         {{ isNewUser ? "Pridať užívateľa" : "Editácia užívateľa" }}
       </v-card-title>
       <v-card-text>
-        <v-container>
+        <v-form
+          ref="form"
+          v-model="validForm"
+          @submit.prevent="save()"
+          lazy-validation
+        >
           <v-row>
             <v-col cols="12" sm="6" md="4">
               <v-text-field
@@ -39,13 +44,20 @@
               ></v-text-field>
             </v-col>
             <v-col cols="12" sm="6" md="4">
-              <v-text-field v-model="user.email" label="Email"></v-text-field>
+              <v-text-field
+                v-model="user.email"
+                :rules="emailRules"
+                label="Email"
+                required
+              ></v-text-field>
             </v-col>
             <v-col v-if="isNewUser" cols="12" sm="6" md="4">
               <v-text-field
                 v-model="user.password"
+                :rules="passwordRule"
                 type="password"
                 label="Heslo"
+                required
               ></v-text-field>
             </v-col>
             <v-col cols="12" sm="6" md="4">
@@ -67,7 +79,7 @@
               ></v-select>
             </v-col>
           </v-row>
-        </v-container>
+        </v-form>
       </v-card-text>
 
       <v-card-actions>
@@ -94,6 +106,16 @@ export default {
       newSelectedRole: "",
       editSelectedRole:
         this.user.roles && this.user.roles.length > 0 ? this.user.roles[0] : "",
+
+      validForm: true,
+      emailRules: [
+        (v) => !!v.trim() || "Zadajte email",
+        (v) =>
+          /^\w+([.-]?[!#$%&'*+/=?^_`{|}~\w]+)*@\w+([.-]?\w+)*(\.\w{2,})+$/.test(
+            v
+          ) || "Zadajte platný email",
+      ],
+      passwordRule: [(v) => !!v.trim() || "Zadajte heslo"],
     };
   },
   computed: {
@@ -106,8 +128,11 @@ export default {
       this.dialogController = this.dialog;
     },
     user() {
+      if (this.roles)
+        this.newSelectedRole = this.roles.find((e) => e.name === "ROLE_USER");
       this.editSelectedRole =
         this.user.roles && this.user.roles.length > 0 ? this.user.roles[0] : "";
+      this.dateOfBirth = moment(this.user.dateOfBirth).format("yyyy-MM-DD");
     },
   },
   methods: {
@@ -118,7 +143,6 @@ export default {
         console.error(error);
       }
     },
-    // TODO: update user fix after be fix
     async updateUser() {
       let user = {
         id: this.user.id,
@@ -126,6 +150,7 @@ export default {
         lastName: this.user.lastName,
         address: this.user.address,
         email: this.user.email,
+        dateOfBirth: this.user.dateOfBirth,
         phoneNumber: this.user.phoneNumber,
       };
       try {
@@ -146,30 +171,34 @@ export default {
     },
 
     updateDate(val) {
-      this.user.dateOfBirth = val;
+      this.dateOfBirth = val;
     },
 
     async save() {
-      this.user.dateOfBirth = this.dateOfBirth;
+      await this.$refs.form.validate();
 
-      if (this.isNewUser) {
-        this.user.roles.push(this.newSelectedRole);
-        await this.createUser();
-      } else {
-        if (this.user.roles.length > 0) {
-          this.user.roles[0] = this.editSelectedRole;
+      if (this.validForm) {
+        this.user.dateOfBirth = moment(this.dateOfBirth).toArray().slice(0, 3);
+
+        if (this.isNewUser) {
+          this.user.roles.push(this.newSelectedRole);
+          await this.createUser();
         } else {
-          this.user.roles.push(this.editSelectedRole);
+          if (this.user.roles.length > 0) {
+            this.user.roles[0] = this.editSelectedRole;
+          } else {
+            this.user.roles.push(this.editSelectedRole);
+          }
+          await this.updateUser();
         }
-        console.log(this.user);
-        await this.updateUser();
+        await this.getAllUsers();
+        this.close();
       }
-      await this.getAllUsers();
-      this.close();
     },
     close() {
       this.dialogController = false;
       this.selectedRole = "";
+      this.$refs.form.resetValidation();
       this.$emit("close-dialog", this.dialogController);
     },
 

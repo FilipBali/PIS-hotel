@@ -28,14 +28,9 @@ export const actions = {
     });
   },
   update(_, { id, data }) {
-    return this.$axios
-      .put(`/api/room/${id}`, data)
-      .then((response) => {
-        console.log(response);
-      })
-      .catch((error) => {
-        throw new Error(`API ${error}`);
-      });
+    return this.$axios.put(`/api/room/${id}`, data).catch((error) => {
+      throw new Error(`API ${error}`);
+    });
   },
   delete(_, id) {
     return this.$axios.delete(`/api/room/${id}`).catch((error) => {
