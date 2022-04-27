@@ -1,5 +1,8 @@
 <template></template>
 
 <script>
-export default {};
+export default {
+
+  layout: "user",
+};
 </script>

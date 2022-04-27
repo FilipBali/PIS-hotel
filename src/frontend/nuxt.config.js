@@ -1,68 +1,138 @@
-import colors from 'vuetify/es5/util/colors'
+import colors from "vuetify/es5/util/colors";
+import en from "vuetify/lib/locale/en";
+import sk from "vuetify/lib/locale/sk";
 
 export default {
-  // Disable server-side rendering: https://go.nuxtjs.dev/ssr-mode
   ssr: false,
 
-  // Global page headers: https://go.nuxtjs.dev/config-head
   head: {
-    titleTemplate: '%s - frontend',
-    title: 'frontend',
+    titleTemplate: "%s - frontend",
+    title: "frontend",
     htmlAttrs: {
-      lang: 'en'
+      lang: "en",
     },
     meta: [
-      { charset: 'utf-8' },
-      { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-      { hid: 'description', name: 'description', content: '' },
-      { name: 'format-detection', content: 'telephone=no' }
+      { charset: "utf-8" },
+      { name: "viewport", content: "width=device-width, initial-scale=1" },
+      { hid: "description", name: "description", content: "" },
+      { name: "format-detection", content: "telephone=no" },
     ],
-    link: [
-      { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }
-    ]
+    link: [{ rel: "icon", type: "image/x-icon", href: "/favicon.ico" }],
   },
 
-  // Global CSS: https://go.nuxtjs.dev/config-css
-  css: [
-  ],
+  css: ["~/assets/styles.scss"],
 
   // Plugins to run before rendering page: https://go.nuxtjs.dev/config-plugins
-  plugins: [
-  ],
+  plugins: ["~/plugins/axios"],
 
-  // Auto import components: https://go.nuxtjs.dev/config-components
   components: true,
 
   // Modules for dev and build (recommended): https://go.nuxtjs.dev/config-modules
   buildModules: [
-    // https://go.nuxtjs.dev/vuetify
-    '@nuxtjs/vuetify',
+    "@nuxtjs/vuetify",
+    // "@nuxtjs/eslint-module",
   ],
 
   // Modules: https://go.nuxtjs.dev/config-modules
-  modules: [
-  ],
+  modules: ["@nuxtjs/axios", "@nuxtjs/auth-next", "@nuxtjs/toast"],
+
+  // Axios module configuration (https://go.nuxtjs.dev/config-axios)
+  axios: {
+    baseURL: "http://localhost:8080/",
+  },
+  publicRuntimeConfig: {
+    axios: {
+      browserBaseURL: process.env.BROWSER_BASE_URL,
+    },
+  },
+  privateRuntimeConfig: {
+    axios: {
+      baseURL: process.env.BASE_URL,
+    },
+  },
 
   // Vuetify module configuration: https://go.nuxtjs.dev/config-vuetify
   vuetify: {
-    customVariables: ['~/assets/variables.scss'],
+    customVariables: ["~/assets/variables.scss"],
     theme: {
-      dark: true,
+      dark: false,
       themes: {
-        dark: {
-          primary: colors.blue.darken2,
+        light: {
+          primary: "#2c3e50",
           accent: colors.grey.darken3,
-          secondary: colors.amber.darken3,
+          secondary: "#e74c3c",
           info: colors.teal.lighten1,
           warning: colors.amber.base,
           error: colors.deepOrange.accent4,
-          success: colors.green.accent3
-        }
-      }
-    }
+          success: colors.green.accent3,
+        },
+        dark: {
+          primary: "#2c3e50",
+          accent: colors.grey.darken3,
+          secondary: "#e74c3c",
+          info: colors.teal.lighten1,
+          warning: colors.amber.base,
+          error: colors.deepOrange.accent4,
+          success: colors.green.accent3,
+        },
+      },
+    },
+    lang: {
+      locales: { en, sk },
+      current: "sk",
+    },
+  },
+
+  auth: {
+    redirect: {
+      login: "/login",
+      logout: "/",
+      callback: "/",
+      home: "/",
+    },
+    strategies: {
+      local: {
+        scheme: "refresh",
+        token: {
+          property: "token",
+          maxAge: 60 * 30,
+          type: "Bearer",
+        },
+        refreshToken: {
+          property: "refresh_token",
+          data: "refresh_token",
+          maxAge: 60 * 60 * 24,
+        },
+        user: {
+          property: false,
+          autoFetch: false,
+        },
+        endpoints: {
+          login: { url: "login", method: "post" },
+          refresh: { url: "api/user/token/refresh", method: "post" },
+          user: false,
+          logout: false,
+        },
+        // autoLogout: false
+      },
+    },
+  },
+
+  toast: {
+    position: "top-center",
+    containerClass: "toast-container",
+    className: "toast",
+    duration: 4000,
+  },
+
+  // eslint: {},
+
+  router: {
+    middleware: ["security"],
+    base: "/",
+    cors: true,
   },
 
   // Build Configuration: https://go.nuxtjs.dev/config-build
-  build: {
-  }
-}
+  build: {},
+};
