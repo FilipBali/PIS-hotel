@@ -50,6 +50,26 @@ export default {
           title: "Izby",
           to: "/admin/rooms",
         },
+        {
+          title: "Pridať pobyt",
+          to: "/admin/new-stay",
+        },
+        {
+          title: "Pobyty",
+          to: "/admin/stays",
+        },
+        {
+          title: "Izby",
+          to: "/admin/rooms",
+        },
+        {
+          title: "Hostia",
+          to: "/admin/hosts",
+        },
+        {
+          title: "Služby pre hostí",
+          to: "/admin/services",
+        },
       ],
     };
   },
