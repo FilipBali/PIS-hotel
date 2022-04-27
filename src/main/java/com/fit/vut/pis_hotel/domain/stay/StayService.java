@@ -173,6 +173,7 @@ public class StayService {
         }
     }
 
+    @Transactional
     public void updateService(Long id, ServiceDO serviceBody) {
         ServiceDO service = serviceRepository.findById(id)
                 .orElseThrow(() -> new IllegalStateException("Service with id: " + id + " does not exist."));
@@ -252,8 +253,7 @@ public class StayService {
             if (Objects.equals(oneStay.getId(), stay.getId())) {
                 continue;
             }
-            if (isDateInBetween(oneStay.getDateFrom().atTime(14, 0), oneStay.getDateTo().atTime(11, 0), dateFrom) ||
-                    isDateInBetween(oneStay.getDateFrom().atTime(14, 0), oneStay.getDateTo().atTime(11, 0), dateTo)) {
+            if (isDatesOverlap(oneStay.getDateFrom().atTime(14, 0), oneStay.getDateTo().atTime(11, 0), dateFrom, dateTo)) {
                 throw new IllegalStateException("Room with id: " + room.getId() +
                         " is already reserved for stay with id: " + oneStay.getId() +
                         " for date from: " + oneStay.getDateFrom().atTime(14, 0) +
@@ -263,7 +263,7 @@ public class StayService {
         return true;
     }
 
-    private boolean isDateInBetween(final LocalDateTime min, final LocalDateTime max, final LocalDateTime date) {
-        return !(date.isBefore(min) || date.isAfter(max));
+    private boolean isDatesOverlap(final LocalDateTime dateFrom1, final LocalDateTime dateTo1, final LocalDateTime dateFrom2, final LocalDateTime dateTo2) {
+        return dateFrom1.isBefore(dateTo2) && dateFrom2.isBefore(dateTo1);
     }
 }

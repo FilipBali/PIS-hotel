@@ -3,11 +3,16 @@ package com.fit.vut.pis_hotel.domain.room;
 import com.fit.vut.pis_hotel.domain.room.enums.RoomStateEnum;
 import com.fit.vut.pis_hotel.domain.roomCategory.RoomCategoryDO;
 import com.fit.vut.pis_hotel.domain.roomCategory.RoomCategoryRepository;
+import com.fit.vut.pis_hotel.domain.stay.StayService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 
@@ -18,6 +23,7 @@ public class RoomService {
 
     private final RoomRepository roomRepository;
     private final RoomCategoryRepository roomCategoryRepository;
+    private final StayService stayService;
 
     public List<RoomDO> getRooms() {
         return roomRepository.findAll();
@@ -73,5 +79,30 @@ public class RoomService {
 
     private boolean isIntegerValid(Integer integerToValidate, Integer originalInteger) {
         return integerToValidate != null && integerToValidate > 0 && !Objects.equals(integerToValidate, originalInteger);
+    }
+
+    public List<RoomDO> getAvailableRooms(LocalDate from, LocalDate to) {
+        LocalDateTime dateFrom = from.atTime(11, 0);
+        LocalDateTime dateTo = to.atTime(14, 0);
+        List<RoomDO> rooms = getRooms();
+        List<RoomDO> availableRooms = new ArrayList<>(List.of());
+        HashSet<Long> reservedRooms = new HashSet<>(List.of());
+        for (RoomDO room : rooms) {
+            boolean isRoomReserved = room.getStays().stream().anyMatch(stayDO ->
+                    isDatesOverlap(dateFrom, dateTo, stayDO.getDateFrom().atTime(11, 0), stayDO.getDateTo().atTime(14, 0)));
+            if (!isRoomReserved && !reservedRooms.contains(room.getId()) && room.getState().equals(RoomStateEnum.AVAILABLE)) {
+                availableRooms.add(room);
+                //log.info("AVAILABLE ADDING: "+ room.getId());
+            } else {
+                reservedRooms.add(room.getId());
+                //log.info("Reserved ADDING: " + room.getId());
+            }
+        }
+        return availableRooms;
+    }
+
+    private boolean isDatesOverlap(final LocalDateTime dateFrom1, final LocalDateTime dateTo1, final LocalDateTime dateFrom2, final LocalDateTime dateTo2) {
+        return dateFrom1.isBefore(dateTo2) && dateFrom2.isBefore(dateTo1);
+        //log.info("DATE dateFrom1: "+ dateFrom1+"DATE dateTo1: "+ dateTo1+"DATE dateFrom2: "+ dateFrom2  +"DATE dateTo2: "+ dateTo2 + " ret: " + ret);
     }
 }

@@ -26,7 +26,7 @@
       </v-tooltip>
     </v-app-bar>
     <v-main>
-      <v-container fill-height>
+      <v-container fluid>
         <Nuxt />
       </v-container>
     </v-main>

@@ -11,7 +11,7 @@ export const mutations = {
 export const actions = {
   getAll({ commit }) {
     return this.$axios
-      .get(`/api/room`)
+      .get(`/api/stay/service`)
       .then((response) => {
         if (response.data) {
           commit("SET_ITEMS", response.data);
@@ -23,34 +23,23 @@ export const actions = {
       });
   },
   create(_, data) {
-    return this.$axios.post(`/api/room`, data).catch((error) => {
+    return this.$axios.post(`/api/stay/service`, data).catch((error) => {
       throw new Error(`API ${error}`);
     });
   },
   update(_, { id, data }) {
-    return this.$axios.put(`/api/room/${id}`, data).catch((error) => {
-      throw new Error(`API ${error}`);
-    });
-  },
-  delete(_, id) {
-    return this.$axios.delete(`/api/room/${id}`).catch((error) => {
-      throw new Error(`API ${error}`);
-    });
-    },
-
-  getAvailableRooms({ commit }, {from, to}) {
     return this.$axios
-      .get(`/api/room/available-rooms?from=${from}&to=${to}`)
+      .put(`/api/stay/service/${id}`, data)
       .then((response) => {
-        if (response.data) {
-          commit('SET_ITEM', response.data)
-          return response.data
-        }
+        console.log(response);
       })
       .catch((error) => {
-        throw new Error(`API ${error}`)
-      })
+        throw new Error(`API ${error}`);
+      });
   },
-
-
+  delete(_, id) {
+    return this.$axios.delete(`/api/stay/service/${id}`).catch((error) => {
+      throw new Error(`API ${error}`);
+    });
+  },
 };

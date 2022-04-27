@@ -1,7 +1,8 @@
 <template>
   <v-card>
     <v-card-title primary-title>
-      Zoznam izieb <v-spacer></v-spacer
+      Zoznam izieb
+      <v-spacer></v-spacer
       ><v-text-field
         v-model="search"
         append-icon="mdi-magnify"
@@ -17,6 +18,9 @@
       <v-data-table :headers="headers" :items="rooms" :search="search" flat>
         <template v-slot:item.state="{ item }">
           {{ roomState(item.state) }}</template
+        >
+        <template v-slot:item.roomCategory.type="{ item }">
+          {{ roomType(item.roomCategory.type) }}</template
         >
         <template v-slot:item.actions="{ item }">
           <v-icon small class="mr-2" @click="editRoom(item)">
@@ -39,6 +43,7 @@
 import { mapState } from "vuex";
 
 export default {
+
   data() {
     return {
       isLoading: true,
@@ -51,6 +56,7 @@ export default {
         roomCategory: null,
       },
       newRoomDialog: false,
+
       headers: [
         {
           text: "Číslo izby",
@@ -136,6 +142,18 @@ export default {
       this.dialogController = val;
     },
 
+    roomType(state) {
+      switch (state) {
+        case "STANDARD":
+          return "štandardná";
+        case "APARTMENT":
+          return "apartmán";
+        case "LUXURY":
+          return "luxusná";
+        default:
+          return "";
+      }
+    },
     roomState(state) {
       switch (state) {
         case "AVAILABLE":
@@ -144,6 +162,8 @@ export default {
           return "obsadená";
         case "UNAVAILABLE":
           return "nedostupná";
+        case "RESERVED":
+          return "rezervovaná";
         default:
           return "";
       }
