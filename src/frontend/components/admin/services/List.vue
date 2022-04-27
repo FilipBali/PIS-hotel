@@ -689,10 +689,6 @@ export default {
     customSearch (value, search, item)
     {
 
-      console.log(value)
-      console.log(search)
-      console.log(item)
-
       let acceptedServiceTypeStr =
         [
           'bowling', 'masáž'
@@ -859,10 +855,6 @@ export default {
         return obj.id === this.selectedStay_ServCreateVal
       })
 
-      console.log("--------------------------------------------")
-      console.log(this.selectedServiceDate_FServCreateVal)
-      console.log("--------------------------------------------")
-
       let newServDateTimeFrom = moment(this.selectedServiceDate_FServCreateVal).add(1, 'month').toArray()
       let newServDateTimeTo = moment(this.selectedServiceDate_FServCreateVal).add(1, 'month').toArray()
 
@@ -875,11 +867,6 @@ export default {
       newServDateTimeTo[3] = parseInt(parsedTimeTo[0])
       newServDateTimeTo[4] = parseInt(parsedTimeTo[1])
 
-
-      console.log(newServDateTimeFrom)
-      console.log(newServDateTimeTo)
-      console.log(this.stays)
-      console.log(this.selectedStay_ServCreateVal)
       this.newService = {
         timeFrom: newServDateTimeFrom,
         timeTo: newServDateTimeTo,
@@ -891,7 +878,6 @@ export default {
 
       }
 
-      console.log(this.newService)
       this.createService(this.newService)
       this.newServiceDialog = false;
     },
@@ -963,10 +949,6 @@ export default {
         timeTo: item.timeTo,
       }
 
-      console.log(newSplitTimeFrom)
-      console.log(newSplitTimeTo)
-      console.log(this.editedService)
-
       this.editService(this.editedService)
 
       this.editServiceForm = false;
@@ -1015,9 +997,6 @@ export default {
         let selectedServiceStay = this.stays.filter(obj => {
           return obj.id === this.selectedStay_ServCreateVal
         })
-        console.log(selectedServiceStay)
-        console.log(moment(selectedServiceStay[0].dateFrom).format("yyyy-MM-DD"))
-        console.log(moment(selectedServiceStay[0].dateTo).format("yyyy-MM-DD"))
         this.selectedServiceDate_FServCreateMin = moment(selectedServiceStay[0].dateFrom).subtract(1, 'month').format("yyyy-MM-DD")
         this.selectedServiceDate_FServCreateMax = moment(selectedServiceStay[0].dateTo).subtract(1, 'month').format("yyyy-MM-DD")
         this.selectedServiceDate_FServCreateVal = moment(selectedServiceStay[0].dateFrom).subtract(1, 'month').format("yyyy-MM-DD")
@@ -1025,7 +1004,7 @@ export default {
     },
 
     disabledDataPicker_FServCreate(){
-      console.log(this.disabledDataPicker_FServCreateVal)
+
         if (this.disabledDataPicker_FServCreateVal){
           this.selectedServiceDate_FServCreateVal = ''
         }

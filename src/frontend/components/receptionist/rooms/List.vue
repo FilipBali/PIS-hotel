@@ -457,7 +457,6 @@ export default {
 
     roomNewFormSave(){
 
-        console.log(this.selectedRoomType)
         let roomCategory
         for(let i = 0; i < this.roomCategories.length; i++ ){
 
@@ -474,7 +473,6 @@ export default {
           roomCategory: roomCategory,
         }
 
-        console.log(this.newRoom)
         this.db_createRoom(this.newRoom)
         this.newRoomDialog = false
 
@@ -512,7 +510,6 @@ export default {
 
 
     roomEditFormBtn(item){
-      console.log(item)
       this.roomEditFormItem = item
 
       this.selectedRoomNumberEdit = item.roomNumber
@@ -526,8 +523,6 @@ export default {
 
     roomEditFormSave(){
       let item = this.roomEditFormItem;
-      // console.log(item);
-      // console.log(this.selectedRoomTypeEdit);
 
       let roomCategory = item.roomCategory;
       if(item.roomCategory.id !== this.selectedRoomTypeEdit){

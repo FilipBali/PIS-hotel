@@ -217,9 +217,6 @@
 
              if (ret !== "" &&
                ret.toLowerCase().startsWith(search.toLowerCase())){
-               console.log(ret)
-               console.log(search)
-               console.log(item)
                return true;
              }
            }

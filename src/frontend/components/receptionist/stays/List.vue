@@ -801,9 +801,6 @@ export default {
 
            if (ret !== "" &&
              ret.toLowerCase().startsWith(search.toLowerCase())){
-             console.log(ret)
-             console.log(search)
-             console.log(item)
              return true;
            }
          }
@@ -816,9 +813,6 @@ export default {
 
           if (ret !== "" &&
               ret.toLowerCase().startsWith(search.toLowerCase())){
-            console.log(ret)
-            console.log(search)
-            console.log(item)
             return true;
           }
         }
@@ -832,10 +826,6 @@ export default {
           if (ret !== "" &&
               ret.toLowerCase().startsWith(search.toLowerCase())){
 
-
-            console.log(ret)
-            console.log(search)
-            console.log(item)
             return true;
           }
         }
@@ -904,7 +894,7 @@ export default {
 
       this.rooms = []
       for(let i = 0; i < item.rooms.length; i++){
-        console.log(item.rooms[i]);
+
         this.rooms.push({
           id: item.rooms[i].id,
           roomNumber: item.rooms[i].roomNumber,
@@ -914,7 +904,6 @@ export default {
           state: this.roomState(item.rooms[i].state)
         })
       }
-      console.log(this.rooms)
 
       this.roomTable = true;
     },
@@ -984,8 +973,6 @@ export default {
 
     roomEditFormSave(){
       let item = this.roomEditFormItem;
-      console.log(item);
-      console.log(this.selectedRoomType);
 
       let roomCategory = item.roomCategory;
       if(item.roomCategory.id !== this.selectedRoomType){
@@ -1007,8 +994,6 @@ export default {
         bedsNum: item.bedsNum,
         roomCategory: roomCategory
       }
-      console.log("--------------------------")
-      console.log(this.editedRoom)
       this.editRoom(this.editedRoom)
       this.roomEditForm = false;
     },
@@ -1050,9 +1035,6 @@ export default {
     stayEditFormSave(){
       let item = this.stayEditFormItem
 
-      console.log(this.selectedStartDate)
-      console.log(this.selectedEndDate)
-
       let selectedStartDateMoment = moment(this.selectedStartDate).toArray()
       let selectedEndDateMoment = moment(this.selectedEndDate).toArray()
 
@@ -1076,8 +1058,6 @@ export default {
           stayCreator: item.stayCreator
       }
 
-      console.log(item)
-      console.log(this.editedStay)
       this.editStay(this.editedStay)
       this.stayEditForm = false;
     },

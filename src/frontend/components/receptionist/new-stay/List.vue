@@ -466,12 +466,6 @@ export default {
     //##########################################
 
     createNewStay(){
-      console.log(this.selectedHostsCombobox)
-      console.log(this.selectedStartDate)
-      console.log(this.selectedEndDate)
-      console.log(this.selectedNewStayBoardType)
-      console.log(this.selectedNewStayPayment)
-
 
       this.roomCategory = {
         cost_per_bed: 44.25,
@@ -507,7 +501,6 @@ export default {
         stayCreator: this.selectedHostsCombobox[0]
       }
 
-      console.log(this.newStay)
       this.db_createStay(this.newStay)
 
     },
@@ -644,25 +637,8 @@ export default {
     },
 
     async getAvailableRooms() {
-      // let availableRooms = []
 
-      //console.log(this.selectedStartDate);
-      // await Promise.all([await this.getAvailableRoomsApi('2022-02-27', '2022-02-28')]);
-
-      console.log(this.selectedStartDate)
       await this.getAvailableRoomsApi(this.selectedStartDate, this.selectedEndDate)
-
-      // console.log(await this.getAvailableRoomsApi('2023-01-01', '2023-01-01'));
-      // console.log(this.roomsA)
-
-      // for (let i = 0; i < data.length; i++) {
-      //   if (data[i].state === "AVAILABLE") {
-      //     availableRooms.push(data[i])
-      //   }
-      // }
-
-      // console.log(availableRooms);
-      console.log(this.roomsA);
 
       return this.roomsA
     }

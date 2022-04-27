@@ -5,7 +5,6 @@ export const state = () => ({
 export const mutations = {
   SET_ITEMS(state, items) {
     state.items = items;
-    console.log("///")
   },
 };
 
