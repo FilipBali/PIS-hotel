@@ -5,6 +5,6 @@
 <script>
 export default {
   name: "ProfilePage",
-  layout: "admin",
+  layout: "user",
 };
 </script>

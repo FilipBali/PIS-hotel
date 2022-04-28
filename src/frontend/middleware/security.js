@@ -9,15 +9,15 @@ export default function ({ route, $auth, app }) {
       if (user.roles.includes("ROLE_ADMIN")) {
         app.router.push("/admin/users");
       } else if (user.roles.includes("ROLE_RECEPTIONIST")) {
-        app.router.push("/receptionist");
+        app.router.push("/receptionist/stays");
       } else if (user.roles.includes("ROLE_COOK")) {
-        app.router.push("/chef");
+        app.router.push("/chef/meals");
       } else if (user.roles.includes("ROLE_MASSEUR")) {
-        app.router.push("/masseur");
+        app.router.push("/masseur/reservations");
       } else if (user.roles.includes("ROLE_BOWLING")) {
-        app.router.push("/bowling");
+        app.router.push("/bowling/reservations");
       } else {
-        app.router.push("/user");
+        app.router.push("/user/profile");
       }
     } else {
       app.router.push("/login");

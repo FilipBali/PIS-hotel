@@ -2,6 +2,7 @@
 
 <script>
 export default {
+
   layout: "user",
 };
 </script>

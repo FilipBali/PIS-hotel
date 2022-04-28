@@ -143,7 +143,7 @@ export default {
         firstName: "",
         lastName: "",
         address: "",
-        dateOfBirth: moment().format("yyyy-MM-DD"),
+        dateOfBirth: moment().subtract(1, 'month').format("yyyy-MM-DD"),
         email: "",
         phoneNumber: "",
         roles: [],
@@ -160,7 +160,7 @@ export default {
     },
 
     formatDate(date) {
-      return moment(date).format("DD. MM. YYYY");
+      return moment(date).subtract(1, 'month').format("DD. MM. YYYY");
     },
     userRole(roleId) {
       switch (roleId) {
