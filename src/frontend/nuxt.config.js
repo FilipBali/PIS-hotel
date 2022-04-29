@@ -94,9 +94,8 @@ export default {
       local: {
         scheme: "refresh",
         token: {
-          property: "token",
+          property: "access_token",
           maxAge: 60 * 30,
-          type: "Bearer",
         },
         refreshToken: {
           property: "refresh_token",
@@ -109,7 +108,7 @@ export default {
         },
         endpoints: {
           login: { url: "login", method: "post" },
-          refresh: { url: "api/user/token/refresh", method: "post" },
+          refresh: { url: "api/user/token/refresh", method: "get" },
           user: false,
           logout: false,
         },
