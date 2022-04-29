@@ -1,9 +1,10 @@
-// TODO: customize on our api
+export default function ({ $axios, $toast, app }) {
+  $axios.onRequest((config) => {
+    if (config.url === "api/user/token/refresh") {
+      $axios.setToken(app.$auth.strategy.refreshToken.get(), "Bearer");
+    }
+  });
 
-export default function ({ $axios, $toast }) {
-  // $axios.onRequest((config) => {
-  //   config.headers.common["Access-Control-Allow-Origin"] = "*";
-  // });
   $axios.onResponse((res) => {
     if (res.data.errors) {
       if (Array.isArray(res.data.errors)) {
