@@ -89,7 +89,7 @@ public class Configurator {
             UserDO bowling = new UserDO(
                     "Amália",
                     "Brežná",
-                    LocalDate.of(1998, Month.APRIL, 04),
+                    LocalDate.of(1998, Month.APRIL, 4),
                     "Malinovská 467, Bratislava, CZ",
                     "E9754043572",
                     "00424698723478",
@@ -100,7 +100,7 @@ public class Configurator {
             UserDO masseur = new UserDO(
                     "Ignác",
                     "Bajza",
-                    LocalDate.of(1996, Month.NOVEMBER, 07),
+                    LocalDate.of(1996, Month.NOVEMBER, 7),
                     "Hradská 467, Bratislava, CZ",
                     "E9611073439",
                     "00420613850765",
@@ -116,37 +116,67 @@ public class Configurator {
             userService.createUser(masseur);
 
             HostDO host1 = new HostDO(
-                    "Lukas",
-                    "Hostovic",
+                    "Lukáš",
+                    "Hostovič",
                     LocalDate.of(2002, Month.JUNE, 20),
-                    "Hostova 4, Brno, CZ",
-                    "E502415556",
-                    "00420987345656",
-                    "lukas.fit@vut.cz"
+                    "Joštova 4, Brno, CZ",
+                    "P502888123",
+                    "+420999422667",
+                    "lukas@email.cz"
             );
 
             HostDO host2 = new HostDO(
                     "Peter",
-                    "Petrovic",
+                    "Petrovič",
                     LocalDate.of(1992, Month.AUGUST, 12),
-                    "Ceska 39, Praha, CZ",
-                    "E502409856",
-                    "004209854535656",
+                    "Česká 39, Praha, CZ",
+                    "F108809444",
+                    "+420422119766",
                     "peter.petrovic@vut.cz"
             );
             HostDO host3 = new HostDO(
                     "Mária Anna",
                     "Nováková",
-                    LocalDate.of(1992, Month.AUGUST, 12),
-                    "Ceska 39, Praha, CZ",
+                    LocalDate.of(1996, Month.NOVEMBER, 1),
+                    "Malá strana 691, Praha, CZ",
                     "E402409856",
-                    "004209854535656",
+                    "+420123995467",
                     "majena.nov@vut.cz"
+            );
+            HostDO host4 = new HostDO(
+                    "Hermína",
+                    "Záborská",
+                    LocalDate.of(1984, Month.SEPTEMBER, 25),
+                    "Zámocká 32, Nové Zámky, SK",
+                    "R892410857",
+                    "+421566822366",
+                    "zabor@uii.com"
+            );
+            HostDO host5 = new HostDO(
+                    "Karolína",
+                    "Malá",
+                    LocalDate.of(1990, Month.OCTOBER, 8),
+                    "Ku bráne 344, Komárno, SK",
+                    "T896630822",
+                    "+421332822466",
+                    "mala.karolina@mail.sk"
+            );
+            HostDO host6 = new HostDO(
+                    "Sára",
+                    "Steinbecková",
+                    LocalDate.of(1975, Month.JANUARY, 16),
+                    "Gavlovičova, Bratislava, SK",
+                    "B892256777",
+                    "+421444588999",
+                    "steins@gmail.com"
             );
 
             hostService.createHost(host1);
             hostService.createHost(host2);
             hostService.createHost(host3);
+            hostService.createHost(host4);
+            hostService.createHost(host5);
+            hostService.createHost(host6);
 
             RoomCategoryDO cat_s = new RoomCategoryDO(
                     RoomTypeEnum.STANDARD,
@@ -214,7 +244,7 @@ public class Configurator {
                     4,
                     LocalDate.of(2022, Month.FEBRUARY, 26),
                     LocalDate.of(2022, Month.MARCH, 1),
-                    StateEnum.RESERVED,
+                    StateEnum.FINISHED,
                     BoardTypeEnum.FULLBOARD,
                     host1,
                     PaymentTypeEnum.CARD,
@@ -223,49 +253,46 @@ public class Configurator {
             );
             StayDO stay2 = new StayDO(
                     2,
-                    LocalDate.of(2022, Month.MARCH, 22),
-                    LocalDate.of(2022, Month.MARCH, 23),
+                    LocalDate.of(2022, Month.APRIL, 22),
+                    LocalDate.of(2022, Month.APRIL, 23),
                     StateEnum.CANCELED,
                     BoardTypeEnum.HALFBOARD,
                     host2,
                     PaymentTypeEnum.CASH,
                     List.of(room3)
             );
-            StayDO stay5 = new StayDO(
-                    2,
-                    LocalDate.of(2022, Month.MARCH, 20),
-                    LocalDate.of(2022, Month.MARCH, 23),
+            StayDO stay3 = new StayDO(
+                    4,
+                    LocalDate.of(2022, Month.APRIL, 26),
+                    LocalDate.of(2022, Month.MAY, 7),
                     StateEnum.ACTIVE,
                     BoardTypeEnum.FULLBOARD,
                     host3,
-                    PaymentTypeEnum.CASH,
-                    List.of(room4)
+                    PaymentTypeEnum.CARD,
+                    List.of(room4),
+                    List.of(host3, host4)
             );
             StayDO stay4 = new StayDO(
                     2,
-                    LocalDate.of(2022, Month.MARCH, 16),
-                    LocalDate.of(2022, Month.MARCH, 23),
+                    LocalDate.of(2022, Month.APRIL, 16),
+                    LocalDate.of(2022, Month.MAY, 23),
                     StateEnum.ACTIVE,
                     BoardTypeEnum.HALFBOARD,
-                    host3,
+                    host5,
                     PaymentTypeEnum.CASH,
                     List.of(room5)
             );
-            stayRepository.saveAll(List.of(stay, stay2,stay5,stay4));
-
-            StayDTO stay3 = new StayDTO(
-                    4,
-                    LocalDate.of(2022, Month.FEBRUARY, 26),
-                    LocalDate.of(2022, Month.MARCH, 1),
+            StayDO stay5 = new StayDO(
+                    2,
+                    LocalDate.of(2022, Month.MAY, 20),
+                    LocalDate.of(2022, Month.MAY, 23),
                     StateEnum.RESERVED,
                     BoardTypeEnum.FULLBOARD,
-                    host1.getId(),
-                    PaymentTypeEnum.CARD,
-                    List.of(room4.getId()),
-                    List.of(host1.getId())
+                    host6,
+                    PaymentTypeEnum.CASH,
+                    List.of(room4)
             );
-
-            stayService.createStayWithSimple(stay3);
+            stayRepository.saveAll(List.of(stay, stay2, stay3, stay4, stay5));
 
             RoleDO roleUser = roleService.saveRole(new RoleDO("ROLE_USER"));
             RoleDO roleAdmin = roleService.saveRole(new RoleDO("ROLE_ADMIN"));
@@ -282,38 +309,60 @@ public class Configurator {
             roleService.addRoleToUser(6L, "ROLE_MASSEUR");
 
             ServiceDO service1 = new ServiceDO(
-                    LocalDateTime.of(2022, Month.FEBRUARY, 27, 14, 30),
-                    LocalDateTime.of(2022, Month.FEBRUARY, 27, 15, 30),
-                    ServiceTypeEnum.BOWLING,
-                    PaymentTypeEnum.CARD,
-                    1,
-                    StateEnum.RESERVED,
+                    LocalDateTime.of(2022, Month.FEBRUARY, 28, 14, 23),
+                    LocalDateTime.of(2022, Month.FEBRUARY, 28, 15, 30),
+                    ServiceTypeEnum.MASSAGE,
+                    PaymentTypeEnum.CASH,
+                    null,
+                    StateEnum.FINISHED,
                     stay
             );
 
-            ServiceDTO serviceDTO2 = new ServiceDTO(
-                    LocalDateTime.of(2022, Month.MARCH, 22, 14, 23),
-                    LocalDateTime.of(2022, Month.MARCH, 22, 15, 30),
+            ServiceDO service2 = new ServiceDO(
+                    LocalDateTime.of(2022, Month.MAY, 4, 14, 23),
+                    LocalDateTime.of(2022, Month.MAY, 4, 15, 30),
                     ServiceTypeEnum.MASSAGE,
                     PaymentTypeEnum.CASH,
                     null,
                     StateEnum.RESERVED,
-                    2L
+                    stay3
             );
 
-            ServiceDO service2 = new ServiceDO(
-                    LocalDateTime.of(2022, Month.FEBRUARY, 27, 14, 30),
-                    LocalDateTime.of(2022, Month.FEBRUARY, 27, 15, 30),
+            ServiceDO service3 = new ServiceDO(
+                    LocalDateTime.of(2022, Month.MAY, 6, 20, 0),
+                    LocalDateTime.of(2022, Month.MAY, 6, 22, 30),
                     ServiceTypeEnum.BOWLING,
                     PaymentTypeEnum.CARD,
                     1,
                     StateEnum.RESERVED,
-                    stay
+                    stay3
+            );
+
+            ServiceDO service4 = new ServiceDO(
+                    LocalDateTime.of(2022, Month.MAY, 8, 14, 30),
+                    LocalDateTime.of(2022, Month.MAY, 8, 15, 30),
+                    ServiceTypeEnum.BOWLING,
+                    PaymentTypeEnum.CARD,
+                    1,
+                    StateEnum.RESERVED,
+                    stay4
+            );
+
+            ServiceDO service5 = new ServiceDO(
+                    LocalDateTime.of(2022, Month.MAY, 9, 20, 0),
+                    LocalDateTime.of(2022, Month.MAY, 9, 21, 0),
+                    ServiceTypeEnum.MASSAGE,
+                    PaymentTypeEnum.CARD,
+                    null,
+                    StateEnum.RESERVED,
+                    stay4
             );
 
             stayService.createService(service1);
             stayService.createService(service2);
-            stayService.createAndAssignService(serviceDTO2);
+            stayService.createService(service3);
+            stayService.createService(service4);
+            stayService.createService(service5);
         };
     }
 }
